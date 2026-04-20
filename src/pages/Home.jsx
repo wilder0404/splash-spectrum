@@ -4,7 +4,7 @@ import HeroSection from '../components/splash/HeroSection';
 import PaintDrips from '../components/splash/PaintDrips';
 import ExperiencesSection from '../components/splash/ExperiencesSection';
 import VibeSelector from '../components/splash/VibeSelector';
-import BuildYourSession from '../components/splash/BuildYourSession';
+import PaintStatsSection from '../components/splash/PaintStatsSection';
 import GallerySection from '../components/splash/GallerySection';
 import WhySection from '../components/splash/WhySection';
 import ReactionsSection from '../components/splash/ReactionsSection';
@@ -22,7 +22,7 @@ export default function Home() {
       <ExperiencesSection />
       <PaintDrips />
       <VibeSelector />
-      <BuildYourSession />
+      <PaintStatsSection />
       <GallerySection />
       <PaintDrips />
       <WhySection />
