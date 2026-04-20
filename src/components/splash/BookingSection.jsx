@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Users, Clock, Palette } from 'lucide-react';
+import { Calendar, Users, Clock, Palette, CheckCircle } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,13 +25,11 @@ export default function BookingSection() {
     email: '',
     phone: '',
   });
+  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // For now, this is a placeholder. In production, integrate with BookWhen or similar.
-    const message = `Hi! I'd like to book a ${form.experience} on ${form.date} at ${form.time} for ${form.people} people. My name is ${form.name}.`;
-    const encoded = encodeURIComponent(message);
-    window.open(`https://wa.me/?text=${encoded}`, '_blank');
+    setSubmitted(true);
   };
 
   return (
@@ -57,6 +55,39 @@ export default function BookingSection() {
             Reserve your spot and get ready for the most colorful time of your life.
           </p>
         </motion.div>
+
+        {submitted ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white/[0.03] backdrop-blur-sm border border-white/5 rounded-3xl p-8 md:p-12 text-center"
+          >
+            <div className="text-6xl mb-5">🎉</div>
+            <h3 className="font-heading font-black text-white text-2xl md:text-3xl mb-3">Booking Confirmed!</h3>
+            <p className="font-body text-white/60 mb-6 leading-relaxed">
+              Your <span className="text-white">{form.experience}</span> is locked in for <span className="text-white">{form.date}</span> at <span className="text-white">{form.time}</span>. We can't wait to see you get messy!
+            </p>
+            <div className="bg-electric-cyan/5 border border-electric-cyan/20 rounded-2xl p-5 text-left max-w-sm mx-auto mb-6">
+              <p className="text-electric-cyan font-heading font-bold text-sm mb-2">⏰ Before you arrive</p>
+              <p className="text-white/60 text-sm font-body leading-relaxed">
+                Please be at the studio <strong className="text-white">at least 10 minutes before</strong> your session starts. Wear clothes you don't mind getting paint on — or we've got you covered with aprons!
+              </p>
+            </div>
+            <div className="bg-neon-pink/5 border border-neon-pink/10 rounded-2xl p-4 text-left max-w-sm mx-auto mb-8">
+              <p className="text-white/50 text-xs font-body space-y-1">
+                <span className="block">📅 {form.date} at {form.time}</span>
+                <span className="block">👥 {form.people} {Number(form.people) === 1 ? 'person' : 'people'}</span>
+                <span className="block">👤 {form.name} · {form.email}</span>
+              </p>
+            </div>
+            <button
+              onClick={() => setSubmitted(false)}
+              className="text-white/30 hover:text-white/60 text-sm font-body transition-colors"
+            >
+              Make another booking
+            </button>
+          </motion.div>
+        ) : (
 
         <motion.form
           initial={{ opacity: 0, y: 20 }}
@@ -167,9 +198,10 @@ export default function BookingSection() {
             🎨 Confirm Booking
           </Button>
           <p className="text-center text-white/30 text-xs font-body">
-            You'll receive a confirmation via WhatsApp within 24 hours
+            Free cancellation up to 24 hours before your session
           </p>
         </motion.form>
+        )}
       </div>
     </section>
   );

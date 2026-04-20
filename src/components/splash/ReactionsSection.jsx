@@ -2,12 +2,12 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const reactions = [
-  { text: '"This was SO fun!!"', emoji: '🔥', color: '#FF007F', delay: 0 },
-  { text: '"Best birthday EVER"', emoji: '🎉', color: '#9D00FF', delay: 0.2 },
-  { text: '"I didn\'t want to leave"', emoji: '😍', color: '#00F3FF', delay: 0.4 },
-  { text: '"My kids are OBSESSED"', emoji: '✨', color: '#39FF14', delay: 0.6 },
-  { text: '"Literally the best date night"', emoji: '❤️', color: '#FF007F', delay: 0.8 },
-  { text: '"We\'re booking again next week"', emoji: '🎨', color: '#9D00FF', delay: 1.0 },
+  { text: 'omg i went with my sister and we literally couldn\'t stop laughing the whole time 😭 we were COVERED', name: 'Jess M.', emoji: '😭', color: '#FF007F', delay: 0 },
+  { text: 'honestly wasn\'t sure what to expect but it was so much better than i thought. the UV lights make everything look insane', name: 'Khalil R.', emoji: '🔥', color: '#9D00FF', delay: 0.15 },
+  { text: 'took my 7yo for her birthday and she\'s been talking about it every single day since. she wants to go back already lol', name: 'Sarah T.', emoji: '🎉', color: '#39FF14', delay: 0.3 },
+  { text: 'we did the group session for my bday and ngl it was top 3 nights of my life. no notes', name: 'Zara K.', emoji: '🤩', color: '#00F3FF', delay: 0.45 },
+  { text: 'the paint smells fine and washes off easily, was worried about that. also the staff are really chill', name: 'Marcus D.', emoji: '👌', color: '#FF007F', delay: 0.6 },
+  { text: 'my canvas is hanging in my living room now and people keep asking where i bought it lmaooo', name: 'Priya N.', emoji: '🎨', color: '#9D00FF', delay: 0.75 },
 ];
 
 const floatingEmojis = ['❤️', '✨', '🔥', '🎨', '💜', '💚', '💗', '🌟'];
@@ -64,12 +64,15 @@ export default function ReactionsSection() {
               whileHover={{ scale: 1.05, rotate: i % 2 === 0 ? 1 : -1 }}
               className="relative bg-white/[0.04] backdrop-blur-sm border border-white/5 rounded-2xl p-6 text-center"
             >
-              <span className="text-4xl mb-4 block">{reaction.emoji}</span>
-              <p className="font-heading font-bold text-white text-lg"
-                style={{ textShadow: `0 0 20px ${reaction.color}55` }}>
+              <span className="text-3xl mb-3 block">{reaction.emoji}</span>
+              <p className="font-body text-white/80 text-sm leading-relaxed mb-3">
                 {reaction.text}
               </p>
-              <div className="mt-3 w-8 h-0.5 mx-auto rounded-full" style={{ backgroundColor: reaction.color }} />
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-4 h-0.5 rounded-full" style={{ backgroundColor: reaction.color }} />
+                <span className="font-heading font-semibold text-xs" style={{ color: reaction.color }}>{reaction.name}</span>
+                <div className="w-4 h-0.5 rounded-full" style={{ backgroundColor: reaction.color }} />
+              </div>
             </motion.div>
           ))}
         </div>

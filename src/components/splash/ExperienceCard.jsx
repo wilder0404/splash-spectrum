@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+
+const titleToSlug = (title) => title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
 export default function ExperienceCard({ title, description, image, icon, color, delay = 0 }) {
   const [hovered, setHovered] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <motion.div
@@ -41,10 +45,12 @@ export default function ExperienceCard({ title, description, image, icon, color,
             animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 10 }}
             className="mt-3"
           >
-            <span className="inline-block px-5 py-2 rounded-full text-white text-sm font-heading font-semibold"
+            <button
+              onClick={() => navigate(`/experience?id=${titleToSlug(title)}`)}
+              className="inline-block px-5 py-2 rounded-full text-white text-sm font-heading font-semibold transition-transform hover:scale-105"
               style={{ backgroundColor: color }}>
               Learn More →
-            </span>
+            </button>
           </motion.div>
         </div>
       </div>

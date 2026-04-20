@@ -3,9 +3,9 @@ import { motion } from 'framer-motion';
 import { Slider } from '@/components/ui/slider';
 
 const vibes = [
-  { label: 'Sonic Energy', left: '🎵 Chill Lo-Fi', right: 'High-Octane Bass 🔊', color: '#FF007F' },
-  { label: 'Chroma Mood', left: '🌸 Pastel Dream', right: 'UV Explosion 💥', color: '#9D00FF' },
-  { label: 'Intensity', left: '🧘 Zen Flow', right: 'Splatter War 💣', color: '#00F3FF' },
+  { label: 'Session Length', left: '⏱️ Quick (60 min)', right: 'Extended (3 hrs) 🕐', color: '#FF007F' },
+  { label: 'Energy Level', left: '🧘 Chill & Relaxed', right: 'Full Chaos Mode 💥', color: '#9D00FF' },
+  { label: 'Age Group', left: '🧸 Kids (under 12)', right: 'Adults Night 🍹', color: '#00F3FF' },
 ];
 
 export default function VibeSelector() {
@@ -85,9 +85,9 @@ export default function VibeSelector() {
           className="text-center mt-12"
         >
           <p className="text-white/30 font-body text-sm mb-4">
-            {avgVibe < 30 ? '🧘 Zen & Peaceful — perfect for a relaxing session' :
-             avgVibe < 60 ? '🎨 Balanced Vibes — creative flow awaits' :
-             '🔥 FULL SEND — maximum energy, maximum paint!'}
+            {avgVibe < 30 ? '🧸 Short, chill kids session — perfect for little ones' :
+             avgVibe < 60 ? '🎨 Balanced session — creative flow for all ages' :
+             '🔥 Extended adult chaos mode — maximum energy, maximum paint!'}
           </p>
           <a href="#booking"
             onClick={(e) => { e.preventDefault(); document.querySelector('#booking')?.scrollIntoView({ behavior: 'smooth' }); }}
