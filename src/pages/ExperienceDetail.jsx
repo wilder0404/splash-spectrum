@@ -21,7 +21,7 @@ const EVENTS_IMG = "https://media.base44.com/images/public/user_69d7790ceb26c9be
 const GALLERY1 = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/64a9b5ac5_image.png";
 const GALLERY2 = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/a9569b78f_image.png";
 const GALLERY3 = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/6c3b5dcdf_image.png";
-const PHONE_CASE_IMG = "https://media.base44.com/images/public/69e5ef89828747441c931879/1f8c3a69b_image.png";
+const PHONE_CASE_IMG = "https://media.base44.com/images/public/69e5ef89828747441c931879/1e4b2becc_image.png";
 // Figurine product photos
 const FIG_BUNNY = "https://media.base44.com/images/public/69e5ef89828747441c931879/418062ae7_image.png";
 const FIG_KITTY = "https://media.base44.com/images/public/69e5ef89828747441c931879/174b825da_image.png";
@@ -37,7 +37,7 @@ const EXPERIENCES_EN = {
   'open-paint-sessions': {
     title: 'Open Paint Sessions',
     tagline: 'No rules. Just paint.',
-    description: 'Walk in, pick your colors, and let loose. Under UV lights, every splash becomes a masterpiece. Open sessions are perfect if you just want to show up and have fun — no pressure, just pure creative chaos. Available with regular lighting (afternoon) and neon UV lighting (from 7 PM until closing).',
+    description: 'Walk in, pick your colors, and let loose. Under UV lights, every splash becomes a masterpiece. Open sessions are perfect if you just want to show up and have fun, no pressure, just pure creative chaos. Available with regular lighting (afternoon) and neon UV lighting (from 7 PM until closing).',
     image: OPEN_PAINT_IMG,
     extraImages: [GALLERY1, GALLERY2, GALLERY3],
     icon: '🎨', color: '#FF007F',
@@ -57,7 +57,7 @@ const EXPERIENCES_EN = {
       'Available in afternoon (regular light) or evening neon UV lighting (from 7 PM)',
     ],
     rules: [
-      'All ages welcome — preferably from 3 years and above.',
+      'All ages welcome, preferably from 3 years and above.',
       'Children under 16 must be accompanied by a trusted adult at all times.',
       'Any additional guardian beyond one requires a paid entry.',
       'Wear clothes you do not mind getting paint on, or use our aprons.',
@@ -70,7 +70,7 @@ const EXPERIENCES_EN = {
   'birthday-experiences': {
     title: 'Birthday Experiences',
     tagline: 'The most colorful birthday ever.',
-    description: 'Forget boring dinner reservations. Celebrate your birthday with a full-on paint party — UV lights, your crew, birthday music, and neon color everywhere. We set everything up so you just have to show up and have the best time of your year. Sessions run 1.5 hours (one service) or 2 hours (two services). Neon UV lighting: 7 PM – 11 PM. Regular lighting: 3 PM – 6:30 PM.',
+    description: 'Forget boring dinner reservations. Celebrate your birthday with a full-on paint party, UV lights, your crew, birthday music, and neon color everywhere. We set everything up so you just have to show up and have the best time of your year. Sessions run 1.5 hours (one service) or 2 hours (two services). Neon UV lighting: 7 PM to 11 PM. Regular lighting: 3 PM to 6:30 PM.',
     image: BIRTHDAY_PHOTO,
     extraImages: [BDAY_PACK_BOX, NEON_SESSION],
     icon: '🎉', color: '#9D00FF',
@@ -94,7 +94,7 @@ const EXPERIENCES_EN = {
       'Birthday cake available as add-on (+100 SAR)',
     ],
     rules: [
-      'All ages welcome — preferably from 3 years and above.',
+      'All ages welcome, preferably from 3 years and above.',
       'Children under 16 must be accompanied by a trusted adult at all times.',
       'Booking is done exclusively via WhatsApp.',
       'Food is NOT provided by Splash Spectrum (except cakes in Big Birthday Pack).',
@@ -109,7 +109,7 @@ const EXPERIENCES_EN = {
   'graduation': {
     title: 'Graduation Celebrations',
     tagline: 'Mark your milestone in color.',
-    description: 'You made it — celebrate in the most unforgettable way. A graduation paint experience at Splash Spectrum is a vibrant, energetic event that your whole group will talk about for years. We will do everything we can to make your space private and special. Food is NOT provided — but groups of 20–25+ are welcome to bring their own.',
+    description: 'You made it, celebrate in the most unforgettable way. A graduation paint experience at Splash Spectrum is a vibrant, energetic event that your whole group will talk about for years. We will do everything we can to make your space private and special. Food is NOT provided, but groups of 20 to 25+ are welcome to bring their own.',
     image: BIRTHDAY_PHOTO,
     extraImages: [GROUP_IMG],
     icon: '🎓', color: '#00F3FF',
@@ -124,11 +124,11 @@ const EXPERIENCES_EN = {
       'Graduation badge/add-ons available upon request',
     ],
     rules: [
-      'All ages welcome — preferably from 3 years and above.',
+      'All ages welcome, preferably from 3 years and above.',
       'Children under 16 must be accompanied by a trusted adult at all times.',
       'Booking is done exclusively via WhatsApp.',
       'Food is NOT provided by Splash Spectrum.',
-      'Groups of 20–25 people or more are welcome to bring their own food.',
+      'Groups of 20 to 25 people or more are welcome to bring their own food.',
       'We will do our utmost to make the space as private as possible for your group.',
       'Please arrive 10 minutes before your session.',
       'Wear clothes you do not mind getting paint on.',
@@ -140,7 +140,7 @@ const EXPERIENCES_EN = {
   'group-friends': {
     title: 'Group & Friends',
     tagline: 'Bring your crew. Leave with memories.',
-    description: 'There is no better bonding activity than getting covered in fluorescent paint together. Group sessions are high-energy, loud, and incredibly fun. Whether it\'s a friend group, a date night squad, or a casual gathering — this is the move. Guided by our team, every technique from Splash to Spin to Pour is open to you.',
+    description: 'There is no better bonding activity than getting covered in fluorescent paint together. Group sessions are high-energy, loud, and incredibly fun. Whether it\'s a friend group, a date night squad, or a casual gathering, this is the move. Guided by our team, every technique from Splash to Spin to Pour is open to you.',
     image: GROUP_IMG,
     extraImages: [GALLERY1, EVENTS_IMG],
     icon: '👯', color: '#00F3FF',
@@ -160,7 +160,7 @@ const EXPERIENCES_EN = {
       'Available in regular or UV neon lighting',
     ],
     rules: [
-      'All ages welcome — preferably from 3 years and above.',
+      'All ages welcome, preferably from 3 years and above.',
       'Children under 16 must be accompanied by a trusted adult at all times.',
       'Please arrive 10 minutes early.',
       'Wear clothes you do not mind getting paint on.',
@@ -210,7 +210,7 @@ const EXPERIENCES_EN = {
   'custom-art-figurines': {
     title: 'Custom Art & Figurines',
     tagline: 'Paint something you\'ll keep forever.',
-    description: 'Move beyond canvas. Choose from a stunning range of 3D figurines — bears, Hello Kitty, elephants, princesses, Pikachu and more — then pour UV paint over them under neon lights. The paint flows and drips creating a one-of-a-kind glowing masterpiece that you take home. It\'s precise, personal, and mesmerizing to watch come to life.',
+    description: 'Move beyond canvas. Choose from a stunning range of 3D figurines, bears, Hello Kitty, elephants, princesses, Pikachu and more, then pour UV paint over them under neon lights. The paint flows and drips creating a one-of-a-kind glowing masterpiece that you take home. It\'s precise, personal, and mesmerizing to watch come to life.',
     image: "https://media.base44.com/images/public/69e5ef89828747441c931879/bdceac480_generated_65a48237.png",
     extraImages: [FIG_BEAR_PLAIN, FIG_BEARBRICK, FIG_BUNNY],
     icon: '🎁', color: '#FF007F',
@@ -234,7 +234,7 @@ const EXPERIENCES_EN = {
       'Take-home box for your masterpiece',
     ],
     rules: [
-      'All ages welcome — preferably from 3 years and above.',
+      'All ages welcome, preferably from 3 years and above.',
       'Children under 16 must be accompanied by a trusted adult.',
       'No prior art experience needed.',
       'Please arrive 10 minutes before.',
@@ -262,7 +262,7 @@ const EXPERIENCES_EN = {
       'Ready-to-use custom case to take home',
     ],
     rules: [
-      'All ages welcome — preferably from 3 years and above.',
+      'All ages welcome, preferably from 3 years and above.',
       'Children under 16 must be accompanied by a trusted adult.',
       'No prior art experience needed.',
       'Please arrive 10 minutes before.',
@@ -275,7 +275,7 @@ const EXPERIENCES_EN = {
   'special-events': {
     title: 'Special Events',
     tagline: 'We build the experience around you.',
-    description: 'From corporate team days to brand activations, to anniversary surprises — we craft fully custom immersive paint events for any occasion. Our experienced instructors guide your group through Splash, Spin, Swing and Pour techniques. We can host at our Riyadh studio or bring the experience to your office.',
+    description: 'From corporate team days to brand activations, to anniversary surprises, we craft fully custom immersive paint events for any occasion. Our experienced instructors guide your group through Splash, Spin, Swing and Pour techniques. We can host at our Riyadh studio or bring the experience to your office.',
     image: EVENTS_IMG,
     extraImages: [GROUP_IMG, GALLERY1],
     icon: '🤍', color: '#9D00FF',
@@ -291,7 +291,7 @@ const EXPERIENCES_EN = {
       'Group canvas or individual artwork',
     ],
     rules: [
-      'All ages welcome — preferably from 3 years and above.',
+      'All ages welcome, preferably from 3 years and above.',
       'Children under 16 must be accompanied by a trusted adult.',
       'Contact us in advance to plan your event.',
       'Minimum group size: 10 people.',
@@ -307,7 +307,7 @@ const EXPERIENCES_AR = {
   'open-paint-sessions': {
     title: 'جلسات الرسم الحرة',
     tagline: 'لا قواعد. فقط ألوان.',
-    description: 'ادخل، اختر ألوانك، وانطلق. تحت أضواء الفلورسنت كل رشة تصبح لوحة فنية. الجلسات الحرة مثالية إذا أردت فقط الاستمتاع — لا ضغط، فقط فوضى إبداعية خالصة. متوفرة بإضاءة عادية (فترة العصر) وإضاءة نيون UV (من الساعة 7 مساءً حتى الإغلاق).',
+    description: 'ادخل، اختر ألوانك، وانطلق. تحت أضواء الفلورسنت كل رشة تصبح لوحة فنية. الجلسات الحرة مثالية إذا أردت فقط الاستمتاع، لا ضغط، فقط فوضى إبداعية خالصة. متوفرة بإضاءة عادية (فترة العصر) وإضاءة نيون UV (من الساعة 7 مساءً حتى الإغلاق).',
     image: OPEN_PAINT_IMG,
     extraImages: [GALLERY1, GALLERY2, GALLERY3],
     icon: '🎨', color: '#FF007F',
@@ -327,7 +327,7 @@ const EXPERIENCES_AR = {
       'متاحة بإضاءة عادية (العصر) أو إضاءة نيون (من 7م)',
     ],
     rules: [
-      'جميع الأعمار مرحب بها — ويُفضل من سن 3 سنوات فأكثر.',
+      'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
       'يجب أن يرافق الأطفال دون 16 سنة شخص بالغ موثوق في جميع الأوقات.',
       'أي مرافق إضافي يتطلب رسوم دخول.',
       'ارتدِ ملابس لا تمانع تلطيخها، أو استخدم مريلتنا.',
@@ -340,7 +340,7 @@ const EXPERIENCES_AR = {
   'birthday-experiences': {
     title: 'تجارب أعياد الميلاد',
     tagline: 'أجمل عيد ميلاد في حياتك.',
-    description: 'انسَ حجوزات العشاء المملة. احتفل بعيد ميلادك بحفلة رسم كاملة — أضواء UV، مجموعتك، موسيقى عيد الميلاد، وألوان نيون في كل مكان. نحن نجهز كل شيء، ما عليك إلا الحضور والاستمتاع. الجلسة ساعة ونصف (خدمة واحدة) أو ساعتين (خدمتان). النيون: 7م–11م. الإضاءة العادية: 3م–6:30م.',
+    description: 'انسَ حجوزات العشاء المملة. احتفل بعيد ميلادك بحفلة رسم كاملة، أضواء UV، مجموعتك، موسيقى عيد الميلاد، وألوان نيون في كل مكان. نحن نجهز كل شيء، ما عليك إلا الحضور والاستمتاع. الجلسة ساعة ونصف (خدمة واحدة) أو ساعتين (خدمتان). النيون: 7م إلى 11م. الإضاءة العادية: 3م إلى 6:30م.',
     image: BIRTHDAY_PHOTO,
     extraImages: [BDAY_PACK_BOX, NEON_SESSION],
     icon: '🎉', color: '#9D00FF',
@@ -364,7 +364,7 @@ const EXPERIENCES_AR = {
       'كعكة عيد الميلاد متاحة كإضافة (+100 ريال)',
     ],
     rules: [
-      'جميع الأعمار مرحب بها — ويُفضل من سن 3 سنوات فأكثر.',
+      'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
       'يجب أن يرافق الأطفال دون 16 سنة شخص بالغ موثوق في جميع الأوقات.',
       'الحجز يتم حصرياً عبر واتساب.',
       'الطعام غير مقدم (الكيك مسموح في باقة عيد الميلاد الكبيرة).',
@@ -379,7 +379,7 @@ const EXPERIENCES_AR = {
   'graduation': {
     title: 'احتفالات التخرج',
     tagline: 'احتفل بإنجازك بالألوان.',
-    description: 'لقد نجحت — احتفل بأكثر الطرق لا تُنسى. تجربة رسم التخرج في سبلاش سبيكتروم هي حدث نابض بالحياة ومليء بالطاقة ستتحدث عنه مجموعتك لسنوات. الطعام غير مقدم — لكن المجموعات من 20–25 شخصاً فأكثر يمكنها إحضار طعامها الخاص.',
+    description: 'لقد نجحت، احتفل بأكثر الطرق لا تُنسى. تجربة رسم التخرج في سبلاش سبيكتروم هي حدث نابض بالحياة ومليء بالطاقة ستتحدث عنه مجموعتك لسنوات. الطعام غير مقدم، لكن المجموعات من 20 إلى 25 شخصاً فأكثر يمكنها إحضار طعامها الخاص.',
     image: BIRTHDAY_PHOTO,
     extraImages: [GROUP_IMG],
     icon: '🎓', color: '#00F3FF',
@@ -394,11 +394,11 @@ const EXPERIENCES_AR = {
       'إضافات خاصة بالتخرج متاحة عند الطلب',
     ],
     rules: [
-      'جميع الأعمار مرحب بها — ويُفضل من سن 3 سنوات فأكثر.',
+      'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
       'يجب أن يرافق الأطفال دون 16 سنة شخص بالغ موثوق في جميع الأوقات.',
       'الحجز يتم حصرياً عبر واتساب.',
       'الطعام غير مقدم من سبلاش سبيكتروم.',
-      'المجموعات من 20–25 شخصاً فأكثر يمكنها إحضار طعامها الخاص.',
+      'المجموعات من 20 إلى 25 شخصاً فأكثر يمكنها إحضار طعامها الخاص.',
       'يُرجى الحضور قبل 10 دقائق.',
       'ارتدِ ملابس لا تمانع تلطيخها.',
     ],
@@ -429,7 +429,7 @@ const EXPERIENCES_AR = {
       'متاحة بإضاءة عادية أو نيون UV',
     ],
     rules: [
-      'جميع الأعمار مرحب بها — ويُفضل من سن 3 سنوات فأكثر.',
+      'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
       'يجب أن يرافق الأطفال دون 16 سنة شخص بالغ موثوق.',
       'يُرجى الحضور قبل 10 دقائق.',
       'ارتدِ ملابس لا تمانع تلطيخها.',
@@ -479,7 +479,7 @@ const EXPERIENCES_AR = {
   'custom-art-figurines': {
     title: 'الفن المخصص والمجسمات',
     tagline: 'ارسم شيئاً ستحتفظ به إلى الأبد.',
-    description: 'تجاوز اللوحة العادية. اختر من مجموعة رائعة من المجسمات — دب، هيلو كيتي، فيل، أميرة، بيكاتشو والمزيد — ثم اسكب ألوان UV عليها تحت الأضواء النيون. يتدفق الطلاء وينسكب ليخلق قطعة فنية متوهجة فريدة من نوعها تأخذها للمنزل.',
+    description: 'تجاوز اللوحة العادية. اختر من مجموعة رائعة من المجسمات، دب، هيلو كيتي، فيل، أميرة، بيكاتشو والمزيد، ثم اسكب ألوان UV عليها تحت الأضواء النيون. يتدفق الطلاء وينسكب ليخلق قطعة فنية متوهجة فريدة من نوعها تأخذها للمنزل.',
     image: "https://media.base44.com/images/public/69e5ef89828747441c931879/bdceac480_generated_65a48237.png",
     extraImages: [FIG_BEAR_PLAIN, FIG_BEARBRICK, FIG_BUNNY],
     icon: '🎁', color: '#FF007F',
@@ -503,7 +503,7 @@ const EXPERIENCES_AR = {
       'صندوق لحمل تحفتك الفنية للمنزل',
     ],
     rules: [
-      'جميع الأعمار مرحب بها — ويُفضل من سن 3 سنوات فأكثر.',
+      'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
       'يجب أن يرافق الأطفال دون 16 سنة شخص بالغ موثوق.',
       'لا تحتاج لأي خبرة فنية مسبقة.',
       'يُرجى الحضور قبل 10 دقائق.',
@@ -531,7 +531,7 @@ const EXPERIENCES_AR = {
       'كفر جاهز للاستخدام تأخذه للبيت',
     ],
     rules: [
-      'جميع الأعمار مرحب بها — ويُفضل من سن 3 سنوات فأكثر.',
+      'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
       'يجب أن يرافق الأطفال دون 16 سنة شخص بالغ موثوق.',
       'لا تحتاج لأي خبرة فنية مسبقة.',
       'يُرجى الحضور قبل 10 دقائق.',
@@ -544,7 +544,7 @@ const EXPERIENCES_AR = {
   'special-events': {
     title: 'الفعاليات الخاصة',
     tagline: 'نبني التجربة حول احتياجاتك.',
-    description: 'من أيام فريق الشركات إلى تفعيل العلامات التجارية، إلى مفاجآت الذكرى السنوية — نصمم فعاليات رسم غامرة مخصصة لأي مناسبة. يمكننا الاستضافة في استوديونا بالرياض أو إحضار التجربة إلى مقر شركتك.',
+    description: 'من أيام فريق الشركات إلى تفعيل العلامات التجارية، إلى مفاجآت الذكرى السنوية، نصمم فعاليات رسم غامرة مخصصة لأي مناسبة. يمكننا الاستضافة في استوديونا بالرياض أو إحضار التجربة إلى مقر شركتك.',
     image: EVENTS_IMG,
     extraImages: [GROUP_IMG, GALLERY1],
     icon: '🤍', color: '#9D00FF',
@@ -560,7 +560,7 @@ const EXPERIENCES_AR = {
       'لوحة جماعية أو أعمال فردية',
     ],
     rules: [
-      'جميع الأعمار مرحب بها — ويُفضل من سن 3 سنوات فأكثر.',
+      'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
       'يجب أن يرافق الأطفال دون 16 سنة شخص بالغ موثوق.',
       'تواصل معنا مسبقاً لتخطيط فعاليتك.',
       'الحد الأدنى لحجم المجموعة: 10 أشخاص.',
