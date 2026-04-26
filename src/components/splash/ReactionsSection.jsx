@@ -1,38 +1,41 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useLang } from '@/lib/LanguageContext';
+import { tr } from '@/lib/translations.js';
 
-const reactions = [
-  { text: 'omg i went with my sister and we literally couldn\'t stop laughing the whole time 😭 we were COVERED', name: 'Jess M.', emoji: '😭', color: '#FF007F', delay: 0 },
-  { text: 'honestly wasn\'t sure what to expect but it was so much better than i thought. the UV lights make everything look insane', name: 'Khalil R.', emoji: '🔥', color: '#9D00FF', delay: 0.15 },
-  { text: 'took my 7yo for her birthday and she\'s been talking about it every single day since. she wants to go back already lol', name: 'Sarah T.', emoji: '🎉', color: '#39FF14', delay: 0.3 },
-  { text: 'we did the group session for my bday and ngl it was top 3 nights of my life. no notes', name: 'Zara K.', emoji: '🤩', color: '#00F3FF', delay: 0.45 },
-  { text: 'the paint smells fine and washes off easily, was worried about that. also the staff are really chill', name: 'Marcus D.', emoji: '👌', color: '#FF007F', delay: 0.6 },
-  { text: 'my canvas is hanging in my living room now and people keep asking where i bought it lmaooo', name: 'Priya N.', emoji: '🎨', color: '#9D00FF', delay: 0.75 },
+const reactionsEn = [
+  { text: "omg i went with my sister and we literally couldn't stop laughing the whole time 😭 we were COVERED", name: 'Jess M.', emoji: '😭', color: '#FF007F' },
+  { text: "honestly wasn't sure what to expect but it was so much better than i thought. the UV lights make everything look insane", name: 'Khalil R.', emoji: '🔥', color: '#9D00FF' },
+  { text: "took my 7yo for her birthday and she's been talking about it every single day since. she wants to go back already lol", name: 'Sarah T.', emoji: '🎉', color: '#39FF14' },
+  { text: "we did the group session for my bday and ngl it was top 3 nights of my life. no notes", name: 'Zara K.', emoji: '🤩', color: '#00F3FF' },
+  { text: "the paint smells fine and washes off easily, was worried about that. also the staff are really chill", name: 'Marcus D.', emoji: '👌', color: '#FF007F' },
+  { text: "my canvas is hanging in my living room now and people keep asking where i bought it lmaooo", name: 'Priya N.', emoji: '🎨', color: '#9D00FF' },
+];
+
+const reactionsAr = [
+  { text: 'ذهبت مع أختي وما قدرنا نوقف الضحك طول الوقت 😭 كنا مغطّين بالألوان بالكامل', name: 'جيس م.', emoji: '😭', color: '#FF007F' },
+  { text: 'ما كنت متوقع كثير بس كانت أحسن بكثير مما توقعت. أضواء UV تخلّي كل شيء يبدو مجنون', name: 'خليل ر.', emoji: '🔥', color: '#9D00FF' },
+  { text: 'اخذت طفلتي عيد ميلادها وهي تحكي عنها كل يوم من يومها. تبغى ترجع مرة ثانية 😂', name: 'سارة ت.', emoji: '🎉', color: '#39FF14' },
+  { text: 'عملنا جلسة جماعية ليلة عيد ميلادي وبصراحة كانت من أفضل 3 ليالي في حياتي', name: 'زارا ك.', emoji: '🤩', color: '#00F3FF' },
+  { text: 'الألوان ريحتها كويسة وتنسل بسهولة من الجلد، كنت قلقان على هذا. والطاقم كانوا رهيبين', name: 'ماركس د.', emoji: '👌', color: '#FF007F' },
+  { text: 'لوحتي معلّقة الحين في الصالة وكل الناس يسألون من وين اشتريتها 😂', name: 'بريا ن.', emoji: '🎨', color: '#9D00FF' },
 ];
 
 const floatingEmojis = ['❤️', '✨', '🔥', '🎨', '💜', '💚', '💗', '🌟'];
 
 export default function ReactionsSection() {
+  const { lang } = useLang();
+  const reactions = lang === 'ar' ? reactionsAr : reactionsEn;
+
   return (
     <section className="py-20 md:py-32 px-4 bg-obsidian relative overflow-hidden">
-      {/* Floating emojis */}
       {floatingEmojis.map((emoji, i) => (
         <motion.span
           key={i}
           className="absolute text-2xl pointer-events-none opacity-20"
-          style={{
-            left: `${10 + (i * 12)}%`,
-            top: `${20 + ((i * 17) % 60)}%`,
-          }}
-          animate={{
-            y: [0, -30, 0],
-            rotate: [0, 10, -10, 0],
-          }}
-          transition={{
-            duration: 3 + (i * 0.5),
-            repeat: Infinity,
-            delay: i * 0.4,
-          }}
+          style={{ left: `${10 + (i * 12)}%`, top: `${20 + ((i * 17) % 60)}%` }}
+          animate={{ y: [0, -30, 0], rotate: [0, 10, -10, 0] }}
+          transition={{ duration: 3 + (i * 0.5), repeat: Infinity, delay: i * 0.4 }}
         >
           {emoji}
         </motion.span>
@@ -46,10 +49,10 @@ export default function ReactionsSection() {
           className="text-center mb-16"
         >
           <p className="text-neon-green font-heading font-semibold text-sm uppercase tracking-[0.3em] mb-4 text-glow-green">
-            Real Reactions
+            {tr(lang, 'reactions_badge')}
           </p>
           <h2 className="font-heading font-black text-3xl md:text-5xl text-white">
-            What People <span className="text-neon-pink text-glow-pink">Say</span>
+            {tr(lang, 'reactions_h2_1')} <span className="text-neon-pink text-glow-pink">{tr(lang, 'reactions_h2_2')}</span>
           </h2>
         </motion.div>
 
@@ -65,9 +68,7 @@ export default function ReactionsSection() {
               className="relative bg-white/[0.04] backdrop-blur-sm border border-white/5 rounded-2xl p-6 text-center"
             >
               <span className="text-3xl mb-3 block">{reaction.emoji}</span>
-              <p className="font-body text-white/80 text-sm leading-relaxed mb-3">
-                {reaction.text}
-              </p>
+              <p className="font-body text-white/80 text-sm leading-relaxed mb-3">{reaction.text}</p>
               <div className="flex items-center justify-center gap-2">
                 <div className="w-4 h-0.5 rounded-full" style={{ backgroundColor: reaction.color }} />
                 <span className="font-heading font-semibold text-xs" style={{ color: reaction.color }}>{reaction.name}</span>

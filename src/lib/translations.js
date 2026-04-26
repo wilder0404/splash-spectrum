@@ -39,6 +39,77 @@ const dict = {
     // Experience Card
     learn_more: 'Learn More →',
 
+    // Vibe Selector
+    vibe_badge: 'Personalize It',
+    vibe_h2_1: 'Choose Your',
+    vibe_h2_2: 'Vibe',
+    vibe_sub: 'Slide to match your energy. Every experience is customizable to your mood.',
+    vibe_session_label: 'Session Length',
+    vibe_session_left: '⏱️ Quick (60 min)',
+    vibe_session_right: 'Extended (3 hrs) 🕐',
+    vibe_energy_label: 'Energy Level',
+    vibe_energy_left: '🧘 Chill & Relaxed',
+    vibe_energy_right: 'Full Chaos Mode 💥',
+    vibe_age_label: 'Age Group',
+    vibe_age_left: '🧸 Kids (3+)',
+    vibe_age_right: 'Adults Night 🍹',
+    vibe_rec_low: '🧸 Short, chill kids session — perfect for little ones',
+    vibe_rec_mid: '🎨 Balanced session — creative flow for all ages',
+    vibe_rec_high: '🔥 Extended adult chaos mode — maximum energy, maximum paint!',
+    vibe_cta: 'Book This Vibe',
+
+    // Stats / By the Numbers
+    stats_badge: 'By The Numbers',
+    stats_h2_1: 'The Studio',
+    stats_h2_2: 'in Numbers',
+    stats_splashes: 'Paint Splashes Thrown',
+    stats_return: 'Would Come Back',
+    stats_sessions: 'Sessions Completed',
+    stats_birthdays: 'Birthday Parties Hosted',
+    transform_in_label: 'You Walk In',
+    transform_in_1: 'Stressed from the week',
+    transform_in_2: 'Clean clothes',
+    transform_in_3: 'Quiet & unsure',
+    transform_in_4: 'No idea what to expect',
+    transform_out_label: 'You Walk Out',
+    transform_out_1: 'Laughing & buzzing',
+    transform_out_2: 'Covered in neon paint',
+    transform_out_3: 'New inside joke with your crew',
+    transform_out_4: 'Already planning your next visit',
+
+    // Gallery
+    gallery_badge: 'The Mess Is the Masterpiece',
+    gallery_h2_1: 'Gallery of',
+    gallery_h2_2: 'Chaos',
+
+    // Reactions
+    reactions_badge: 'Real Reactions',
+    reactions_h2_1: 'What People',
+    reactions_h2_2: 'Say',
+
+    // Why Section
+    why_badge: 'Why Splash Spectrum',
+    why_h2_1: 'Just Fun, Freedom &',
+    why_h2_2: 'Memories',
+    why_1_title: 'No Art Skills Required',
+    why_1_desc: "Seriously. If you can throw paint, you're already an artist here.",
+    why_2_title: 'No Rules',
+    why_2_desc: "Splash it, pour it, throw it, drip it. There's no wrong way to create.",
+    why_3_title: 'No Pressure',
+    why_3_desc: "This isn't a class. It's a playground. Just have fun and be yourself.",
+    why_4_title: 'Take It Home',
+    why_4_desc: 'Every session ends with something you made — a canvas, a shirt, a figurine.',
+
+    // Location / Find Us
+    location_badge: 'Find Us',
+    location_h2_1: 'Visit',
+    location_h2_2: 'Splash Spectrum',
+    location_studio: 'Our Studio',
+    location_address: 'Riyadh, Saudi Arabia',
+    location_email: 'Email Us',
+    location_call: 'Call Us',
+    location_faq_title: 'Frequently Asked Questions',
+
     // Booking section
     booking_badge: 'Reserve Your Spot',
     booking_h2_1: 'Book Your',
@@ -134,6 +205,77 @@ const dict = {
 
     // Experience Card
     learn_more: 'اعرف أكثر ←',
+
+    // Vibe Selector
+    vibe_badge: 'خصّص تجربتك',
+    vibe_h2_1: 'اختر',
+    vibe_h2_2: 'أجواءك',
+    vibe_sub: 'حرّك الشريط ليناسب طاقتك. كل تجربة قابلة للتخصيص حسب مزاجك.',
+    vibe_session_label: 'مدة الجلسة',
+    vibe_session_left: '⏱️ سريعة (60 دقيقة)',
+    vibe_session_right: 'ممتدة (3 ساعات) 🕐',
+    vibe_energy_label: 'مستوى الطاقة',
+    vibe_energy_left: '🧘 هادئة ومريحة',
+    vibe_energy_right: 'وضع الفوضى الكاملة 💥',
+    vibe_age_label: 'الفئة العمرية',
+    vibe_age_left: '🧸 أطفال (من 3 سنوات)',
+    vibe_age_right: 'سهرة الكبار 🍹',
+    vibe_rec_low: '🧸 جلسة قصيرة وهادئة للأطفال — مثالية للصغار',
+    vibe_rec_mid: '🎨 جلسة متوازنة — إبداع بسيط لجميع الأعمار',
+    vibe_rec_high: '🔥 وضع الفوضى الكاملة — طاقة قصوى وألوان في كل مكان!',
+    vibe_cta: 'احجز هذه الأجواء',
+
+    // Stats / By the Numbers
+    stats_badge: 'بالأرقام',
+    stats_h2_1: 'الاستوديو',
+    stats_h2_2: 'بالأرقام',
+    stats_splashes: 'رشة ألوان رُميت',
+    stats_return: 'سيعودون مرة أخرى',
+    stats_sessions: 'جلسة مكتملة',
+    stats_birthdays: 'حفلة عيد ميلاد',
+    transform_in_label: 'تدخل',
+    transform_in_1: 'مرهق من الأسبوع',
+    transform_in_2: 'بملابس نظيفة',
+    transform_in_3: 'هادئ وغير متأكد',
+    transform_in_4: 'لا تعرف ماذا تتوقع',
+    transform_out_label: 'تخرج',
+    transform_out_1: 'تضحك وطاقتك عالية',
+    transform_out_2: 'مغطى بألوان النيون',
+    transform_out_3: 'عندك نكتة جديدة مع مجموعتك',
+    transform_out_4: 'تخطط لزيارتك القادمة',
+
+    // Gallery
+    gallery_badge: 'الفوضى هي التحفة الفنية',
+    gallery_h2_1: 'معرض',
+    gallery_h2_2: 'الفوضى',
+
+    // Reactions
+    reactions_badge: 'ردود فعل حقيقية',
+    reactions_h2_1: 'ماذا يقول',
+    reactions_h2_2: 'الناس',
+
+    // Why Section
+    why_badge: 'لماذا سبلاش سبيكتروم',
+    why_h2_1: 'فقط مرح وحرية و',
+    why_h2_2: 'ذكريات',
+    why_1_title: 'لا تحتاج مهارات فنية',
+    why_1_desc: 'بجدية. إذا تقدر ترمي ألوان، أنت فنان هنا.',
+    why_2_title: 'لا قواعد',
+    why_2_desc: 'ارشش، اسكب، ارمِ، دع الألوان تسيل. ما في طريقة خاطئة للإبداع.',
+    why_3_title: 'لا ضغط',
+    why_3_desc: 'هذا مو درس. هذا ملعب. فقط استمتع وكن نفسك.',
+    why_4_title: 'خذه للبيت',
+    why_4_desc: 'كل جلسة تنتهي بشيء صنعته أنت — لوحة، قميص، أو مجسم.',
+
+    // Location / Find Us
+    location_badge: 'اعثر علينا',
+    location_h2_1: 'زُر',
+    location_h2_2: 'سبلاش سبيكتروم',
+    location_studio: 'استوديونا',
+    location_address: 'الرياض، المملكة العربية السعودية',
+    location_email: 'راسلنا',
+    location_call: 'اتصل بنا',
+    location_faq_title: 'الأسئلة الشائعة',
 
     // Booking section
     booking_badge: 'احجز مكانك',

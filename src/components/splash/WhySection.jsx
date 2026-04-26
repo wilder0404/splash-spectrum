@@ -1,35 +1,19 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Heart, Zap, Shield } from 'lucide-react';
+import { useLang } from '@/lib/LanguageContext';
+import { tr } from '@/lib/translations.js';
 
 const reasons = [
-  {
-    icon: Sparkles,
-    title: 'No Art Skills Required',
-    desc: 'Seriously. If you can throw paint, you\'re already an artist here.',
-    color: '#FF007F',
-  },
-  {
-    icon: Zap,
-    title: 'No Rules',
-    desc: 'Splash it, pour it, throw it, drip it. There\'s no wrong way to create.',
-    color: '#39FF14',
-  },
-  {
-    icon: Heart,
-    title: 'No Pressure',
-    desc: 'This isn\'t a class. It\'s a playground. Just have fun and be yourself.',
-    color: '#9D00FF',
-  },
-  {
-    icon: Shield,
-    title: 'Take It Home',
-    desc: 'Every session ends with something you made — a canvas, a shirt, a figurine.',
-    color: '#00F3FF',
-  },
+  { icon: Sparkles, titleKey: 'why_1_title', descKey: 'why_1_desc', color: '#FF007F' },
+  { icon: Zap,      titleKey: 'why_2_title', descKey: 'why_2_desc', color: '#39FF14' },
+  { icon: Heart,    titleKey: 'why_3_title', descKey: 'why_3_desc', color: '#9D00FF' },
+  { icon: Shield,   titleKey: 'why_4_title', descKey: 'why_4_desc', color: '#00F3FF' },
 ];
 
 export default function WhySection() {
+  const { lang } = useLang();
+
   return (
     <section id="why" className="py-20 md:py-32 px-4 bg-obsidian relative overflow-hidden">
       <div className="absolute top-0 right-0 w-96 h-96 bg-neon-green/5 rounded-full blur-[150px]" />
@@ -42,17 +26,17 @@ export default function WhySection() {
           className="text-center mb-16"
         >
           <p className="text-neon-pink font-heading font-semibold text-sm uppercase tracking-[0.3em] mb-4 text-glow-pink">
-            Why Splash Spectrum
+            {tr(lang, 'why_badge')}
           </p>
           <h2 className="font-heading font-black text-3xl md:text-5xl lg:text-6xl text-white mb-4">
-            Just Fun, Freedom <br className="hidden md:block" />& <span className="text-neon-green text-glow-green">Memories</span>
+            {tr(lang, 'why_h2_1')} <span className="text-neon-green text-glow-green">{tr(lang, 'why_h2_2')}</span>
           </h2>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
           {reasons.map((reason, i) => (
             <motion.div
-              key={reason.title}
+              key={reason.titleKey}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -61,13 +45,12 @@ export default function WhySection() {
             >
               <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-[60px] opacity-0 group-hover:opacity-30 transition-opacity duration-700"
                 style={{ backgroundColor: reason.color }} />
-              
               <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
                 style={{ backgroundColor: `${reason.color}15` }}>
                 <reason.icon className="w-6 h-6" style={{ color: reason.color }} />
               </div>
-              <h3 className="font-heading font-bold text-xl text-white mb-2">{reason.title}</h3>
-              <p className="font-body text-white/50 leading-relaxed">{reason.desc}</p>
+              <h3 className="font-heading font-bold text-xl text-white mb-2">{tr(lang, reason.titleKey)}</h3>
+              <p className="font-body text-white/50 leading-relaxed">{tr(lang, reason.descKey)}</p>
             </motion.div>
           ))}
         </div>

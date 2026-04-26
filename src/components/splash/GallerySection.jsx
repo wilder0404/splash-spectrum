@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
+import { useLang } from '@/lib/LanguageContext';
+import { tr } from '@/lib/translations.js';
 
 const galleryImages = [
   { src: "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/64a9b5ac5_image.png", span: 'row-span-2' },
@@ -12,6 +14,7 @@ const galleryImages = [
 ];
 
 export default function GallerySection() {
+  const { lang } = useLang();
   const [selected, setSelected] = useState(null);
 
   return (
@@ -26,10 +29,10 @@ export default function GallerySection() {
           className="text-center mb-16"
         >
           <p className="text-neon-green font-heading font-semibold text-sm uppercase tracking-[0.3em] mb-4 text-glow-green">
-            The Mess Is the Masterpiece
+            {tr(lang, 'gallery_badge')}
           </p>
           <h2 className="font-heading font-black text-3xl md:text-5xl lg:text-6xl text-white">
-            Gallery of <span className="text-electric-cyan text-glow-cyan">Chaos</span>
+            {tr(lang, 'gallery_h2_1')} <span className="text-electric-cyan text-glow-cyan">{tr(lang, 'gallery_h2_2')}</span>
           </h2>
         </motion.div>
 
@@ -52,7 +55,6 @@ export default function GallerySection() {
         </div>
       </div>
 
-      {/* Lightbox */}
       <AnimatePresence>
         {selected && (
           <motion.div
