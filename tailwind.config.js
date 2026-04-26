@@ -12,6 +12,7 @@ module.exports = {
       fontFamily: {
         heading: ['var(--font-heading)'],
         body: ['var(--font-body)'],
+        arabic: ['var(--font-arabic)', 'sans-serif'],
       },
   		borderRadius: {
   			lg: 'var(--radius)',

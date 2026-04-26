@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
+import { useLang } from '@/lib/LanguageContext';
+import { tr } from '@/lib/translations.js';
 
 const HERO_BG = "https://media.base44.com/images/public/69e5ef89828747441c931879/d591ebed4_generated_ffef7112.png";
 
@@ -23,6 +25,7 @@ function generateBlobs(count) {
 const blobs = generateBlobs(14);
 
 export default function HeroSection() {
+  const { lang } = useLang();
   const [splashes, setSplashes] = useState([]);
 
   useEffect(() => {
@@ -113,15 +116,14 @@ export default function HeroSection() {
             transition={{ delay: 0.5 }}
             className="text-neon-green font-heading font-semibold text-sm md:text-base uppercase tracking-[0.3em] mb-6 text-glow-green"
           >
-            Immersive Art Experience
+            {tr(lang, 'hero_badge')}
           </motion.p>
 
           <h1 className="font-heading font-black text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-white leading-[0.95] mb-6">
-            Where Color{' '}
-            <span className="text-neon-pink text-glow-pink">Becomes</span>
-            <br />
-            an{' '}
-            <span className="text-electric-cyan text-glow-cyan">Experience</span>
+            {tr(lang, 'hero_h1_1')}{' '}
+            <span className="text-neon-pink text-glow-pink">{tr(lang, 'hero_h1_2')}</span>
+            {tr(lang, 'hero_h1_3') ? <><br />{tr(lang, 'hero_h1_3')}{' '}</> : ' '}
+            <span className="text-electric-cyan text-glow-cyan">{tr(lang, 'hero_h1_4')}</span>
           </h1>
 
           <motion.p
@@ -130,7 +132,7 @@ export default function HeroSection() {
             transition={{ delay: 0.8 }}
             className="text-white/60 font-body text-base md:text-xl max-w-xl mx-auto mb-10 leading-relaxed"
           >
-            Paint. Splash. Laugh. Create memories you can take home.
+            {tr(lang, 'hero_sub')}
           </motion.p>
 
           <motion.div
@@ -143,13 +145,13 @@ export default function HeroSection() {
               onClick={(e) => { e.preventDefault(); document.querySelector('#booking')?.scrollIntoView({ behavior: 'smooth' }); }}
               className="px-10 py-4 bg-neon-pink text-white font-heading font-bold rounded-full text-lg animate-pulse-glow hover:scale-105 transition-transform cursor-pointer flex items-center gap-2"
             >
-              🎨 Book Your Experience
+              {tr(lang, 'hero_cta1')}
             </a>
             <a href="#experiences"
               onClick={(e) => { e.preventDefault(); document.querySelector('#experiences')?.scrollIntoView({ behavior: 'smooth' }); }}
               className="px-8 py-4 border border-white/20 text-white font-heading font-semibold rounded-full text-lg hover:border-neon-pink/50 hover:text-neon-pink transition-all cursor-pointer"
             >
-              View Experiences
+              {tr(lang, 'hero_cta2')}
             </a>
           </motion.div>
         </motion.div>
