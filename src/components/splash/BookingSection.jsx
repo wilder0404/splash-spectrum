@@ -6,14 +6,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
+const WHATSAPP_NUMBER = '966554563447';
+
 const experienceTypes = [
   'Open Paint Session',
   'Birthday Experience',
+  'Graduation',
   'Group & Friends',
   'Kids Experience',
   'Custom Art & Figurines',
   'Special Event',
 ];
+
+const WHATSAPP_ONLY = ['Birthday Experience', 'Graduation'];
 
 export default function BookingSection() {
   const [form, setForm] = useState({
@@ -27,9 +32,18 @@ export default function BookingSection() {
   });
   const [submitted, setSubmitted] = useState(false);
 
+  const isWhatsAppOnly = WHATSAPP_ONLY.includes(form.experience);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitted(true);
+  };
+
+  const handleWhatsAppRedirect = () => {
+    const msg = encodeURIComponent(
+      `Hi! I'd like to book a *${form.experience}* at Splash Spectrum. Please help me with the details! 🎨`
+    );
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
   };
 
   return (
@@ -191,15 +205,40 @@ export default function BookingSection() {
             </div>
           </div>
 
-          <Button
-            type="submit"
-            className="w-full h-14 bg-neon-pink hover:bg-neon-pink/90 text-white font-heading font-bold text-lg rounded-xl animate-pulse-glow"
-          >
-            🎨 Confirm Booking
-          </Button>
-          <p className="text-center text-white/30 text-xs font-body">
-            Free cancellation up to 24 hours before your session
-          </p>
+          {isWhatsAppOnly ? (
+            <div className="space-y-4">
+              <div className="bg-neon-green/5 border border-neon-green/20 rounded-2xl p-5 text-center">
+                <div className="text-3xl mb-3">💬</div>
+                <p className="font-heading font-bold text-white text-base mb-1">
+                  {form.experience} — WhatsApp Only
+                </p>
+                <p className="font-body text-white/50 text-sm mb-4 leading-relaxed">
+                  This experience requires a personal consultation. Tap below to chat with us on WhatsApp and we'll get everything sorted for you!
+                </p>
+                <button
+                  type="button"
+                  onClick={handleWhatsAppRedirect}
+                  className="w-full h-14 rounded-xl font-heading font-bold text-lg text-white flex items-center justify-center gap-3 transition-transform hover:scale-105"
+                  style={{ background: 'linear-gradient(135deg, #25D366, #128C7E)' }}
+                >
+                  <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.862L.054 23.5l5.797-1.517A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.891 0-3.667-.497-5.2-1.366l-.373-.22-3.44.9.921-3.353-.242-.386A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+                  Chat on WhatsApp
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <Button
+                type="submit"
+                className="w-full h-14 bg-neon-pink hover:bg-neon-pink/90 text-white font-heading font-bold text-lg rounded-xl animate-pulse-glow"
+              >
+                🎨 Confirm Booking
+              </Button>
+              <p className="text-center text-white/30 text-xs font-body">
+                Free cancellation up to 24 hours before your session
+              </p>
+            </>
+          )}
         </motion.form>
         )}
       </div>
