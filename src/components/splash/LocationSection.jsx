@@ -70,15 +70,15 @@ export default function LocationSection() {
                   <MessageCircle className="w-5 h-5 text-neon-green" />
                   <span className="text-white/80 font-heading text-sm group-hover:text-neon-green transition-colors">WhatsApp</span>
                 </a>
-                <a href="https://instagram.com/splashspectrum" target="_blank" rel="noopener noreferrer"
+                <a href="https://www.instagram.com/splashspectrumksa?igsh=MjZhaDI1ZjQzeDdm" target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-3 bg-uv-purple/10 border border-uv-purple/20 rounded-xl p-4 hover:bg-uv-purple/20 transition-colors group">
                   <Instagram className="w-5 h-5 text-uv-purple" />
                   <span className="text-white/80 font-heading text-sm group-hover:text-uv-purple transition-colors">Instagram</span>
                 </a>
-                <a href="mailto:hello@splashspectrum.com"
+                <a href="https://www.facebook.com/share/1CTYsJivME/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-3 bg-electric-cyan/10 border border-electric-cyan/20 rounded-xl p-4 hover:bg-electric-cyan/20 transition-colors group">
                   <Mail className="w-5 h-5 text-electric-cyan" />
-                  <span className="text-white/80 font-heading text-sm group-hover:text-electric-cyan transition-colors">{tr(lang, 'location_email')}</span>
+                  <span className="text-white/80 font-heading text-sm group-hover:text-electric-cyan transition-colors">Facebook</span>
                 </a>
                 <a href="tel:+966554563447"
                   className="flex items-center gap-3 bg-neon-pink/10 border border-neon-pink/20 rounded-xl p-4 hover:bg-neon-pink/20 transition-colors group">
@@ -88,13 +88,12 @@ export default function LocationSection() {
               </div>
             </div>
 
-            <div className="rounded-2xl overflow-hidden border border-white/5 h-[250px] bg-white/[0.02]">
-              <iframe
-                src="https://www.openstreetmap.org/export/embed.html?bbox=-0.1,-0.1,0.1,0.1&layer=mapnik"
-                className="w-full h-full opacity-60 grayscale invert"
-                title="Location map"
-              />
-            </div>
+            <a href="https://maps.app.goo.gl/k831NSf6TbGm4Ui46?g_st=ic" target="_blank" rel="noopener noreferrer"
+              className="rounded-2xl overflow-hidden border border-white/5 h-[250px] bg-white/[0.02] flex flex-col items-center justify-center gap-3 hover:border-neon-pink/30 transition-all group cursor-pointer">
+              <MapPin className="w-10 h-10 text-neon-pink group-hover:scale-110 transition-transform" />
+              <p className="font-heading font-bold text-white text-sm">{lang === 'ar' ? 'افتح في خرائط Google' : 'Open in Google Maps'}</p>
+              <p className="text-white/40 text-xs font-body">{lang === 'ar' ? 'انقر لعرض الموقع' : 'Click to view location'}</p>
+            </a>
           </motion.div>
 
           <motion.div

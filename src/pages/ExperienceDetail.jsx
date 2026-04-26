@@ -21,6 +21,17 @@ const EVENTS_IMG = "https://media.base44.com/images/public/user_69d7790ceb26c9be
 const GALLERY1 = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/64a9b5ac5_image.png";
 const GALLERY2 = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/a9569b78f_image.png";
 const GALLERY3 = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/6c3b5dcdf_image.png";
+const PHONE_CASE_IMG = "https://media.base44.com/images/public/69e5ef89828747441c931879/1f8c3a69b_image.png";
+// Figurine product photos
+const FIG_BUNNY = "https://media.base44.com/images/public/69e5ef89828747441c931879/418062ae7_image.png";
+const FIG_KITTY = "https://media.base44.com/images/public/69e5ef89828747441c931879/174b825da_image.png";
+const FIG_ELEPHANT = "https://media.base44.com/images/public/69e5ef89828747441c931879/cec3dc21c_image.png";
+const FIG_PRINCESS = "https://media.base44.com/images/public/69e5ef89828747441c931879/2d90ae041_image.png";
+const FIG_PIKACHU = "https://media.base44.com/images/public/69e5ef89828747441c931879/06eef13c7_image.png";
+const FIG_BEARBRICK = "https://media.base44.com/images/public/69e5ef89828747441c931879/7a3c6986b_image.png";
+const FIG_BEAR_PLAIN = "https://media.base44.com/images/public/69e5ef89828747441c931879/7064eef9b_image.png";
+const BDAY_PACK_BOX = "https://media.base44.com/images/public/69e5ef89828747441c931879/835731a7c_image.png";
+const NEON_SESSION = "https://media.base44.com/images/public/69e5ef89828747441c931879/ee158501e_image.png";
 
 const EXPERIENCES_EN = {
   'open-paint-sessions': {
@@ -59,19 +70,25 @@ const EXPERIENCES_EN = {
   'birthday-experiences': {
     title: 'Birthday Experiences',
     tagline: 'The most colorful birthday ever.',
-    description: 'Forget boring dinner reservations. Celebrate your birthday with a full-on paint party — UV lights, your crew, birthday music, and neon color everywhere. We set everything up so you just have to show up and have the best time of your year. Food is NOT provided — but groups of 20–25+ are welcome to bring their own. We strive to make the space as private as possible for your group.',
+    description: 'Forget boring dinner reservations. Celebrate your birthday with a full-on paint party — UV lights, your crew, birthday music, and neon color everywhere. We set everything up so you just have to show up and have the best time of your year. Sessions run 1.5 hours (one service) or 2 hours (two services). Neon UV lighting: 7 PM – 11 PM. Regular lighting: 3 PM – 6:30 PM.',
     image: BIRTHDAY_PHOTO,
-    extraImages: [BIRTHDAY_PACK],
+    extraImages: [BDAY_PACK_BOX, NEON_SESSION],
     icon: '🎉', color: '#9D00FF',
     duration: '90–120 min', groupSize: '10+ people',
     priceTable: null,
     price: 'Custom — DM via WhatsApp',
+    bigBirthdayPack: {
+      allowed: ['Cakes', 'Water', 'Up to 5 extra guardians', 'Decorative balloons'],
+      prohibited: ['Food (including snacks)', 'Extra activities (e.g. clowns, soap bubbles)'],
+      booking: ['Contact us via WhatsApp', 'Visit our studio before making any down payment', '20% down payment required'],
+      additional: ['For a private booking, a minimum of 25 children is required', 'One service lasts 1.5 hours', 'Two services last 2 hours'],
+    },
     includes: [
       'Birthday music playlist for the whole group',
       'Birthday card',
-      'Neon glow bracelets for everyone',
-      'Neon glasses for everyone',
-      'Birthday hair band',
+      'Neon glow VIP bracelets for everyone',
+      'Neon heart glasses for everyone',
+      'Happy Birthday hair band',
       'All UV paints & materials',
       'Private or semi-private space (we do our best)',
       'Birthday cake available as add-on (+100 SAR)',
@@ -80,15 +97,14 @@ const EXPERIENCES_EN = {
       'All ages welcome — preferably from 3 years and above.',
       'Children under 16 must be accompanied by a trusted adult at all times.',
       'Booking is done exclusively via WhatsApp.',
-      'Food is NOT provided by Splash Spectrum.',
-      'Groups of 20–25 people or more are welcome to bring their own food.',
-      'We will do our utmost to make the space as private as possible for your group.',
+      'Food is NOT provided by Splash Spectrum (except cakes in Big Birthday Pack).',
+      'For private booking, minimum 25 children required.',
       'Please arrive 10 minutes before your session.',
       'Wear clothes you do not mind getting paint on.',
     ],
     vibes: ['Birthday parties', 'Milestone celebrations', 'Group events'],
     whatsappOnly: true,
-    gallery: [BIRTHDAY_PHOTO, BIRTHDAY_PACK, GALLERY1],
+    gallery: [BIRTHDAY_PHOTO, BDAY_PACK_BOX, NEON_SESSION, BIRTHDAY_PACK],
   },
   'graduation': {
     title: 'Graduation Celebrations',
@@ -194,16 +210,25 @@ const EXPERIENCES_EN = {
   'custom-art-figurines': {
     title: 'Custom Art & Figurines',
     tagline: 'Paint something you\'ll keep forever.',
-    description: 'Move beyond canvas. In this session you paint a custom 3D bear figurine under UV light. The paint flows and drips creating a one-of-a-kind glowing masterpiece that you take home. It\'s precise, personal, and mesmerizing to watch come to life.',
+    description: 'Move beyond canvas. Choose from a stunning range of 3D figurines — bears, Hello Kitty, elephants, princesses, Pikachu and more — then pour UV paint over them under neon lights. The paint flows and drips creating a one-of-a-kind glowing masterpiece that you take home. It\'s precise, personal, and mesmerizing to watch come to life.',
     image: "https://media.base44.com/images/public/69e5ef89828747441c931879/bdceac480_generated_65a48237.png",
-    extraImages: [GALLERY2, GALLERY3],
+    extraImages: [FIG_BEAR_PLAIN, FIG_BEARBRICK, FIG_BUNNY],
     icon: '🎁', color: '#FF007F',
     duration: '90 min', groupSize: '1–20 people',
     priceTable: [
-      { name: '🐻 Pour (Bear Figurine)', price: '160 SAR/person', desc: 'Your own 3D bear + specialty UV paints + take-home box' },
+      { name: '🐻 Pour (Bear / Figurine)', price: '160 SAR/person', desc: 'Choose your figurine + specialty UV paints + take-home box' },
+    ],
+    figurines: [
+      { name: 'Classic Bear', img: FIG_BEAR_PLAIN },
+      { name: 'Bearbrick', img: FIG_BEARBRICK },
+      { name: 'Bunny Doll', img: FIG_BUNNY },
+      { name: 'Hello Kitty', img: FIG_KITTY },
+      { name: 'Elephant', img: FIG_ELEPHANT },
+      { name: 'Princess', img: FIG_PRINCESS },
+      { name: 'Pikachu', img: FIG_PIKACHU },
     ],
     includes: [
-      'Your own 3D bear figurine',
+      'Your choice of 3D figurine',
       'Specialty UV paints in all colors',
       'Fine pouring tools',
       'Take-home box for your masterpiece',
@@ -217,7 +242,35 @@ const EXPERIENCES_EN = {
     ],
     vibes: ['Artistic', 'Detail-focused', 'Unique keepsake', 'All ages'],
     whatsappOnly: false,
-    gallery: [GALLERY1, GALLERY2, GALLERY3],
+    gallery: [FIG_BEAR_PLAIN, FIG_BEARBRICK, FIG_BUNNY, FIG_KITTY, FIG_ELEPHANT, FIG_PRINCESS, FIG_PIKACHU],
+  },
+  'phone-case': {
+    title: 'Custom Phone Case',
+    tagline: 'Your art. Your case. One of a kind.',
+    description: 'Now you can create your own custom iPhone case with our Splash Art experience! Unleash your creativity and design a one-of-a-kind phone case that\'s as unique as you. Throw paint, splash colors, create patterns — then take home a phone case that\'s truly yours.',
+    image: PHONE_CASE_IMG,
+    extraImages: [GALLERY1, GALLERY2],
+    icon: '📱', color: '#00F3FF',
+    duration: '60–90 min', groupSize: '1–20 people',
+    priceTable: [
+      { name: '📱 Splash Phone Case', price: '105 SAR/person', desc: 'Custom painted iPhone case — take it home same day' },
+    ],
+    includes: [
+      'Your own blank phone case',
+      'All UV paints & splashing tools',
+      'Apron & protective cover-up',
+      'Ready-to-use custom case to take home',
+    ],
+    rules: [
+      'All ages welcome — preferably from 3 years and above.',
+      'Children under 16 must be accompanied by a trusted adult.',
+      'No prior art experience needed.',
+      'Please arrive 10 minutes before.',
+      'Wear clothes you do not mind getting paint on.',
+    ],
+    vibes: ['Creative', 'Unique keepsake', 'All ages', 'Quick session'],
+    whatsappOnly: false,
+    gallery: [PHONE_CASE_IMG, GALLERY1, GALLERY2],
   },
   'special-events': {
     title: 'Special Events',
@@ -287,19 +340,25 @@ const EXPERIENCES_AR = {
   'birthday-experiences': {
     title: 'تجارب أعياد الميلاد',
     tagline: 'أجمل عيد ميلاد في حياتك.',
-    description: 'انسَ حجوزات العشاء المملة. احتفل بعيد ميلادك بحفلة رسم كاملة — أضواء UV، مجموعتك، موسيقى عيد الميلاد، وألوان نيون في كل مكان. نحن نجهز كل شيء، ما عليك إلا الحضور والاستمتاع. الطعام غير مقدم — لكن المجموعات من 20–25 شخصاً فأكثر يمكنها إحضار طعامها الخاص.',
+    description: 'انسَ حجوزات العشاء المملة. احتفل بعيد ميلادك بحفلة رسم كاملة — أضواء UV، مجموعتك، موسيقى عيد الميلاد، وألوان نيون في كل مكان. نحن نجهز كل شيء، ما عليك إلا الحضور والاستمتاع. الجلسة ساعة ونصف (خدمة واحدة) أو ساعتين (خدمتان). النيون: 7م–11م. الإضاءة العادية: 3م–6:30م.',
     image: BIRTHDAY_PHOTO,
-    extraImages: [BIRTHDAY_PACK],
+    extraImages: [BDAY_PACK_BOX, NEON_SESSION],
     icon: '🎉', color: '#9D00FF',
     duration: '90–120 دقيقة', groupSize: '10+ أشخاص',
     priceTable: null,
     price: 'تواصل عبر واتساب للاستفسار',
+    bigBirthdayPack: {
+      allowed: ['الكيك', 'المياه', 'حتى 5 مرافقين إضافيين', 'البالونات الزينة'],
+      prohibited: ['الطعام (بما فيه الوجبات الخفيفة)', 'الأنشطة الإضافية (مثل المهرجين، فقاعات الصابون)'],
+      booking: ['التواصل عبر واتساب', 'زيارة الاستوديو قبل أي دفعة', 'دفعة أولى 20%'],
+      additional: ['للحجز الخاص يُشترط 25 طفل كحد أدنى', 'خدمة واحدة = ساعة ونصف', 'خدمتان = ساعتان'],
+    },
     includes: [
       'موسيقى عيد الميلاد للمجموعة كاملة',
       'بطاقة عيد الميلاد',
-      'أساور نيون متوهجة للجميع',
-      'نظارات نيون للجميع',
-      'ربطة شعر عيد الميلاد',
+      'أساور VIP نيون للجميع',
+      'نظارات قلب نيون للجميع',
+      'طوق شعر Happy Birthday',
       'جميع ألوان UV والمواد',
       'مساحة خاصة أو شبه خاصة (نبذل قصارى جهدنا)',
       'كعكة عيد الميلاد متاحة كإضافة (+100 ريال)',
@@ -308,14 +367,14 @@ const EXPERIENCES_AR = {
       'جميع الأعمار مرحب بها — ويُفضل من سن 3 سنوات فأكثر.',
       'يجب أن يرافق الأطفال دون 16 سنة شخص بالغ موثوق في جميع الأوقات.',
       'الحجز يتم حصرياً عبر واتساب.',
-      'الطعام غير مقدم من سبلاش سبيكتروم.',
-      'المجموعات من 20–25 شخصاً فأكثر يمكنها إحضار طعامها الخاص.',
+      'الطعام غير مقدم (الكيك مسموح في باقة عيد الميلاد الكبيرة).',
+      'للحجز الخاص يُشترط 25 طفل على الأقل.',
       'يُرجى الحضور قبل 10 دقائق من الموعد.',
       'ارتدِ ملابس لا تمانع تلطيخها.',
     ],
     vibes: ['حفلات أعياد الميلاد', 'الاحتفالات', 'المجموعات'],
     whatsappOnly: true,
-    gallery: [BIRTHDAY_PHOTO, BIRTHDAY_PACK, GALLERY1],
+    gallery: [BIRTHDAY_PHOTO, BDAY_PACK_BOX, NEON_SESSION, BIRTHDAY_PACK],
   },
   'graduation': {
     title: 'احتفالات التخرج',
@@ -420,16 +479,25 @@ const EXPERIENCES_AR = {
   'custom-art-figurines': {
     title: 'الفن المخصص والمجسمات',
     tagline: 'ارسم شيئاً ستحتفظ به إلى الأبد.',
-    description: 'تجاوز اللوحة العادية. في هذه الجلسة تقوم بطلاء مجسم دب ثلاثي الأبعاد تحت أضواء UV. يتدفق الطلاء وينسكب ليخلق قطعة فنية متوهجة فريدة من نوعها تأخذها للمنزل.',
+    description: 'تجاوز اللوحة العادية. اختر من مجموعة رائعة من المجسمات — دب، هيلو كيتي، فيل، أميرة، بيكاتشو والمزيد — ثم اسكب ألوان UV عليها تحت الأضواء النيون. يتدفق الطلاء وينسكب ليخلق قطعة فنية متوهجة فريدة من نوعها تأخذها للمنزل.',
     image: "https://media.base44.com/images/public/69e5ef89828747441c931879/bdceac480_generated_65a48237.png",
-    extraImages: [GALLERY2, GALLERY3],
+    extraImages: [FIG_BEAR_PLAIN, FIG_BEARBRICK, FIG_BUNNY],
     icon: '🎁', color: '#FF007F',
     duration: '90 دقيقة', groupSize: '1–20 شخص',
     priceTable: [
-      { name: '🐻 فن السكب (مجسم الدب)', price: '160 ريال/شخص', desc: 'مجسمك + ألوان UV متخصصة + صندوق حمل' },
+      { name: '🐻 فن السكب (مجسم)', price: '160 ريال/شخص', desc: 'اختر مجسمك + ألوان UV متخصصة + صندوق حمل' },
+    ],
+    figurines: [
+      { name: 'دب كلاسيكي', img: FIG_BEAR_PLAIN },
+      { name: 'بير بريك', img: FIG_BEARBRICK },
+      { name: 'دمية الأرنب', img: FIG_BUNNY },
+      { name: 'هيلو كيتي', img: FIG_KITTY },
+      { name: 'الفيل', img: FIG_ELEPHANT },
+      { name: 'الأميرة', img: FIG_PRINCESS },
+      { name: 'بيكاتشو', img: FIG_PIKACHU },
     ],
     includes: [
-      'مجسم الدب الثلاثي الأبعاد الخاص بك',
+      'مجسمك الثلاثي الأبعاد من اختيارك',
       'ألوان UV المتخصصة بجميع الألوان',
       'أدوات السكب الدقيقة',
       'صندوق لحمل تحفتك الفنية للمنزل',
@@ -443,7 +511,35 @@ const EXPERIENCES_AR = {
     ],
     vibes: ['فني', 'تفصيلي', 'تذكار فريد', 'جميع الأعمار'],
     whatsappOnly: false,
-    gallery: [GALLERY1, GALLERY2, GALLERY3],
+    gallery: [FIG_BEAR_PLAIN, FIG_BEARBRICK, FIG_BUNNY, FIG_KITTY, FIG_ELEPHANT, FIG_PRINCESS, FIG_PIKACHU],
+  },
+  'phone-case': {
+    title: 'كفر جوال مخصص',
+    tagline: 'فنك. كفرك. فريد من نوعه.',
+    description: 'الآن يمكنك تصميم كفر آيفون مخصص مع تجربة سبلاش آرت! أطلق إبداعك وصمّم كفراً فريداً بقدر ما أنت مميز. ارمِ الألوان، ارشش، اصنع نقوشاً — وخذ كفر جوالك للبيت.',
+    image: PHONE_CASE_IMG,
+    extraImages: [GALLERY1, GALLERY2],
+    icon: '📱', color: '#00F3FF',
+    duration: '60–90 دقيقة', groupSize: '1–20 شخص',
+    priceTable: [
+      { name: '📱 سبلاش كفر جوال', price: '105 ريال/شخص', desc: 'كفر آيفون مرسوم — خذه للبيت في نفس اليوم' },
+    ],
+    includes: [
+      'كفر جوال فارغ خاص بك',
+      'جميع ألوان UV وأدوات الرش',
+      'مريلة وغطاء واقي',
+      'كفر جاهز للاستخدام تأخذه للبيت',
+    ],
+    rules: [
+      'جميع الأعمار مرحب بها — ويُفضل من سن 3 سنوات فأكثر.',
+      'يجب أن يرافق الأطفال دون 16 سنة شخص بالغ موثوق.',
+      'لا تحتاج لأي خبرة فنية مسبقة.',
+      'يُرجى الحضور قبل 10 دقائق.',
+      'ارتدِ ملابس لا تمانع تلطيخها.',
+    ],
+    vibes: ['إبداعي', 'تذكار فريد', 'جميع الأعمار', 'جلسة سريعة'],
+    whatsappOnly: false,
+    gallery: [PHONE_CASE_IMG, GALLERY1, GALLERY2],
   },
   'special-events': {
     title: 'الفعاليات الخاصة',
@@ -621,6 +717,53 @@ export default function ExperienceDetail() {
                     </div>
                   ))}
                 </div>
+              </motion.div>
+            )}
+
+            {/* Big Birthday Pack */}
+            {exp.bigBirthdayPack && (
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                className="rounded-2xl overflow-hidden border border-white/8">
+                <div className="px-5 py-3 font-heading font-black text-white text-base" style={{ background: `linear-gradient(90deg, ${exp.color}30, ${exp.color}10)` }}>
+                  🎂 {isAr ? 'باقة عيد الميلاد الكبيرة' : 'Big Birthday Pack — Details'}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-0">
+                  <div className="p-4 border-b sm:border-b-0 sm:border-r border-white/5">
+                    <p className="text-neon-green font-heading font-bold text-xs uppercase tracking-wider mb-2">{isAr ? '✅ مسموح' : '✅ Allowed'}</p>
+                    {exp.bigBirthdayPack.allowed.map((i, k) => <p key={k} className="text-white/60 text-sm font-body">• {i}</p>)}
+                  </div>
+                  <div className="p-4 border-b border-white/5">
+                    <p className="text-neon-pink font-heading font-bold text-xs uppercase tracking-wider mb-2">{isAr ? '🚫 ممنوع' : '🚫 Prohibited'}</p>
+                    {exp.bigBirthdayPack.prohibited.map((i, k) => <p key={k} className="text-white/60 text-sm font-body">• {i}</p>)}
+                  </div>
+                  <div className="p-4 border-b sm:border-b-0 sm:border-r border-white/5">
+                    <p className="text-electric-cyan font-heading font-bold text-xs uppercase tracking-wider mb-2">{isAr ? '📋 لتأكيد الحجز' : '📋 To Confirm Booking'}</p>
+                    {exp.bigBirthdayPack.booking.map((i, k) => <p key={k} className="text-white/60 text-sm font-body">• {i}</p>)}
+                  </div>
+                  <div className="p-4">
+                    <p className="text-uv-purple font-heading font-bold text-xs uppercase tracking-wider mb-2">{isAr ? 'ℹ️ معلومات إضافية' : 'ℹ️ Additional Info'}</p>
+                    {exp.bigBirthdayPack.additional.map((i, k) => <p key={k} className="text-white/60 text-sm font-body">• {i}</p>)}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Figurine Picker */}
+            {exp.figurines && (
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                <h3 className="font-heading font-bold text-white text-xl mb-4 flex items-center gap-2">
+                  <span style={{ color: exp.color }}>🎭</span> {isAr ? 'اختر مجسمك' : 'Choose Your Figurine'}
+                </h3>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                  {exp.figurines.map((fig, i) => (
+                    <div key={i} className="bg-white/[0.03] border border-white/8 rounded-xl p-2 text-center hover:border-white/20 transition-all group cursor-pointer"
+                      onClick={() => setLightbox(fig.img)}>
+                      <img src={fig.img} alt={fig.name} className="w-full aspect-square object-cover rounded-lg mb-1.5 group-hover:scale-105 transition-transform" />
+                      <p className="text-white/60 text-xs font-body">{fig.name}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-white/30 text-xs font-body mt-3">{isAr ? '* اضغط على أي مجسم لتكبيره' : '* Tap any figurine to zoom in'}</p>
               </motion.div>
             )}
 

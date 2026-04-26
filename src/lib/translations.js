@@ -33,6 +33,8 @@ const dict = {
     exp_kids_desc: 'Safe, silly, and absolutely magical for little artists.',
     exp_figurines_title: 'Custom Art & Figurines',
     exp_figurines_desc: 'Paint a 3D bear figurine under UV light — a glowing keepsake just for you.',
+    exp_phonecase_title: 'Custom Phone Case',
+    exp_phonecase_desc: 'Unleash your creativity and design a one-of-a-kind custom iPhone case with our Splash Art experience.',
     exp_events_title: 'Special Events',
     exp_events_desc: 'Corporate days, team building, brand activations — we build it around you.',
 
@@ -200,6 +202,8 @@ const dict = {
     exp_kids_desc: 'آمنة، مرحة، وسحرية تماماً للفنانين الصغار.',
     exp_figurines_title: 'الفن المخصص والمجسمات',
     exp_figurines_desc: 'ارسم مجسم دب ثلاثي الأبعاد تحت أضواء UV — تذكار متوهج يخصك وحدك.',
+    exp_phonecase_title: 'كفر جوال مخصص',
+    exp_phonecase_desc: 'أطلق إبداعك وصمّم كفر آيفون فريد من نوعه مع تجربة سبلاش آرت الخاصة بنا.',
     exp_events_title: 'الفعاليات الخاصة',
     exp_events_desc: 'أيام الشركات، بناء الفريق، تفعيل العلامات التجارية — نبنيها حول احتياجاتك.',
 
