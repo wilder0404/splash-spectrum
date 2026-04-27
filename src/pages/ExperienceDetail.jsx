@@ -815,7 +815,7 @@ export default function ExperienceDetail() {
 
           {/* RIGHT: Booking (2 cols) */}
           <div className="lg:col-span-2">
-            <div className="sticky top-6 rounded-3xl border border-white/8 overflow-hidden"
+            <div className="rounded-3xl border border-white/8 overflow-hidden"
               style={{ background: `linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))` }}>
 
               {/* Card top accent */}
@@ -926,11 +926,13 @@ export default function ExperienceDetail() {
 
             {/* WhatsApp CTA below form for non-whatsapp-only */}
             {!exp.whatsappOnly && (
-              <button onClick={handleWhatsApp}
-                className="mt-4 w-full h-12 rounded-xl font-heading font-semibold text-sm text-white/80 flex items-center justify-center gap-2 border border-white/10 bg-white/[0.02] hover:bg-neon-green/10 hover:border-neon-green/30 hover:text-white transition-all">
-                <MessageCircle className="w-4 h-4 text-neon-green" />
-                {isAr ? 'أو تواصل عبر واتساب' : 'Or chat with us on WhatsApp'}
-              </button>
+              <div className="mt-4">
+                <button onClick={handleWhatsApp}
+                  className="w-full h-12 rounded-xl font-heading font-semibold text-sm text-white/80 flex items-center justify-center gap-2 border border-white/10 bg-white/[0.02] hover:bg-neon-green/10 hover:border-neon-green/30 hover:text-white transition-all">
+                  <MessageCircle className="w-4 h-4 text-neon-green" />
+                  {isAr ? 'أو تواصل عبر واتساب' : 'Or chat with us on WhatsApp'}
+                </button>
+              </div>
             )}
           </div>
         </div>
