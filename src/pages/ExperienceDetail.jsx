@@ -46,7 +46,7 @@ const EXPERIENCES_EN = {
       { name: '🎨 Splash', price: '149 SAR', desc: 'Throw paint on canvas under UV light' },
       { name: '🌀 Spin', price: '149 SAR', desc: 'Spin art using a spinning canvas machine' },
       { name: '🎢 Swing', price: '149 SAR', desc: 'Swing and splash paint mid-air' },
-      { name: '🐻 Pour (Bear Figurine)', price: '160 SAR', desc: 'Pour paint over a 3D bear figurine' },
+      { name: '🐻 Pour (e.g. bears)', price: '160 SAR', desc: 'Pour paint over a 3D figurine of your choice' },
       { name: '📱 Splash Phone Case', price: '105 SAR', desc: 'Customize your own phone case' },
       { name: '🖼️ Group Splash (Big Canvas)', price: '385 SAR', desc: 'Shared large canvas for a group' },
     ],
@@ -148,7 +148,7 @@ const EXPERIENCES_EN = {
       { name: '🎨 Splash', price: '149 SAR/person', desc: 'Throw paint on canvas under UV light' },
       { name: '🌀 Spin', price: '149 SAR/person', desc: 'Spin art using a spinning canvas machine' },
       { name: '🎢 Swing', price: '149 SAR/person', desc: 'Swing and splash paint mid-air' },
-      { name: '🐻 Pour (Bear Figurine)', price: '160 SAR/person', desc: 'Pour paint over a 3D bear figurine' },
+      { name: '🐻 Pour (e.g. bears)', price: '160 SAR/person', desc: 'Pour paint over a 3D figurine of your choice' },
       { name: '🖼️ Group Splash (Big Canvas)', price: '385 SAR (shared)', desc: 'One giant canvas for the whole group' },
     ],
     includes: [
@@ -179,7 +179,7 @@ const EXPERIENCES_EN = {
       { name: '🎨 Splash', price: '149 SAR/child', desc: 'Throw paint on canvas under UV light' },
       { name: '🌀 Spin', price: '149 SAR/child', desc: 'Spin art using a spinning machine' },
       { name: '🎢 Swing', price: '149 SAR/child', desc: 'Swing and splash paint mid-air' },
-      { name: '🐻 Pour (Bear Figurine)', price: '160 SAR/child', desc: 'Pour paint over a 3D bear to take home' },
+      { name: '🐻 Pour (e.g. bears)', price: '160 SAR/child', desc: 'Pour paint over a 3D figurine to take home' },
     ],
     schoolPackages: [
       { students: 30, before: '4,470', discount: '10%', saving: '447', after: '4,023', perKid: '134' },
@@ -311,7 +311,7 @@ const EXPERIENCES_AR = {
       { name: '🎨 سبلاش', price: '149 ريال', desc: 'ارمِ الألوان على اللوحة تحت ضوء UV' },
       { name: '🌀 سبين', price: '149 ريال', desc: 'رسم دوار باستخدام آلة دوارة' },
       { name: '🎢 سوينق', price: '149 ريال', desc: 'أرجوحة ورش ألوان في الهواء' },
-      { name: '🐻 فن السكب (دب)', price: '160 ريال', desc: 'اسكب الألوان على مجسم الدب الثلاثي' },
+      { name: '🐻 فن السكب (مثلاً: دب)', price: '160 ريال', desc: 'اسكب الألوان على مجسم من اختيارك' },
       { name: '📱 سبلاش كفر جوال', price: '105 ريال', desc: 'خصص كفر جوالك بيدك' },
       { name: '🖼️ سبلاش لوحة كبيرة (جماعي)', price: '385 ريال', desc: 'لوحة كبيرة مشتركة للمجموعة' },
     ],
@@ -412,7 +412,7 @@ const EXPERIENCES_AR = {
       { name: '🎨 سبلاش', price: '149 ريال/شخص', desc: 'ارمِ الألوان على اللوحة تحت ضوء UV' },
       { name: '🌀 سبين', price: '149 ريال/شخص', desc: 'رسم دوار باستخدام آلة دوارة' },
       { name: '🎢 سوينق', price: '149 ريال/شخص', desc: 'أرجوحة ورش ألوان في الهواء' },
-      { name: '🐻 فن السكب (دب)', price: '160 ريال/شخص', desc: 'اسكب الألوان على مجسم الدب الثلاثي' },
+      { name: '🐻 فن السكب (مثلاً: دب)', price: '160 ريال/شخص', desc: 'اسكب الألوان على مجسم من اختيارك' },
       { name: '🖼️ سبلاش لوحة كبيرة', price: '385 ريال (مشترك)', desc: 'لوحة عملاقة للمجموعة كاملة' },
     ],
     includes: [
@@ -443,7 +443,7 @@ const EXPERIENCES_AR = {
       { name: '🎨 سبلاش', price: '149 ريال/طفل', desc: 'ارمِ الألوان على اللوحة تحت ضوء UV' },
       { name: '🌀 سبين', price: '149 ريال/طفل', desc: 'رسم دوار باستخدام آلة دوارة' },
       { name: '🎢 سوينق', price: '149 ريال/طفل', desc: 'أرجوحة ورش ألوان في الهواء' },
-      { name: '🐻 فن السكب (دب)', price: '160 ريال/طفل', desc: 'اسكب الألوان على مجسم الدب وخذه للبيت' },
+      { name: '🐻 فن السكب (مثلاً: دب)', price: '160 ريال/طفل', desc: 'اسكب الألوان على مجسم من اختيارك وخذه للبيت' },
     ],
     schoolPackages: [
       { students: 30, before: '4,470', discount: '10%', saving: '447', after: '4,023', perKid: '134' },
