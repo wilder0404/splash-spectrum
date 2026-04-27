@@ -114,20 +114,33 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="text-neon-green font-heading font-semibold text-sm md:text-base uppercase tracking-[0.3em] mb-6 text-glow-green"
+            className="text-neon-green font-heading font-semibold text-sm md:text-base uppercase tracking-[0.3em] mb-14 text-glow-green"
           >
             {tr(lang, 'hero_badge')}
           </motion.p>
 
           <h1 className="font-heading font-black text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-white mb-6" style={{ lineHeight: 1.25 }}>
-            <span className="block mb-3">
-              {tr(lang, 'hero_h1_1')}
-            </span>
-            <span className="block">
-              <span className="text-neon-pink text-glow-pink">{tr(lang, 'hero_h1_2')}</span>
-              {tr(lang, 'hero_h1_3') ? <> {tr(lang, 'hero_h1_3')}</> : ' '}
-              <span className="text-electric-cyan text-glow-cyan">{tr(lang, 'hero_h1_4')}</span>
-            </span>
+            {lang === 'ar' ? (
+              <>
+                <span className="block mb-3">{tr(lang, 'hero_h1_1')}</span>
+                <span className="block">
+                  <span className="text-neon-pink text-glow-pink">{tr(lang, 'hero_h1_2')}</span>
+                  {tr(lang, 'hero_h1_3') ? <> {tr(lang, 'hero_h1_3')}</> : ' '}
+                  <span className="text-electric-cyan text-glow-cyan">{tr(lang, 'hero_h1_4')}</span>
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="block">
+                  {tr(lang, 'hero_h1_1')}{' '}
+                  <span className="text-neon-pink text-glow-pink">{tr(lang, 'hero_h1_2')}</span>
+                </span>
+                <span className="block">
+                  {tr(lang, 'hero_h1_3') ? <>{tr(lang, 'hero_h1_3')} </> : ''}
+                  <span className="text-electric-cyan text-glow-cyan">{tr(lang, 'hero_h1_4')}</span>
+                </span>
+              </>
+            )}
           </h1>
 
           <motion.p

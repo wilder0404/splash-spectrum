@@ -37,7 +37,7 @@ const EXPERIENCES_EN = {
   'open-paint-sessions': {
     title: 'Open Paint Sessions',
     tagline: 'No rules. Just paint.',
-    description: 'Walk in, pick your colors, and let loose. Under UV lights, every splash becomes a masterpiece. Open sessions are perfect if you just want to show up and have fun, no pressure, just pure creative chaos. Available with regular lighting (afternoon) and neon UV lighting (from 7 PM until closing).',
+    description: 'Walk in, pick your colors, and let loose. Under UV lights, every splash becomes a masterpiece. Open sessions are perfect if you just want to show up and have fun, no pressure, just pure creative chaos. Open daily 3 PM to 11 PM.',
     image: OPEN_PAINT_IMG,
     extraImages: [GALLERY1, GALLERY2, GALLERY3],
     icon: '🎨', color: '#FF007F',
@@ -56,11 +56,11 @@ const EXPERIENCES_EN = {
       'Shoe covers',
       'Locker for your personal items',
       'Take-home artwork',
-      'Available in afternoon (regular light) or evening neon UV lighting (from 7 PM)',
+      'Open daily 3 PM – 11 PM',
     ],
     rules: [
       'All ages welcome, preferably from 3 years and above.',
-      'Children under 16 must be accompanied by a trusted adult at all times.',
+      'Children under 9 must be accompanied by a trusted adult at all times.',
       'Any additional guardian beyond one requires a paid entry.',
       'Wear clothes you do not mind getting paint on.',
     ],
@@ -71,7 +71,7 @@ const EXPERIENCES_EN = {
   'birthday-experiences': {
     title: 'Birthday Experiences',
     tagline: 'The most colorful birthday ever.',
-    description: 'Forget boring dinner reservations. Celebrate your birthday with a full-on paint party, UV lights, your crew, birthday music, and neon color everywhere. We set everything up so you just have to show up and have the best time of your year. Sessions run 1.5 hours (one service) or 2 hours (two services). Neon UV lighting: 7 PM to 11 PM. Regular lighting: 3 PM to 6:30 PM.',
+    description: 'Forget boring dinner reservations. Celebrate your birthday with a full-on paint party, UV lights, your crew, birthday music, and neon color everywhere. We set everything up so you just have to show up and have the best time of your year. Sessions run 1.5 hours (one service) or 2 hours (two services). Open daily 3 PM to 11 PM.',
     image: BIRTHDAY_PHOTO,
     extraImages: [BDAY_PACK_BOX, NEON_SESSION],
     icon: '🎉', color: '#9D00FF',
@@ -96,7 +96,7 @@ const EXPERIENCES_EN = {
     ],
     rules: [
       'All ages welcome, preferably from 3 years and above.',
-      'Children under 16 must be accompanied by a trusted adult at all times.',
+      'Children under 9 must be accompanied by a trusted adult at all times.',
       'Booking is done exclusively via WhatsApp.',
       'Food is NOT provided by Splash Spectrum (except cakes in Big Birthday Pack).',
       'For private booking, minimum 25 children required.',
@@ -126,7 +126,7 @@ const EXPERIENCES_EN = {
     ],
     rules: [
       'All ages welcome, preferably from 3 years and above.',
-      'Children under 16 must be accompanied by a trusted adult at all times.',
+      'Children under 9 must be accompanied by a trusted adult at all times.',
       'Booking is done exclusively via WhatsApp.',
       'Food is NOT provided by Splash Spectrum.',
       'Groups of 20 to 25 people or more are welcome to bring their own food.',
@@ -162,7 +162,7 @@ const EXPERIENCES_EN = {
     ],
     rules: [
       'All ages welcome, preferably from 3 years and above.',
-      'Children under 16 must be accompanied by a trusted adult at all times.',
+      'Children under 9 must be accompanied by a trusted adult at all times.',
       'Wear clothes you do not mind getting paint on.',
     ],
     vibes: ['Friend groups', 'Date nights', 'Team bonding', 'Celebrations'],
@@ -198,6 +198,7 @@ const EXPERIENCES_EN = {
     ],
     rules: [
       'Ages 3 and above welcome.',
+      'Children under 9 must be accompanied by a trusted adult at all times.',
       'ONE parent or guardian must accompany children at all times.',
       'Any additional guardian requires a paid entry fee.',
       'Wear clothes you do not mind getting paint on.',
@@ -234,7 +235,7 @@ const EXPERIENCES_EN = {
     ],
     rules: [
       'All ages welcome, preferably from 3 years and above.',
-      'Children under 16 must be accompanied by a trusted adult.',
+      'Children under 9 must be accompanied by a trusted adult.',
       'No prior art experience needed.',
       'Wear clothes you do not mind getting paint on.',
     ],
@@ -261,7 +262,7 @@ const EXPERIENCES_EN = {
     ],
     rules: [
       'All ages welcome, preferably from 3 years and above.',
-      'Children under 16 must be accompanied by a trusted adult.',
+      'Children under 9 must be accompanied by a trusted adult.',
       'No prior art experience needed.',
       'Wear clothes you do not mind getting paint on.',
     ],
@@ -289,7 +290,7 @@ const EXPERIENCES_EN = {
     ],
     rules: [
       'All ages welcome, preferably from 3 years and above.',
-      'Children under 16 must be accompanied by a trusted adult.',
+      'Children under 9 must be accompanied by a trusted adult.',
       'Contact us in advance to plan your event.',
       'Minimum group size: 10 people.',
       'Venue details discussed during consultation.',
@@ -323,11 +324,11 @@ const EXPERIENCES_AR = {
       'غطاء أحذية',
       'خزانة لحفظ أغراضك الشخصية',
       'لوحة فنية تأخذها معك للبيت',
-      'متاحة بإضاءة عادية (العصر) أو إضاءة نيون (من 7م)',
+      'مفتوح يومياً من 3 مساءً حتى 11 مساءً',
     ],
     rules: [
       'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
-      'يجب أن يرافق الأطفال دون 16 سنة شخص بالغ موثوق في جميع الأوقات.',
+      'يجب أن يرافق الأطفال دون 9 سنوات شخص بالغ موثوق في جميع الأوقات.',
       'أي مرافق إضافي يتطلب رسوم دخول.',
       'ارتدِ ملابس لا تمانع تلطيخها.',
     ],
@@ -363,7 +364,7 @@ const EXPERIENCES_AR = {
     ],
     rules: [
       'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
-      'يجب أن يرافق الأطفال دون 16 سنة شخص بالغ موثوق في جميع الأوقات.',
+      'يجب أن يرافق الأطفال دون 9 سنوات شخص بالغ موثوق في جميع الأوقات.',
       'الحجز يتم حصرياً عبر واتساب.',
       'الطعام غير مقدم (الكيك مسموح في باقة عيد الميلاد الكبيرة).',
       'للحجز الخاص يُشترط 25 طفل على الأقل.',
@@ -393,7 +394,7 @@ const EXPERIENCES_AR = {
     ],
     rules: [
       'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
-      'يجب أن يرافق الأطفال دون 16 سنة شخص بالغ موثوق في جميع الأوقات.',
+      'يجب أن يرافق الأطفال دون 9 سنوات شخص بالغ موثوق في جميع الأوقات.',
       'الحجز يتم حصرياً عبر واتساب.',
       'الطعام غير مقدم من سبلاش سبيكتروم.',
       'المجموعات من 20 إلى 25 شخصاً فأكثر يمكنها إحضار طعامها الخاص.',
@@ -428,7 +429,7 @@ const EXPERIENCES_AR = {
     ],
     rules: [
       'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
-      'يجب أن يرافق الأطفال دون 16 سنة شخص بالغ موثوق.',
+      'يجب أن يرافق الأطفال دون 9 سنوات شخص بالغ موثوق.',
       'ارتدِ ملابس لا تمانع تلطيخها.',
     ],
     vibes: ['مجموعات الأصدقاء', 'الثنائيات', 'بناء الفريق', 'الاحتفالات'],
@@ -500,7 +501,7 @@ const EXPERIENCES_AR = {
     ],
     rules: [
       'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
-      'يجب أن يرافق الأطفال دون 16 سنة شخص بالغ موثوق.',
+      'يجب أن يرافق الأطفال دون 9 سنوات شخص بالغ موثوق.',
       'لا تحتاج لأي خبرة فنية مسبقة.',
       'ارتدِ ملابس لا تمانع تلطيخها.',
     ],
@@ -527,7 +528,7 @@ const EXPERIENCES_AR = {
     ],
     rules: [
       'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
-      'يجب أن يرافق الأطفال دون 16 سنة شخص بالغ موثوق.',
+      'يجب أن يرافق الأطفال دون 9 سنوات شخص بالغ موثوق.',
       'لا تحتاج لأي خبرة فنية مسبقة.',
       'ارتدِ ملابس لا تمانع تلطيخها.',
     ],
@@ -555,7 +556,7 @@ const EXPERIENCES_AR = {
     ],
     rules: [
       'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
-      'يجب أن يرافق الأطفال دون 16 سنة شخص بالغ موثوق.',
+      'يجب أن يرافق الأطفال دون 9 سنوات شخص بالغ موثوق.',
       'تواصل معنا مسبقاً لتخطيط فعاليتك.',
       'الحد الأدنى لحجم المجموعة: 10 أشخاص.',
       'يتم مناقشة تفاصيل المكان خلال الاستشارة.',
@@ -566,7 +567,7 @@ const EXPERIENCES_AR = {
   },
 };
 
-const timeSlots = ['10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM'];
+const timeSlots = ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'];
 
 export default function ExperienceDetail() {
   const { lang, isAr } = useLang();
