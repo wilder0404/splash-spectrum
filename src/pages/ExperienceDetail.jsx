@@ -647,7 +647,7 @@ export default function ExperienceDetail() {
           </div>
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4" style={{ color: exp.color }} />
-            <span className="font-body text-white/60 text-sm">{isAr ? 'من سن 3 سنوات فأكثر' : 'Ages 3+ welcome'}</span>
+            <span className="font-body text-white/60 text-sm">{isAr ? 'يُفضل من سن 3 سنوات فأكثر' : 'Preferably ages 3+'}</span>
           </div>
         </div>
       </div>
