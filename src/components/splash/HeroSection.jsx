@@ -120,11 +120,14 @@ export default function HeroSection() {
           </motion.p>
 
           <h1 className="font-heading font-black text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-white leading-[1.1] mb-6">
-            {tr(lang, 'hero_h1_1')}{' '}
-            <span className="text-neon-pink text-glow-pink">{tr(lang, 'hero_h1_2')}</span>
-            {tr(lang, 'hero_h1_3') ? <> {tr(lang, 'hero_h1_3')}{' '}</> : null}
-            <br />
-            <span className="text-electric-cyan text-glow-cyan">{tr(lang, 'hero_h1_4')}</span>
+            <span className="block">
+              {tr(lang, 'hero_h1_1')}{' '}
+              <span className="text-neon-pink text-glow-pink">{tr(lang, 'hero_h1_2')}</span>
+              {tr(lang, 'hero_h1_3') ? <> {tr(lang, 'hero_h1_3')}</> : null}
+            </span>
+            <span className="block mt-3">
+              <span className="text-electric-cyan text-glow-cyan">{tr(lang, 'hero_h1_4')}</span>
+            </span>
           </h1>
 
           <motion.p

@@ -21,7 +21,7 @@ const EVENTS_IMG = "https://media.base44.com/images/public/user_69d7790ceb26c9be
 const GALLERY1 = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/64a9b5ac5_image.png";
 const GALLERY2 = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/a9569b78f_image.png";
 const GALLERY3 = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/6c3b5dcdf_image.png";
-const PHONE_CASE_IMG = "https://media.base44.com/images/public/69e5ef89828747441c931879/1e4b2becc_image.png";
+const PHONE_CASE_IMG = "https://media.base44.com/images/public/69e5ef89828747441c931879/906f677bf_image.png";
 // Figurine product photos
 const FIG_BUNNY = "https://media.base44.com/images/public/69e5ef89828747441c931879/418062ae7_image.png";
 const FIG_KITTY = "https://media.base44.com/images/public/69e5ef89828747441c931879/174b825da_image.png";

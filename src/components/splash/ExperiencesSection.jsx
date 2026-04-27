@@ -22,7 +22,7 @@ export default function ExperiencesSection() {
     { titleKey: 'exp_group_title', descKey: 'exp_group_desc', image: GROUP_IMG, icon: '👯', color: '#00F3FF', slug: 'group-friends' },
     { titleKey: 'exp_kids_title', descKey: 'exp_kids_desc', image: KIDS_IMG, icon: '🧸', color: '#39FF14', slug: 'kids-experiences' },
     { titleKey: 'exp_figurines_title', descKey: 'exp_figurines_desc', image: FIGURINES_IMG, icon: '🎁', color: '#FF007F', slug: 'custom-art-figurines' },
-    { titleKey: 'exp_phonecase_title', descKey: 'exp_phonecase_desc', image: "https://media.base44.com/images/public/69e5ef89828747441c931879/1e4b2becc_image.png", icon: '📱', color: '#00F3FF', slug: 'phone-case' },
+    { titleKey: 'exp_phonecase_title', descKey: 'exp_phonecase_desc', image: "https://media.base44.com/images/public/69e5ef89828747441c931879/906f677bf_image.png", icon: '📱', color: '#00F3FF', slug: 'phone-case' },
     { titleKey: 'exp_events_title', descKey: 'exp_events_desc', image: EVENTS_IMG, icon: '🤍', color: '#9D00FF', slug: 'special-events' },
   ];
 
