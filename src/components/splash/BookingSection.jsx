@@ -16,9 +16,8 @@ const WHATSAPP_NUMBER = '966554563447';
 export default function BookingSection() {
   const { lang, isAr } = useLang();
   const { user, isAuthenticated } = useAuth();
-  const [form, setForm] = useState({ experienceType: '', experience: '', subExperience: '', date: '', time: '', people: '', name: '', email: '', phone: '' });
+  const [form, setForm] = useState({ experience: '', subExperience: '', date: '', time: '', people: '', name: '', email: '', phone: '' });
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState(null);
 
   // Auto-fill from logged in user
   useEffect(() => {
@@ -37,117 +36,49 @@ export default function BookingSection() {
   });
   const settings = settingsList[0] || null;
 
-  const { data: experiences = [] } = useQuery({
-    queryKey: ['experiences'],
-    queryFn: () => base44.entities.Experience.list('', 100),
-  });
-
-  const timeSlots = settings?.timeSlots?.length > 0
+  const timeSlots = settings?.timeSlots?.length
     ? settings.timeSlots
     : ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'];
 
-  // Get active experience titles as "experience types"
-  const experienceTypes = experiences.filter(e => e.isActive !== false).map(e => ({
-    slug: e.slug,
-    name_en: e.title_en,
-    name_ar: e.title_ar,
-  }));
+  const experienceOptions = settings?.experienceOptions || [];
 
-  // Get the selected experience and pull activities from its priceTable
-  const selectedExp = experiences.find(e => (isAr ? e.title_ar : e.title_en) === form.experienceType);
-  const activities = selectedExp?.priceTable || [];
+  const experienceNames = experienceOptions.map(e => isAr ? e.name_ar : e.name_en);
 
-  const selectedActivityObj = activities.find(a => (isAr ? a.name_ar : a.name_en) === form.experience);
-  const isWhatsAppOnly = selectedExp?.whatsappOnly || false;
-  const maxPeople = 4;
+  const selectedExpObj = experienceOptions.find(e => (isAr ? e.name_ar : e.name_en) === form.experience);
+  const isWhatsAppOnly = selectedExpObj?.whatsappOnly || false;
+  const subExps = selectedExpObj?.subExperiences || [];
+
+  const selectedSub = subExps.find(s => (isAr ? s.name_ar : s.name_en) === form.subExperience);
+  const maxPeople = selectedSub?.maxPeople || 10;
   const peopleOptions = Array.from({ length: maxPeople }, (_, i) => i + 1);
 
-  const [availableSlots, setAvailableSlots] = useState({});
-  const [checkingSlots, setCheckingSlots] = useState(false);
-
-  const checkAllSlots = async () => {
-    if (!form.experience || !form.date || !form.people) return;
-    setCheckingSlots(true);
-    const slots = {};
-    
-    for (const slot of timeSlots) {
-      try {
-        const res = await base44.functions.invoke('checkSeatAvailability', {
-          date: form.date,
-          time: slot,
-          activityName: form.experience,
-          requestedSeats: parseInt(form.people)
-        });
-        slots[slot] = res.data.available || res.available;
-      } catch (error) {
-        slots[slot] = false;
-      }
-    }
-    setAvailableSlots(slots);
-    setCheckingSlots(false);
-  };
-
-  useEffect(() => {
-    if (form.date && form.people && form.experience) {
-      checkAllSlots();
-    }
-  }, [form.date, form.people, form.experience]);
-
-  const handleTypeChange = (v) => {
-    setForm({ ...form, experienceType: v, experience: '', subExperience: '', people: '' });
-  };
-  const handleActivityChange = (v) => setForm({ ...form, experience: v, subExperience: '', people: '' });
+  const handleExperienceChange = (v) => setForm({ ...form, experience: v, subExperience: '', people: '' });
   const handleSubChange = (v) => setForm({ ...form, subExperience: v, people: '' });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    
-    // Check seat availability before booking
+    const booking = await base44.entities.Booking.create({
+      experienceSlug: selectedExpObj?.name_en || form.experience,
+      experienceName: form.experience,
+      subExperience: form.subExperience,
+      date: form.date,
+      time: form.time,
+      people: form.people,
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      userId: user?.id || '',
+      status: 'confirmed',
+    });
+
+    // Send confirmation email via backend function
     try {
-      const availability = await base44.functions.invoke('checkSeatAvailability', {
-        date: form.date,
-        time: form.time,
-        activityName: form.experience,
-        requestedSeats: parseInt(form.people)
-      });
-      
-      if (!availability.available) {
-        setError(`Sorry, this slot is booked. Only ${Math.max(0, availability.availableSeats)} ${availability.availableSeats === 1 ? 'seat' : 'seats'} available for ${form.time}. Please choose another time.`);
-        return;
-      }
-    } catch (error) {
-      setError('Error checking availability. Please try again.');
-      return;
+      await base44.functions.invoke('sendBookingConfirmation', { bookingId: booking.id });
+    } catch (emailError) {
+      console.warn('Email sending failed, but booking was created:', emailError);
     }
 
-    try {
-      const booking = await base44.entities.Booking.create({
-        experienceSlug: selectedActivityObj?.name_en || form.experience,
-        experienceType: form.experienceType,
-        activityName: form.experience,
-        subActivity: form.subExperience,
-        date: form.date,
-        time: form.time,
-        people: form.people,
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        userId: user?.id || '',
-        status: 'confirmed',
-      });
-
-      // Send confirmation email via backend function
-      try {
-        await base44.functions.invoke('sendBookingConfirmation', { bookingId: booking.id });
-      } catch (emailError) {
-        console.warn('Email sending failed, but booking was created:', emailError);
-      }
-
-      setSubmitted(true);
-    } catch (bookingError) {
-      setError(`Booking failed: ${bookingError.message}`);
-    }
+    setSubmitted(true);
   };
 
   const handleWhatsAppRedirect = () => {
@@ -199,56 +130,52 @@ export default function BookingSection() {
             onSubmit={handleSubmit}
             className="bg-white/[0.03] backdrop-blur-sm border border-white/5 rounded-3xl p-5 sm:p-8 md:p-10 space-y-5">
 
-            {/* Error Message */}
-            {error && (
-              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                className="bg-destructive/10 border border-destructive/20 rounded-2xl p-4">
-                <p className="text-destructive text-sm font-body leading-relaxed">{error}</p>
-              </motion.div>
-            )}
-
             {/* Experience Type */}
             <div className="space-y-2">
               <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
-                <Palette className="w-4 h-4 text-neon-pink shrink-0" /> {isAr ? 'نوع التجربة' : 'Experience Type'}
+                <Palette className="w-4 h-4 text-neon-pink shrink-0" /> {tr(lang, 'booking_experience')}
               </Label>
-              <Select value={form.experienceType} onValueChange={handleTypeChange}>
+              <Select onValueChange={handleExperienceChange}>
                 <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
-                  <SelectValue placeholder={isAr ? 'اختر نوع التجربة' : 'Choose experience type'} />
+                  <SelectValue placeholder={tr(lang, 'booking_choose_exp')} />
                 </SelectTrigger>
                 <SelectContent className="bg-obsidian border-white/10">
-                  {experienceTypes.map(type => (
-                    <SelectItem key={type.slug} value={isAr ? type.name_ar : type.name_en} className="text-white focus:bg-white/10 focus:text-white">
-                      {isAr ? type.name_ar : type.name_en}
-                    </SelectItem>
+                  {experienceNames.map(name => (
+                    <SelectItem key={name} value={name} className="text-white focus:bg-white/10 focus:text-white">{name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Activity/Experience */}
-            {form.experienceType && activities.length > 0 && (
+            {/* Sub-experience */}
+            {subExps.length > 0 && (
               <div className="space-y-2">
                 <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-electric-cyan shrink-0" /> {isAr ? 'النشاط' : 'Activity'}
+                  <Sparkles className="w-4 h-4 text-electric-cyan shrink-0" />
+                  {isAr ? 'اختر النوع' : 'Choose Activity'}
                 </Label>
-                <Select value={form.experience} onValueChange={handleActivityChange}>
+                <Select onValueChange={handleSubChange}>
                   <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
-                    <SelectValue placeholder={isAr ? 'اختر النشاط' : 'Choose activity'} />
+                    <SelectValue placeholder={isAr ? 'اختر النشاط' : 'Pick an activity'} />
                   </SelectTrigger>
                   <SelectContent className="bg-obsidian border-white/10">
-                    {activities.map(activity => {
-                      const name = isAr ? activity.name_ar : activity.name_en;
+                    {subExps.map(s => {
+                      const name = isAr ? s.name_ar : s.name_en;
                       return (
-                        <SelectItem key={name} value={name} className="text-white focus:bg-white/10 focus:text-white">{name}</SelectItem>
+                        <SelectItem key={name} value={name} className="text-white focus:bg-white/10 focus:text-white">
+                          {name} {s.maxPeople <= 4 ? `(max ${s.maxPeople})` : ''}
+                        </SelectItem>
                       );
                     })}
                   </SelectContent>
                 </Select>
+                {selectedSub && selectedSub.maxPeople <= 4 && (
+                  <p className="text-neon-pink text-xs font-body mt-1">
+                    {isAr ? `⚠️ هذا النشاط يتسع لـ ${selectedSub.maxPeople} أشخاص كحد أقصى` : `⚠️ This activity fits up to ${selectedSub.maxPeople} people per group`}
+                  </p>
+                )}
               </div>
             )}
-
-
 
             {/* Date & Time */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -263,43 +190,38 @@ export default function BookingSection() {
                 <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
                   <Clock className="w-4 h-4 text-electric-cyan shrink-0" /> {tr(lang, 'booking_time')}
                 </Label>
-                <Select value={form.time} onValueChange={(v) => setForm({ ...form, time: v })}>
+                <Select onValueChange={(v) => setForm({ ...form, time: v })}>
                   <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
-                    <SelectValue placeholder={checkingSlots ? 'Checking...' : tr(lang, 'booking_choose_time')} />
+                    <SelectValue placeholder={tr(lang, 'booking_choose_time')} />
                   </SelectTrigger>
                   <SelectContent className="bg-obsidian border-white/10">
-                   {timeSlots.map(t => {
-                     const isAvailable = availableSlots[t];
-                     const disabled = isAvailable === false;
-                     return (
-                       <SelectItem key={t} value={t} disabled={disabled} className={`text-white focus:bg-white/10 focus:text-white ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                         {t} {disabled ? '(Fully booked)' : ''}
-                       </SelectItem>
-                     );
-                   })}
+                    {timeSlots.map(t => (
+                      <SelectItem key={t} value={t} className="text-white focus:bg-white/10 focus:text-white">{t}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             {/* People */}
-            {form.experience && (
-              <div className="space-y-2">
-                <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
-                  <Users className="w-4 h-4 text-neon-green shrink-0" /> {isAr ? 'عدد الأشخاص' : 'Number of People'}
-                </Label>
-                <Select value={form.people} onValueChange={(v) => setForm({ ...form, people: v })}>
-                  <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
-                    <SelectValue placeholder={isAr ? 'اختر العدد' : 'Choose number'} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-obsidian border-white/10">
-                    {peopleOptions.map(n => (
-                      <SelectItem key={n} value={String(n)} className="text-white focus:bg-white/10 focus:text-white">{n}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
+                <Users className="w-4 h-4 text-neon-green shrink-0" /> {tr(lang, 'booking_people')}
+              </Label>
+              <Select onValueChange={(v) => setForm({ ...form, people: v })}>
+                <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
+                  <SelectValue placeholder={tr(lang, 'booking_how_many')} />
+                </SelectTrigger>
+                <SelectContent className="bg-obsidian border-white/10">
+                  {(form.subExperience ? peopleOptions : [1,2,3,4,5,6,7,8,9,10]).map(n => (
+                    <SelectItem key={n} value={String(n)} className="text-white focus:bg-white/10 focus:text-white">{n}</SelectItem>
+                  ))}
+                  {!form.subExperience && (
+                    <SelectItem value="10+" className="text-white focus:bg-white/10 focus:text-white">10+</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
 
             {/* Contact info */}
             <div className="border-t border-white/5 pt-5 space-y-4">
@@ -350,7 +272,7 @@ export default function BookingSection() {
                   className="w-full h-14 bg-neon-pink hover:bg-neon-pink/90 text-white font-heading font-bold text-lg rounded-xl animate-pulse-glow">
                   {tr(lang, 'booking_confirm')}
                 </Button>
-                <p className="text-center text-white/30 text-xs font-body">{isAr ? 'يمكنك إلغاء الحجز في أي وقت' : 'You can cancel anytime'}</p>
+                <p className="text-center text-white/30 text-xs font-body">{tr(lang, 'booking_cancel_note')}</p>
               </>
             )}
           </motion.form>

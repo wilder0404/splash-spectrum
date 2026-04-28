@@ -7,7 +7,7 @@
         "type": "string"
       }
     },
-    "experienceTypes": {
+    "experienceOptions": {
       "type": "array",
       "items": {
         "type": "object",
@@ -18,7 +18,10 @@
           "name_ar": {
             "type": "string"
           },
-          "activities": {
+          "whatsappOnly": {
+            "type": "boolean"
+          },
+          "subExperiences": {
             "type": "array",
             "items": {
               "type": "object",
@@ -29,29 +32,8 @@
                 "name_ar": {
                   "type": "string"
                 },
-                "whatsappOnly": {
-                  "type": "boolean"
-                },
-                "seatsPerHour": {
-                  "type": "number",
-                  "description": "Maximum seats available per hour"
-                },
-                "subActivities": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "name_en": {
-                        "type": "string"
-                      },
-                      "name_ar": {
-                        "type": "string"
-                      },
-                      "maxPeople": {
-                        "type": "number"
-                      }
-                    }
-                  }
+                "maxPeople": {
+                  "type": "number"
                 }
               }
             }
