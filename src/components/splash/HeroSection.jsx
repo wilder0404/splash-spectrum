@@ -62,8 +62,8 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-b from-obsidian/50 via-obsidian/20 to-obsidian" />
       </div>
 
-      {/* Animated Paint Blobs */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {/* Animated Paint Blobs — background layer */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 1 }}>
         {blobs.map((blob) => (
           <motion.div
             key={blob.id}
@@ -90,61 +90,94 @@ export default function HeroSection() {
             }}
           />
         ))}
+
+        {/* Persistent paint splat shapes — static large splashes in background */}
+        {[
+          { x: 20, y: 35, color: '#FF007F', r: 160, delay: 0 },
+          { x: 65, y: 45, color: '#00F3FF', r: 200, delay: 1.5 },
+          { x: 45, y: 60, color: '#39FF14', r: 140, delay: 0.8 },
+          { x: 80, y: 25, color: '#9D00FF', r: 120, delay: 2.2 },
+          { x: 10, y: 70, color: '#FF4500', r: 110, delay: 1.1 },
+        ].map((s, i) => (
+          <motion.div
+            key={`splash-bg-${i}`}
+            className="absolute"
+            style={{
+              left: `${s.x}%`,
+              top: `${s.y}%`,
+              width: s.r * 2,
+              height: s.r * 1.3,
+              transform: 'translate(-50%, -50%)',
+              background: `radial-gradient(ellipse at 40% 40%, ${s.color}44 0%, ${s.color}22 40%, transparent 70%)`,
+              filter: 'blur(30px)',
+              borderRadius: '40% 60% 55% 45% / 45% 55% 60% 40%',
+            }}
+            animate={{
+              scale: [1, 1.08, 0.95, 1.05, 1],
+              opacity: [0.5, 0.75, 0.45, 0.7, 0.5],
+              rotate: [0, 3, -2, 1, 0],
+            }}
+            transition={{
+              duration: 6 + i * 1.2,
+              delay: s.delay,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        ))}
       </div>
 
-      {/* Click Paint Splash Effects */}
+      {/* Click Paint Splash Effects — behind content */}
       <AnimatePresence>
         {splashes.map(droplet => {
           const rad = (droplet.angle * Math.PI) / 180;
           const tx = Math.cos(rad) * droplet.distance;
           const ty = Math.sin(rad) * droplet.distance;
           return droplet.isCore ? (
-            // Central burst
             <motion.div
               key={droplet.id}
-              initial={{ scale: 0, opacity: 0.95 }}
-              animate={{ scale: 2.5, opacity: 0 }}
+              initial={{ scale: 0, opacity: 0.8 }}
+              animate={{ scale: 3.5, opacity: 0 }}
               exit={{}}
-              transition={{ duration: 0.6, ease: [0.2, 0.8, 0.4, 1] }}
-              className="pointer-events-none fixed z-40 rounded-full"
+              transition={{ duration: 0.7, ease: [0.2, 0.8, 0.4, 1] }}
+              className="pointer-events-none fixed z-[2] rounded-full"
               style={{
-                left: droplet.x - 25,
-                top: droplet.y - 25,
-                width: 50,
-                height: 50,
-                background: `radial-gradient(circle, ${droplet.color}ff 0%, ${droplet.color}99 40%, ${droplet.color}22 70%, transparent 100%)`,
-                filter: 'blur(1px)',
+                left: droplet.x - 35,
+                top: droplet.y - 35,
+                width: 70,
+                height: 70,
+                background: `radial-gradient(circle, ${droplet.color}cc 0%, ${droplet.color}66 40%, ${droplet.color}11 70%, transparent 100%)`,
+                filter: 'blur(2px)',
               }}
             />
           ) : (
-            // Flying droplets
             <motion.div
               key={droplet.id}
-              initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+              initial={{ x: 0, y: 0, scale: 1, opacity: 0.9 }}
               animate={{
                 x: tx,
                 y: ty,
-                scale: [1, 1.2, 0.3],
-                opacity: [1, 0.9, 0],
+                scale: [1, 1.3, 0.2],
+                opacity: [0.9, 0.7, 0],
               }}
               exit={{}}
-              transition={{ duration: 0.5 + Math.random() * 0.35, ease: [0.1, 0.7, 0.3, 1] }}
-              className="pointer-events-none fixed z-40"
+              transition={{ duration: 0.55 + Math.random() * 0.3, ease: [0.1, 0.7, 0.3, 1] }}
+              className="pointer-events-none fixed z-[2]"
               style={{
                 left: droplet.x - droplet.size / 2,
                 top: droplet.y - droplet.size / 2,
                 width: droplet.size,
-                height: droplet.size * 1.4,
+                height: droplet.size * 1.5,
                 backgroundColor: droplet.color,
-                borderRadius: '50% 50% 60% 60%',
-                boxShadow: `0 0 ${droplet.size}px ${droplet.color}88`,
+                borderRadius: '50% 50% 55% 55%',
+                filter: `blur(0.5px)`,
               }}
             />
           );
         })}
       </AnimatePresence>
 
-      {/* Content */}
+      {/* Content — above splashes */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
