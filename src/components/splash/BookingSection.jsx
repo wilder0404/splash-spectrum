@@ -200,7 +200,7 @@ export default function BookingSection() {
               <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
                 <Palette className="w-4 h-4 text-neon-pink shrink-0" /> {isAr ? 'نوع التجربة' : 'Experience Type'}
               </Label>
-              <Select onValueChange={handleTypeChange}>
+              <Select value={form.experienceType} onValueChange={handleTypeChange}>
                 <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
                   <SelectValue placeholder={isAr ? 'اختر نوع التجربة' : 'Choose experience type'} />
                 </SelectTrigger>
@@ -220,7 +220,7 @@ export default function BookingSection() {
                 <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-electric-cyan shrink-0" /> {isAr ? 'النشاط' : 'Activity'}
                 </Label>
-                <Select onValueChange={handleActivityChange}>
+                <Select value={form.experience} onValueChange={handleActivityChange}>
                   <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
                     <SelectValue placeholder={isAr ? 'اختر النشاط' : 'Choose activity'} />
                   </SelectTrigger>
@@ -240,7 +240,7 @@ export default function BookingSection() {
                   <Sparkles className="w-4 h-4 text-electric-cyan shrink-0" />
                   {isAr ? 'الجلسة' : 'Session'}
                 </Label>
-                <Select onValueChange={handleSubChange}>
+                <Select value={form.subExperience} onValueChange={handleSubChange}>
                   <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
                     <SelectValue placeholder={isAr ? 'اختر الجلسة' : 'Choose session'} />
                   </SelectTrigger>
@@ -276,7 +276,7 @@ export default function BookingSection() {
                 <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
                   <Clock className="w-4 h-4 text-electric-cyan shrink-0" /> {tr(lang, 'booking_time')}
                 </Label>
-                <Select onValueChange={(v) => setForm({ ...form, time: v })}>
+                <Select value={form.time} onValueChange={(v) => setForm({ ...form, time: v })}>
                   <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
                     <SelectValue placeholder={checkingSlots ? 'Checking...' : tr(lang, 'booking_choose_time')} />
                   </SelectTrigger>
@@ -300,7 +300,7 @@ export default function BookingSection() {
                 <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
                   <Users className="w-4 h-4 text-neon-green shrink-0" /> {isAr ? 'عدد الأشخاص' : 'Number of People'}
                 </Label>
-                <Select onValueChange={(v) => setForm({ ...form, people: v })}>
+                <Select value={form.people} onValueChange={(v) => setForm({ ...form, people: v })}>
                   <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
                     <SelectValue placeholder={isAr ? 'اختر العدد' : 'Choose number'} />
                   </SelectTrigger>
