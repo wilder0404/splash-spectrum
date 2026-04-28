@@ -54,8 +54,8 @@ export default function BookingSection() {
   }));
 
   // Get selected experience - activities come from BookingSettings
-  const selectedExp = experiences.find(e => e.slug === form.experienceType || (isAr ? e.title_ar : e.title_en) === form.experienceType);
-  const experienceName = selectedExp ? (isAr ? selectedExp.title_ar : selectedExp.title_en) : '';
+  const selectedExp = experiences.find(e => (isAr ? e.title_ar : e.title_en) === form.experienceType);
+  const experienceName = form.experienceType;
 
   // Get activities from BookingSettings that match the selected experience name
   const activities = settings?.experienceTypes
@@ -103,8 +103,7 @@ export default function BookingSection() {
   }, [form.date, form.people, form.experience]);
 
   const handleTypeChange = (v) => {
-    const selected = experienceTypes.find(t => (isAr ? t.name_ar : t.name_en) === v);
-    setForm({ ...form, experienceType: selected?.slug || v, experience: '', subExperience: '', people: '' });
+    setForm({ ...form, experienceType: v, experience: '', subExperience: '', people: '' });
   };
   const handleActivityChange = (v) => setForm({ ...form, experience: v, subExperience: '', people: '' });
   const handleSubChange = (v) => setForm({ ...form, subExperience: v, people: '' });
