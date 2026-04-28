@@ -269,10 +269,11 @@ export default function BookingSection() {
                   </SelectTrigger>
                   <SelectContent className="bg-obsidian border-white/10">
                    {timeSlots.map(t => {
-                     const isAvailable = availableSlots[t] === true;
+                     const isAvailable = availableSlots[t];
+                     const disabled = isAvailable === false;
                      return (
-                       <SelectItem key={t} value={t} disabled={!isAvailable} className={`text-white focus:bg-white/10 focus:text-white ${!isAvailable ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                         {t} {!isAvailable ? '(Fully booked)' : ''}
+                       <SelectItem key={t} value={t} disabled={disabled} className={`text-white focus:bg-white/10 focus:text-white ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                         {t} {disabled ? '(Fully booked)' : ''}
                        </SelectItem>
                      );
                    })}
