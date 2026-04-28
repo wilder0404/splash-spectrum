@@ -68,7 +68,7 @@ export default function BookingSection() {
       email: form.email,
       phone: form.phone,
       userId: user?.id || '',
-      status: 'pending',
+      status: 'confirmed',
     });
 
     // Send confirmation email

@@ -34,11 +34,11 @@
     "status": {
       "type": "string",
       "enum": [
-        "pending",
         "confirmed",
+        "done",
         "cancelled"
       ],
-      "default": "pending"
+      "default": "confirmed"
     },
     "adminNotes": {
       "type": "string"
