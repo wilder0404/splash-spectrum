@@ -1,0 +1,205 @@
+{
+  "type": "object",
+  "properties": {
+    "slug": {
+      "type": "string"
+    },
+    "title_en": {
+      "type": "string"
+    },
+    "title_ar": {
+      "type": "string"
+    },
+    "tagline_en": {
+      "type": "string"
+    },
+    "tagline_ar": {
+      "type": "string"
+    },
+    "description_en": {
+      "type": "string"
+    },
+    "description_ar": {
+      "type": "string"
+    },
+    "image": {
+      "type": "string"
+    },
+    "gallery": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "icon": {
+      "type": "string"
+    },
+    "color": {
+      "type": "string"
+    },
+    "duration_en": {
+      "type": "string"
+    },
+    "duration_ar": {
+      "type": "string"
+    },
+    "groupSize_en": {
+      "type": "string"
+    },
+    "groupSize_ar": {
+      "type": "string"
+    },
+    "price_en": {
+      "type": "string"
+    },
+    "price_ar": {
+      "type": "string"
+    },
+    "priceTable": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name_en": {
+            "type": "string"
+          },
+          "name_ar": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string"
+          },
+          "desc_en": {
+            "type": "string"
+          },
+          "desc_ar": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "includes_en": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "includes_ar": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rules_en": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rules_ar": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "vibes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "whatsappOnly": {
+      "type": "boolean",
+      "default": false
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    },
+    "sortOrder": {
+      "type": "number",
+      "default": 0
+    },
+    "schoolPackages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "students": {
+            "type": "number"
+          },
+          "before": {
+            "type": "string"
+          },
+          "discount": {
+            "type": "string"
+          },
+          "saving": {
+            "type": "string"
+          },
+          "after": {
+            "type": "string"
+          },
+          "perKid": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "figurines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name_en": {
+            "type": "string"
+          },
+          "name_ar": {
+            "type": "string"
+          },
+          "img": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "bigBirthdayPack": {
+      "type": "object",
+      "properties": {
+        "allowed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "prohibited": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "booking": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "additional": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "slug",
+    "title_en",
+    "title_ar",
+    "icon",
+    "color",
+    "whatsappOnly"
+  ],
+  "name": "Experience"
+}

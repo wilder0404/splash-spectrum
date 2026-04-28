@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLang } from '@/lib/LanguageContext';
 import { tr } from '@/lib/translations.js';
+import { base44 } from '@/api/base44Client';
 
 const WHATSAPP_NUMBER = '966554563447';
 const WHATSAPP_ONLY_SLUGS = ['Birthday Experience', 'Graduation', 'تجارب أعياد الميلاد', 'احتفالات التخرج'];
@@ -80,8 +81,20 @@ export default function BookingSection() {
     setForm({ ...form, subExperience: v, people: '' });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    await base44.entities.Booking.create({
+      experienceSlug: form.experience,
+      experienceName: form.experience,
+      subExperience: form.subExperience,
+      date: form.date,
+      time: form.time,
+      people: form.people,
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      status: 'pending',
+    });
     setSubmitted(true);
   };
 

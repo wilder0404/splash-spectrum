@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Clock, Users, Star, CheckCircle, MessageCircle, Shield, Camera } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -588,8 +589,19 @@ export default function ExperienceDetail() {
   const [submitted, setSubmitted] = useState(false);
   const [lightbox, setLightbox] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    await base44.entities.Booking.create({
+      experienceSlug: slug,
+      experienceName: exp.title,
+      date: form.date,
+      time: form.time,
+      people: form.people,
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      status: 'pending',
+    });
     setSubmitted(true);
   };
 

@@ -1,0 +1,57 @@
+{
+  "type": "object",
+  "properties": {
+    "experienceSlug": {
+      "type": "string"
+    },
+    "experienceName": {
+      "type": "string"
+    },
+    "subExperience": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string"
+    },
+    "time": {
+      "type": "string"
+    },
+    "people": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "userId": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
+    "adminNotes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "experienceSlug",
+    "date",
+    "time",
+    "people",
+    "name",
+    "email",
+    "phone"
+  ],
+  "name": "Booking"
+}
