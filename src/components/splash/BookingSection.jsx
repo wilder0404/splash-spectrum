@@ -78,7 +78,7 @@ export default function BookingSection() {
           activityName: form.experience,
           requestedSeats: parseInt(form.people)
         });
-        slots[slot] = res.available;
+        slots[slot] = res.data.available || res.available;
       } catch (error) {
         slots[slot] = false;
       }
@@ -268,14 +268,14 @@ export default function BookingSection() {
                     <SelectValue placeholder={checkingSlots ? 'Checking...' : tr(lang, 'booking_choose_time')} />
                   </SelectTrigger>
                   <SelectContent className="bg-obsidian border-white/10">
-                    {timeSlots.map(t => {
-                      const isAvailable = availableSlots[t] !== false;
-                      return (
-                        <SelectItem key={t} value={t} disabled={!isAvailable} className={`text-white focus:bg-white/10 focus:text-white ${!isAvailable ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                          {t} {!isAvailable ? '(Fully booked)' : ''}
-                        </SelectItem>
-                      );
-                    })}
+                   {timeSlots.map(t => {
+                     const isAvailable = availableSlots[t] === true;
+                     return (
+                       <SelectItem key={t} value={t} disabled={!isAvailable} className={`text-white focus:bg-white/10 focus:text-white ${!isAvailable ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                         {t} {!isAvailable ? '(Fully booked)' : ''}
+                       </SelectItem>
+                     );
+                   })}
                   </SelectContent>
                 </Select>
               </div>
