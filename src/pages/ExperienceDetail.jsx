@@ -45,10 +45,7 @@ const EXPERIENCES_EN = {
     priceTable: [
       { name: '🎨 Splash', price: '149 SAR', desc: 'Throw paint on canvas under UV light' },
       { name: '🌀 Spin', price: '149 SAR', desc: 'Spin art using a spinning canvas machine' },
-      { name: '🎢 Swing', price: '149 SAR', desc: 'Swing and splash paint mid-air' },
-      { name: '🐻 Pour (e.g. bears)', price: '160 SAR', desc: 'Pour paint over a 3D figurine of your choice' },
-      { name: '📱 Splash Phone Case', price: '105 SAR', desc: 'Customize your own phone case' },
-      { name: '🖼️ Group Splash (Big Canvas)', price: '385 SAR', desc: 'Shared large canvas for a group' },
+      { name: '🖼️ Group Splash (Big Canvas)', price: '385 SAR', desc: 'Shared large canvas for a group — up to 4 people' },
     ],
     includes: [
       'All UV paints & brushes',
@@ -72,18 +69,18 @@ const EXPERIENCES_EN = {
   'birthday-experiences': {
     title: 'Birthday Experiences',
     tagline: 'The most colorful birthday ever.',
-    description: 'Forget boring dinner reservations. Celebrate your birthday with a full-on paint party, UV lights, your crew, birthday music, and neon color everywhere. We set everything up so you just have to show up and have the best time of your year. Sessions run 1.5 hours (one service) or 2 hours (two services). Normal lighting: 3 PM – 6 PM. UV neon lighting: 6 PM – 11 PM.',
+    description: 'Forget boring dinner reservations. Celebrate your birthday with a full-on paint party, UV lights, your crew, birthday music, and neon color everywhere. We set everything up so you just have to show up and have the best time of your year. Sessions run 1.5 hours (one service) or 3 hours (two services). Normal lighting: 3 PM – 6 PM. UV neon lighting: 6 PM – 11 PM.',
     image: BIRTHDAY_PHOTO,
     extraImages: [BDAY_PACK_BOX, NEON_SESSION],
     icon: '🎉', color: '#9D00FF',
-    duration: '90–120 min', groupSize: '10+ people',
+    duration: '90 min – 3 hrs', groupSize: '10+ people',
     priceTable: null,
     price: 'Custom — DM via WhatsApp',
     bigBirthdayPack: {
       allowed: ['Cakes', 'Water', 'Small bites & snacks', 'Up to 5 extra guardians', 'Decorative balloons'],
       prohibited: ['Large food meals', 'Extra activities (e.g. clowns, soap bubbles)'],
       booking: ['Contact us via WhatsApp', 'Visit our studio before making any down payment', '20% down payment required'],
-      additional: ['For a private booking, a minimum of 25 children is required', 'One service lasts 1.5 hours', 'Two services last 2 hours'],
+      additional: ['For a private booking, a minimum of 25 children is required', 'One service lasts 1.5 hours', 'Two services last 3 hours'],
     },
     includes: [
       'Birthday music playlist for the whole group',
@@ -315,10 +312,7 @@ const EXPERIENCES_AR = {
     priceTable: [
       { name: '🎨 سبلاش', price: '149 ريال', desc: 'ارمِ الألوان على اللوحة تحت ضوء UV' },
       { name: '🌀 سبين', price: '149 ريال', desc: 'رسم دوار باستخدام آلة دوارة' },
-      { name: '🎢 سوينق', price: '149 ريال', desc: 'أرجوحة ورش ألوان في الهواء' },
-      { name: '🐻 فن السكب (مثلاً: دب)', price: '160 ريال', desc: 'اسكب الألوان على مجسم من اختيارك' },
-      { name: '📱 سبلاش كفر جوال', price: '105 ريال', desc: 'خصص كفر جوالك بيدك' },
-      { name: '🖼️ سبلاش لوحة كبيرة (جماعي)', price: '385 ريال', desc: 'لوحة كبيرة مشتركة للمجموعة' },
+      { name: '🖼️ سبلاش لوحة كبيرة (جماعي)', price: '385 ريال', desc: 'لوحة كبيرة مشتركة للمجموعة — حتى 4 أشخاص' },
     ],
     includes: [
       'جميع ألوان UV والفراشي',
@@ -342,18 +336,18 @@ const EXPERIENCES_AR = {
   'birthday-experiences': {
     title: 'تجارب أعياد الميلاد',
     tagline: 'أجمل عيد ميلاد في حياتك.',
-    description: 'انسَ حجوزات العشاء المملة. احتفل بعيد ميلادك بحفلة رسم كاملة، أضواء UV، مجموعتك، موسيقى عيد الميلاد، وألوان نيون في كل مكان. نحن نجهز كل شيء، ما عليك إلا الحضور والاستمتاع. الجلسة ساعة ونصف (خدمة واحدة) أو ساعتين (خدمتان). إضاءة عادية: 3م – 6م. إضاءة نيون UV: 6م – 11م.',
+    description: 'انسَ حجوزات العشاء المملة. احتفل بعيد ميلادك بحفلة رسم كاملة، أضواء UV، مجموعتك، موسيقى عيد الميلاد، وألوان نيون في كل مكان. نحن نجهز كل شيء، ما عليك إلا الحضور والاستمتاع. الجلسة ساعة ونصف (خدمة واحدة) أو 3 ساعات (خدمتان). إضاءة عادية: 3م – 6م. إضاءة نيون UV: 6م – 11م.',
     image: BIRTHDAY_PHOTO,
     extraImages: [BDAY_PACK_BOX, NEON_SESSION],
     icon: '🎉', color: '#9D00FF',
-    duration: '90–120 دقيقة', groupSize: '10+ أشخاص',
+    duration: '90 دقيقة – 3 ساعات', groupSize: '10+ أشخاص',
     priceTable: null,
     price: 'تواصل عبر واتساب للاستفسار',
     bigBirthdayPack: {
       allowed: ['الكيك', 'المياه', 'وجبات خفيفة صغيرة', 'حتى 5 مرافقين إضافيين', 'البالونات الزينة'],
       prohibited: ['وجبات طعام كبيرة', 'الأنشطة الإضافية (مثل المهرجين، فقاعات الصابون)'],
       booking: ['التواصل عبر واتساب', 'زيارة الاستوديو قبل أي دفعة', 'دفعة أولى 20%'],
-      additional: ['للحجز الخاص يُشترط 25 طفل كحد أدنى', 'خدمة واحدة = ساعة ونصف', 'خدمتان = ساعتان'],
+      additional: ['للحجز الخاص يُشترط 25 طفل كحد أدنى', 'خدمة واحدة = ساعة ونصف', 'خدمتان = 3 ساعات'],
     },
     includes: [
       'موسيقى عيد الميلاد للمجموعة كاملة',
