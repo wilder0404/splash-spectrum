@@ -87,8 +87,8 @@ const EXPERIENCES_EN = {
     includes: [
       'Birthday music playlist for the whole group',
       'Birthday card',
-      'Neon glow VIP bracelets for everyone',
-      'VIP glow in the dark glasses for the group',
+      'Glow in the dark bracelets for everyone',
+      'Glow in the dark glasses for the group',
       'Happy Birthday hair band',
       'All UV paints & materials',
       'Private or semi-private space (we do our best)',
@@ -355,8 +355,8 @@ const EXPERIENCES_AR = {
     includes: [
       'موسيقى عيد الميلاد للمجموعة كاملة',
       'بطاقة عيد الميلاد',
-      'أساور VIP نيون للجميع',
-      'نظارات VIP متوهجة في الظلام للمجموعة',
+      'أساور متوهجة في الظلام للجميع',
+      'نظارات متوهجة في الظلام للمجموعة',
       'طوق شعر Happy Birthday',
       'جميع ألوان UV والمواد',
       'مساحة خاصة أو شبه خاصة (نبذل قصارى جهدنا)',
