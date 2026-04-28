@@ -53,24 +53,14 @@ export default function BookingSection() {
     name_ar: e.title_ar,
   }));
 
-  // Get activities from BookingSettings that match the selected experience name
-  const activities = settings?.experienceOptions
-    ?.find(t => (isAr ? t.name_ar : t.name_en) === form.experienceType)
-    ?.subExperiences || [];
-  
-  // Debug
-  console.log('Selected experience type:', form.experienceType);
-  console.log('Available experience options:', settings?.experienceOptions);
-  console.log('Found activities:', activities);
+  // Get the selected experience and pull activities from its priceTable
+  const selectedExp = experiences.find(e => (isAr ? e.title_ar : e.title_en) === form.experienceType);
+  const activities = selectedExp?.priceTable || [];
 
   const selectedActivityObj = activities.find(a => (isAr ? a.name_ar : a.name_en) === form.experience);
-  const isWhatsAppOnly = selectedActivityObj?.whatsappOnly || false;
-  const subActivities = [];
-
-  const selectedSub = subActivities.find(s => (isAr ? s.name_ar : s.name_en) === form.subExperience);
-  const maxPeople = selectedSub?.maxPeople || 4;
+  const isWhatsAppOnly = selectedExp?.whatsappOnly || false;
+  const maxPeople = 4;
   const peopleOptions = Array.from({ length: maxPeople }, (_, i) => i + 1);
-  const activityNames = activities.map(a => isAr ? a.name_ar : a.name_en);
 
   const [availableSlots, setAvailableSlots] = useState({});
   const [checkingSlots, setCheckingSlots] = useState(false);
@@ -254,35 +244,7 @@ export default function BookingSection() {
               </div>
             )}
 
-            {/* Sub-Activity */}
-            {form.experience && subActivities.length > 0 && (
-              <div className="space-y-2">
-                <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-electric-cyan shrink-0" />
-                  {isAr ? 'الجلسة' : 'Session'}
-                </Label>
-                <Select value={form.subExperience} onValueChange={handleSubChange}>
-                  <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
-                    <SelectValue placeholder={isAr ? 'اختر الجلسة' : 'Choose session'} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-obsidian border-white/10">
-                    {subActivities.map(s => {
-                      const name = isAr ? s.name_ar : s.name_en;
-                      return (
-                        <SelectItem key={name} value={name} className="text-white focus:bg-white/10 focus:text-white">
-                          {name} {s.maxPeople ? `(max ${s.maxPeople})` : ''}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-                {selectedSub && selectedSub.maxPeople && (
-                  <p className="text-neon-pink text-xs font-body mt-1">
-                    {isAr ? `⚠️ السعة القصوى: ${selectedSub.maxPeople} أشخاص` : `⚠️ Max capacity: ${selectedSub.maxPeople} people`}
-                  </p>
-                )}
-              </div>
-            )}
+
 
             {/* Date & Time */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
