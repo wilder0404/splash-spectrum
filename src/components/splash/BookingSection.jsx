@@ -50,10 +50,10 @@ export default function BookingSection() {
 
   const selectedExpObj = activeExperiences.find(e => (isAr ? e.title_ar : e.title_en) === form.experience);
   const isWhatsAppOnly = selectedExpObj?.whatsappOnly || false;
-  const subExps = [];
+  const subExps = selectedExpObj?.priceTable || [];
 
   const selectedSub = subExps.find(s => (isAr ? s.name_ar : s.name_en) === form.subExperience);
-  const maxPeople = selectedSub?.maxPeople || 10;
+  const maxPeople = 10;
   const peopleOptions = Array.from({ length: maxPeople }, (_, i) => i + 1);
 
   const handleExperienceChange = (v) => setForm({ ...form, experience: v, subExperience: '', people: '' });
@@ -155,6 +155,30 @@ export default function BookingSection() {
               </Select>
             </div>
 
+            {/* Sub-experience/Activity */}
+            {subExps.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-electric-cyan shrink-0" />
+                  {isAr ? 'اختر النشاط' : 'Choose Activity'}
+                </Label>
+                <Select value={form.subExperience} onValueChange={handleSubChange}>
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
+                    <SelectValue placeholder={isAr ? 'اختر النشاط' : 'Pick an activity'} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-obsidian border-white/10">
+                    {subExps.map(s => {
+                      const name = isAr ? s.name_ar : s.name_en;
+                      return (
+                        <SelectItem key={name} value={name} className="text-white focus:bg-white/10 focus:text-white">
+                          {name}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
 
             {/* Date & Time */}
