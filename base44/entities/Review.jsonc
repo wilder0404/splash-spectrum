@@ -1,0 +1,37 @@
+{
+  "type": "object",
+  "properties": {
+    "text": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "emoji": {
+      "type": "string"
+    },
+    "color": {
+      "type": "string"
+    },
+    "userId": {
+      "type": "string"
+    },
+    "isApproved": {
+      "type": "boolean",
+      "default": false
+    },
+    "lang": {
+      "type": "string",
+      "enum": [
+        "en",
+        "ar"
+      ],
+      "default": "en"
+    }
+  },
+  "required": [
+    "text",
+    "name"
+  ],
+  "name": "Review"
+}

@@ -1,0 +1,78 @@
+{
+  "type": "object",
+  "properties": {
+    "timeSlots": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "experienceOptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name_en": {
+            "type": "string"
+          },
+          "name_ar": {
+            "type": "string"
+          },
+          "whatsappOnly": {
+            "type": "boolean"
+          },
+          "subExperiences": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name_en": {
+                  "type": "string"
+                },
+                "name_ar": {
+                  "type": "string"
+                },
+                "maxPeople": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "extraFields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label_en": {
+            "type": "string"
+          },
+          "label_ar": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "select",
+              "textarea"
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "name": "BookingSettings",
+  "required": []
+}

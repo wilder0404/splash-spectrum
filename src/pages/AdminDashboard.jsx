@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import AdminBookings from '@/components/admin/AdminBookings';
 import AdminExperiences from '@/components/admin/AdminExperiences';
-import { BookOpen, Palette, LogOut, Home } from 'lucide-react';
+import AdminBookingSettings from '@/components/admin/AdminBookingSettings';
+import AdminReviews from '@/components/admin/AdminReviews';
+import { BookOpen, Palette, LogOut, Home, Settings, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('bookings');
+
 
   useEffect(() => {
     base44.auth.me().then(u => {
@@ -87,10 +90,24 @@ export default function AdminDashboard() {
           >
             <Palette className="w-4 h-4" /> Experiences
           </button>
+          <button
+            onClick={() => setTab('booking-settings')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-heading font-semibold text-sm transition-all ${tab === 'booking-settings' ? 'bg-neon-pink text-white' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+          >
+            <Settings className="w-4 h-4" /> Booking Form
+          </button>
+          <button
+            onClick={() => setTab('reviews')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-heading font-semibold text-sm transition-all ${tab === 'reviews' ? 'bg-neon-pink text-white' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+          >
+            <Star className="w-4 h-4" /> Reviews
+          </button>
         </div>
 
         {tab === 'bookings' && <AdminBookings />}
         {tab === 'experiences' && <AdminExperiences />}
+        {tab === 'booking-settings' && <AdminBookingSettings />}
+        {tab === 'reviews' && <AdminReviews />}
       </div>
     </div>
   );

@@ -79,7 +79,7 @@ export default function Navbar() {
                 onClick={() => base44.auth.redirectToLogin(window.location.href)}
                 className="px-4 py-2 border border-neon-pink/50 text-neon-pink hover:bg-neon-pink/10 rounded-full text-xs font-heading font-semibold transition-all"
               >
-                {isAr ? 'تسجيل الدخول' : 'Log In'}
+                {isAr ? 'تسجيل الدخول / إنشاء حساب' : 'Login / Sign Up'}
               </button>
             )}
             {/* Language Toggle */}
@@ -147,7 +147,7 @@ export default function Navbar() {
                   onClick={() => base44.auth.redirectToLogin(window.location.href)}
                   className="w-full px-6 py-3 border border-neon-pink/50 text-neon-pink font-heading font-semibold rounded-full text-base"
                 >
-                  {isAr ? 'تسجيل الدخول' : 'Log In'}
+                  {isAr ? 'تسجيل الدخول / إنشاء حساب' : 'Login / Sign Up'}
                 </button>
               )}
             </div>

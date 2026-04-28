@@ -1,9 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLang } from '@/lib/LanguageContext';
 import { tr } from '@/lib/translations.js';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
+import AddReviewModal from './AddReviewModal';
 
-const reactionsEn = [
+const floatingEmojis = ['❤️', '✨', '🔥', '🎨', '💜', '💚', '💗', '🌟'];
+
+// Fallback seed reviews shown if no DB reviews exist yet
+const seedReviews = [
   { text: "omg i went with my sister and we literally couldn't stop laughing the whole time 😭 we were COVERED", name: 'Jess M.', emoji: '😭', color: '#FF007F' },
   { text: "honestly wasn't sure what to expect but it was so much better than i thought. the UV lights make everything look insane", name: 'Khalil R.', emoji: '🔥', color: '#9D00FF' },
   { text: "took my 7yo for her birthday and she's been talking about it every single day since. she wants to go back already lol", name: 'Sarah T.', emoji: '🎉', color: '#39FF14' },
@@ -12,7 +19,7 @@ const reactionsEn = [
   { text: "my canvas is hanging in my living room now and people keep asking where i bought it lmaooo", name: 'Priya N.', emoji: '🎨', color: '#9D00FF' },
 ];
 
-const reactionsAr = [
+const seedReviewsAr = [
   { text: 'ذهبت مع أختي وما قدرنا نوقف الضحك طول الوقت 😭 كنا مغطّين بالألوان بالكامل', name: 'جيس م.', emoji: '😭', color: '#FF007F' },
   { text: 'ما كنت متوقع كثير بس كانت أحسن بكثير مما توقعت. أضواء UV تخلّي كل شيء يبدو مجنون', name: 'خليل ر.', emoji: '🔥', color: '#9D00FF' },
   { text: 'اخذت طفلتي عيد ميلادها وهي تحكي عنها كل يوم من يومها. تبغى ترجع مرة ثانية 😂', name: 'سارة ت.', emoji: '🎉', color: '#39FF14' },
@@ -21,33 +28,34 @@ const reactionsAr = [
   { text: 'لوحتي معلّقة الحين في الصالة وكل الناس يسألون من وين اشتريتها 😂', name: 'بريا ن.', emoji: '🎨', color: '#9D00FF' },
 ];
 
-const floatingEmojis = ['❤️', '✨', '🔥', '🎨', '💜', '💚', '💗', '🌟'];
-
 export default function ReactionsSection() {
-  const { lang } = useLang();
-  const reactions = lang === 'ar' ? reactionsAr : reactionsEn;
+  const { lang, isAr } = useLang();
+  const { user, isAuthenticated } = useAuth();
+  const [showModal, setShowModal] = useState(false);
+  const [reviewAdded, setReviewAdded] = useState(false);
+
+  const { data: dbReviews = [], refetch } = useQuery({
+    queryKey: ['reviews-public'],
+    queryFn: () => base44.entities.Review.filter({ isApproved: true }, '-created_date', 50),
+  });
+
+  // Show DB reviews if available, else show seed data
+  const reviews = dbReviews.length > 0 ? dbReviews : (isAr ? seedReviewsAr : seedReviews);
 
   return (
     <section className="py-20 md:py-32 px-4 bg-obsidian relative overflow-hidden">
       {floatingEmojis.map((emoji, i) => (
-        <motion.span
-          key={i}
-          className="absolute text-2xl pointer-events-none opacity-20"
+        <motion.span key={i} className="absolute text-2xl pointer-events-none opacity-20"
           style={{ left: `${10 + (i * 12)}%`, top: `${20 + ((i * 17) % 60)}%` }}
           animate={{ y: [0, -30, 0], rotate: [0, 10, -10, 0] }}
-          transition={{ duration: 3 + (i * 0.5), repeat: Infinity, delay: i * 0.4 }}
-        >
+          transition={{ duration: 3 + (i * 0.5), repeat: Infinity, delay: i * 0.4 }}>
           {emoji}
         </motion.span>
       ))}
 
       <div className="max-w-5xl mx-auto relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          className="text-center mb-16">
           <p className="text-neon-green font-heading font-semibold text-sm uppercase tracking-[0.3em] mb-4 text-glow-green">
             {tr(lang, 'reactions_badge')}
           </p>
@@ -56,19 +64,17 @@ export default function ReactionsSection() {
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {reactions.map((reaction, i) => (
-            <motion.div
-              key={i}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-10">
+          {reviews.map((reaction, i) => (
+            <motion.div key={i}
               initial={{ opacity: 0, scale: 0.8, y: 20 }}
               whileInView={{ opacity: 1, scale: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, type: 'spring', stiffness: 200 }}
               whileHover={{ scale: 1.05, rotate: i % 2 === 0 ? 1 : -1 }}
-              className="relative bg-white/[0.04] backdrop-blur-sm border border-white/5 rounded-2xl p-6 text-center"
-            >
+              className="relative bg-white/[0.04] backdrop-blur-sm border border-white/5 rounded-2xl p-6 text-center">
               <span className="text-3xl mb-3 block">{reaction.emoji}</span>
-              <p className="font-body text-white/80 text-sm leading-relaxed mb-3">{reaction.text}</p>
+              <p className="font-body text-white/80 text-sm leading-relaxed mb-3">"{reaction.text}"</p>
               <div className="flex items-center justify-center gap-2">
                 <div className="w-4 h-0.5 rounded-full" style={{ backgroundColor: reaction.color }} />
                 <span className="font-heading font-semibold text-xs" style={{ color: reaction.color }}>{reaction.name}</span>
@@ -77,7 +83,42 @@ export default function ReactionsSection() {
             </motion.div>
           ))}
         </div>
+
+        {/* CTA to add review */}
+        <div className="text-center">
+          {isAuthenticated ? (
+            reviewAdded ? (
+              <p className="text-neon-green font-heading font-semibold text-sm">
+                {isAr ? '🎉 شكراً! سيتم مراجعة تقييمك قريباً' : '🎉 Thanks! Your review will be live once approved'}
+              </p>
+            ) : (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                onClick={() => setShowModal(true)}
+                className="px-8 py-3 rounded-full font-heading font-bold text-white border border-neon-pink/50 hover:bg-neon-pink/10 text-sm transition-all"
+              >
+                ✍️ {isAr ? 'شاركنا تجربتك' : 'Share Your Experience'}
+              </motion.button>
+            )
+          ) : (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              onClick={() => base44.auth.redirectToLogin(window.location.href)}
+              className="px-8 py-3 rounded-full font-heading font-bold text-white/50 border border-white/10 hover:border-neon-pink/30 hover:text-white text-sm transition-all"
+            >
+              {isAr ? '🔑 سجّل دخول لإضافة تقييم' : '🔑 Log in to leave a review'}
+            </motion.button>
+          )}
+        </div>
       </div>
+
+      {showModal && (
+        <AddReviewModal
+          onClose={() => setShowModal(false)}
+          onSuccess={() => { setReviewAdded(true); refetch(); }}
+          userName={user?.full_name}
+        />
+      )}
     </section>
   );
 }

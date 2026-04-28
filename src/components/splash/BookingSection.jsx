@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Users, Clock, Palette, Sparkles } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -8,83 +8,57 @@ import { Label } from '@/components/ui/label';
 import { useLang } from '@/lib/LanguageContext';
 import { tr } from '@/lib/translations.js';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/lib/AuthContext';
 
 const WHATSAPP_NUMBER = '966554563447';
-const WHATSAPP_ONLY_SLUGS = ['Birthday Experience', 'Graduation', 'تجارب أعياد الميلاد', 'احتفالات التخرج'];
-
-// Sub-experiences per type with max people per group
-const SUB_EXPERIENCES = {
-  'Open Paint Session': [
-    { name: 'Splash', maxPeople: 4 },
-    { name: 'Spin', maxPeople: 4 },
-    { name: 'Group Splash (Big Canvas)', maxPeople: 4 },
-  ],
-  'Group & Friends': [
-    { name: 'Splash', maxPeople: 50 },
-    { name: 'Spin', maxPeople: 50 },
-    { name: 'Group Splash (Big Canvas)', maxPeople: 4 },
-  ],
-  'School Packages': [
-    { name: 'Splash', maxPeople: 30 },
-    { name: 'Spin', maxPeople: 30 },
-  ],
-  'Custom Art & Figurines': [
-    { name: 'Pour (Bear / Figurine)', maxPeople: 20 },
-  ],
-  'Special Event': null,
-};
-
-const SUB_EXPERIENCES_AR = {
-  'جلسات الرسم الحرة': [
-    { name: 'سبلاش', maxPeople: 4 },
-    { name: 'سبين', maxPeople: 4 },
-    { name: 'سبلاش لوحة كبيرة (جماعي)', maxPeople: 4 },
-  ],
-  'المجموعات والأصدقاء': [
-    { name: 'سبلاش', maxPeople: 50 },
-    { name: 'سبين', maxPeople: 50 },
-    { name: 'سبلاش لوحة كبيرة (جماعي)', maxPeople: 4 },
-  ],
-  'باقات المدارس': [
-    { name: 'سبلاش', maxPeople: 30 },
-    { name: 'سبين', maxPeople: 30 },
-  ],
-  'الفن المخصص والمجسمات': [
-    { name: 'فن السكب (مجسم)', maxPeople: 20 },
-  ],
-  'الفعاليات الخاصة': null,
-};
 
 export default function BookingSection() {
-  const { lang } = useLang();
+  const { lang, isAr } = useLang();
+  const { user, isAuthenticated } = useAuth();
   const [form, setForm] = useState({ experience: '', subExperience: '', date: '', time: '', people: '', name: '', email: '', phone: '' });
   const [submitted, setSubmitted] = useState(false);
 
-  const experienceTypes = lang === 'ar'
-    ? ['جلسات الرسم الحرة', 'تجارب أعياد الميلاد', 'احتفالات التخرج', 'المجموعات والأصدقاء', 'باقات المدارس', 'الفن المخصص والمجسمات', 'الفعاليات الخاصة']
-    : ['Open Paint Session', 'Birthday Experience', 'Graduation', 'Group & Friends', 'School Packages', 'Custom Art & Figurines', 'Special Event'];
+  // Auto-fill from logged in user
+  useEffect(() => {
+    if (user) {
+      setForm(f => ({
+        ...f,
+        name: f.name || user.full_name || '',
+        email: f.email || user.email || '',
+      }));
+    }
+  }, [user]);
 
-  const isWhatsAppOnly = WHATSAPP_ONLY_SLUGS.includes(form.experience);
+  const { data: settingsList = [] } = useQuery({
+    queryKey: ['booking-settings'],
+    queryFn: () => base44.entities.BookingSettings.list(),
+  });
+  const settings = settingsList[0] || null;
 
-  const subExpMap = lang === 'ar' ? SUB_EXPERIENCES_AR : SUB_EXPERIENCES;
-  const subExps = form.experience ? subExpMap[form.experience] : null;
+  const timeSlots = settings?.timeSlots?.length
+    ? settings.timeSlots
+    : ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'];
 
-  const selectedSub = subExps?.find(s => s.name === form.subExperience);
+  const experienceOptions = settings?.experienceOptions || [];
+
+  const experienceNames = experienceOptions.map(e => isAr ? e.name_ar : e.name_en);
+
+  const selectedExpObj = experienceOptions.find(e => (isAr ? e.name_ar : e.name_en) === form.experience);
+  const isWhatsAppOnly = selectedExpObj?.whatsappOnly || false;
+  const subExps = selectedExpObj?.subExperiences || [];
+
+  const selectedSub = subExps.find(s => (isAr ? s.name_ar : s.name_en) === form.subExperience);
   const maxPeople = selectedSub?.maxPeople || 10;
   const peopleOptions = Array.from({ length: maxPeople }, (_, i) => i + 1);
 
-  const handleExperienceChange = (v) => {
-    setForm({ ...form, experience: v, subExperience: '', people: '' });
-  };
-
-  const handleSubChange = (v) => {
-    setForm({ ...form, subExperience: v, people: '' });
-  };
+  const handleExperienceChange = (v) => setForm({ ...form, experience: v, subExperience: '', people: '' });
+  const handleSubChange = (v) => setForm({ ...form, subExperience: v, people: '' });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     await base44.entities.Booking.create({
-      experienceSlug: form.experience,
+      experienceSlug: selectedExpObj?.name_en || form.experience,
       experienceName: form.experience,
       subExperience: form.subExperience,
       date: form.date,
@@ -93,15 +67,14 @@ export default function BookingSection() {
       name: form.name,
       email: form.email,
       phone: form.phone,
+      userId: user?.id || '',
       status: 'pending',
     });
     setSubmitted(true);
   };
 
   const handleWhatsAppRedirect = () => {
-    const msg = encodeURIComponent(
-      `Hi! I'd like to book a *${form.experience}* at Splash Spectrum. Please help me with the details! 🎨`
-    );
+    const msg = encodeURIComponent(`Hi! I'd like to book a *${form.experience}* at Splash Spectrum. Please help me with the details! 🎨`);
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
   };
 
@@ -136,7 +109,7 @@ export default function BookingSection() {
             <div className="bg-neon-pink/5 border border-neon-pink/10 rounded-2xl p-4 text-left max-w-sm mx-auto mb-8">
               <p className="text-white/50 text-xs font-body space-y-1">
                 <span className="block">📅 {form.date} — {form.time}</span>
-                <span className="block">👥 {form.people} {lang === 'ar' ? 'أشخاص' : 'people'}</span>
+                <span className="block">👥 {form.people} {isAr ? 'أشخاص' : 'people'}</span>
                 <span className="block">👤 {form.name} · {form.email}</span>
               </p>
             </div>
@@ -159,41 +132,44 @@ export default function BookingSection() {
                   <SelectValue placeholder={tr(lang, 'booking_choose_exp')} />
                 </SelectTrigger>
                 <SelectContent className="bg-obsidian border-white/10">
-                  {experienceTypes.map(type => (
-                    <SelectItem key={type} value={type} className="text-white focus:bg-white/10 focus:text-white">{type}</SelectItem>
+                  {experienceNames.map(name => (
+                    <SelectItem key={name} value={name} className="text-white focus:bg-white/10 focus:text-white">{name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Sub-experience selector */}
-            {subExps && subExps.length > 0 && (
+            {/* Sub-experience */}
+            {subExps.length > 0 && (
               <div className="space-y-2">
                 <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-electric-cyan shrink-0" />
-                  {lang === 'ar' ? 'اختر النوع' : 'Choose Activity'}
+                  {isAr ? 'اختر النوع' : 'Choose Activity'}
                 </Label>
                 <Select onValueChange={handleSubChange}>
                   <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
-                    <SelectValue placeholder={lang === 'ar' ? 'اختر النشاط' : 'Pick an activity'} />
+                    <SelectValue placeholder={isAr ? 'اختر النشاط' : 'Pick an activity'} />
                   </SelectTrigger>
                   <SelectContent className="bg-obsidian border-white/10">
-                    {subExps.map(s => (
-                      <SelectItem key={s.name} value={s.name} className="text-white focus:bg-white/10 focus:text-white">
-                        {s.name} {s.maxPeople <= 4 ? `(max ${s.maxPeople})` : ''}
-                      </SelectItem>
-                    ))}
+                    {subExps.map(s => {
+                      const name = isAr ? s.name_ar : s.name_en;
+                      return (
+                        <SelectItem key={name} value={name} className="text-white focus:bg-white/10 focus:text-white">
+                          {name} {s.maxPeople <= 4 ? `(max ${s.maxPeople})` : ''}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
                 {selectedSub && selectedSub.maxPeople <= 4 && (
                   <p className="text-neon-pink text-xs font-body mt-1">
-                    {lang === 'ar' ? `⚠️ هذا النشاط يتسع لـ ${selectedSub.maxPeople} أشخاص كحد أقصى` : `⚠️ This activity fits up to ${selectedSub.maxPeople} people per group`}
+                    {isAr ? `⚠️ هذا النشاط يتسع لـ ${selectedSub.maxPeople} أشخاص كحد أقصى` : `⚠️ This activity fits up to ${selectedSub.maxPeople} people per group`}
                   </p>
                 )}
               </div>
             )}
 
-            {/* Date & Time row */}
+            {/* Date & Time */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
@@ -211,7 +187,7 @@ export default function BookingSection() {
                     <SelectValue placeholder={tr(lang, 'booking_choose_time')} />
                   </SelectTrigger>
                   <SelectContent className="bg-obsidian border-white/10">
-                    {['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'].map(t => (
+                    {timeSlots.map(t => (
                       <SelectItem key={t} value={t} className="text-white focus:bg-white/10 focus:text-white">{t}</SelectItem>
                     ))}
                   </SelectContent>
@@ -241,6 +217,9 @@ export default function BookingSection() {
 
             {/* Contact info */}
             <div className="border-t border-white/5 pt-5 space-y-4">
+              {isAuthenticated && (
+                <p className="text-neon-green text-xs font-body">✓ {isAr ? 'تم ملء معلوماتك تلقائياً' : 'Your info has been auto-filled'}</p>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-white/70 font-heading text-sm">{tr(lang, 'booking_name')}</Label>
@@ -264,22 +243,20 @@ export default function BookingSection() {
             </div>
 
             {isWhatsAppOnly ? (
-              <div className="space-y-4">
-                <div className="bg-neon-green/5 border border-neon-green/20 rounded-2xl p-5 text-center">
-                  <div className="text-3xl mb-3">💬</div>
-                  <p className="font-heading font-bold text-white text-base mb-1">
-                    {form.experience} {tr(lang, 'booking_whatsapp_title')}
-                  </p>
-                  <p className="font-body text-white/50 text-sm mb-4 leading-relaxed">
-                    {tr(lang, 'booking_whatsapp_body')}
-                  </p>
-                  <button type="button" onClick={handleWhatsAppRedirect}
-                    className="w-full h-14 rounded-xl font-heading font-bold text-lg text-white flex items-center justify-center gap-3 transition-transform hover:scale-105"
-                    style={{ background: 'linear-gradient(135deg, #25D366, #128C7E)' }}>
-                    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.862L.054 23.5l5.797-1.517A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.891 0-3.667-.497-5.2-1.366l-.373-.22-3.44.9.921-3.353-.242-.386A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-                    {tr(lang, 'booking_whatsapp_btn')}
-                  </button>
-                </div>
+              <div className="bg-neon-green/5 border border-neon-green/20 rounded-2xl p-5 text-center">
+                <div className="text-3xl mb-3">💬</div>
+                <p className="font-heading font-bold text-white text-base mb-1">
+                  {form.experience} {tr(lang, 'booking_whatsapp_title')}
+                </p>
+                <p className="font-body text-white/50 text-sm mb-4 leading-relaxed">
+                  {tr(lang, 'booking_whatsapp_body')}
+                </p>
+                <button type="button" onClick={handleWhatsAppRedirect}
+                  className="w-full h-14 rounded-xl font-heading font-bold text-lg text-white flex items-center justify-center gap-3 transition-transform hover:scale-105"
+                  style={{ background: 'linear-gradient(135deg, #25D366, #128C7E)' }}>
+                  <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.862L.054 23.5l5.797-1.517A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.891 0-3.667-.497-5.2-1.366l-.373-.22-3.44.9.921-3.353-.242-.386A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+                  {tr(lang, 'booking_whatsapp_btn')}
+                </button>
               </div>
             ) : (
               <>
