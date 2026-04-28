@@ -6,13 +6,32 @@ import { tr } from '@/lib/translations.js';
 
 const HERO_BG = "https://media.base44.com/images/public/69e5ef89828747441c931879/d591ebed4_generated_ffef7112.png";
 
-// Paint splodges behind the headline — animate in on load like splashing paint
-const PAINT_SPLODGES = [
-  { color: '#FF007F', cx: 50, cy: 52, rx: 32, ry: 20, blur: 45, dur: 8,  delay: 0.2,  inDelay: 0.1  },
-  { color: '#9D00FF', cx: 38, cy: 55, rx: 26, ry: 16, blur: 40, dur: 10, delay: 0.5,  inDelay: 0.3  },
-  { color: '#00F3FF', cx: 63, cy: 48, rx: 24, ry: 15, blur: 42, dur: 9,  delay: 0.3,  inDelay: 0.5  },
-  { color: '#39FF14', cx: 52, cy: 65, rx: 18, ry: 11, blur: 38, dur: 12, delay: 0.8,  inDelay: 0.7  },
-  { color: '#FF4500', cx: 30, cy: 45, rx: 20, ry: 12, blur: 40, dur: 11, delay: 0.4,  inDelay: 0.2  },
+// Watercolor splash droplets — burst outward from center on load
+// Each has angle/distance from center (50%, 52%) and a color layer
+const SPLASH_CORE = [
+  { color: '#FF007F', rx: 18, ry: 14, blur: 35, ox: 0,   oy: 0   },
+  { color: '#9D00FF', rx: 16, ry: 12, blur: 32, ox: -3,  oy: 2   },
+  { color: '#00F3FF', rx: 14, ry: 10, blur: 30, ox: 3,   oy: -2  },
+  { color: '#FFD700', rx: 12, ry: 9,  blur: 28, ox: 2,   oy: 3   },
+  { color: '#39FF14', rx: 10, ry: 8,  blur: 26, ox: -2,  oy: -3  },
+];
+
+const SPLASH_DROPLETS = [
+  { color: '#FF007F', angle: 20,  dist: 22, size: 7,  blur: 12 },
+  { color: '#9D00FF', angle: 60,  dist: 28, size: 5,  blur: 10 },
+  { color: '#00F3FF', angle: 100, dist: 25, size: 9,  blur: 14 },
+  { color: '#FFD700', angle: 140, dist: 30, size: 4,  blur: 8  },
+  { color: '#39FF14', angle: 180, dist: 24, size: 6,  blur: 11 },
+  { color: '#FF4500', angle: 220, dist: 27, size: 8,  blur: 13 },
+  { color: '#FF007F', angle: 260, dist: 32, size: 5,  blur: 9  },
+  { color: '#9D00FF', angle: 300, dist: 26, size: 7,  blur: 12 },
+  { color: '#00F3FF', angle: 340, dist: 20, size: 4,  blur: 8  },
+  // smaller far droplets
+  { color: '#FF007F', angle: 40,  dist: 38, size: 3,  blur: 6  },
+  { color: '#39FF14', angle: 80,  dist: 42, size: 3,  blur: 6  },
+  { color: '#FFD700', angle: 160, dist: 40, size: 4,  blur: 7  },
+  { color: '#9D00FF', angle: 240, dist: 44, size: 3,  blur: 6  },
+  { color: '#00F3FF', angle: 320, dist: 36, size: 4,  blur: 7  },
 ];
 
 export default function HeroSection() {
@@ -53,38 +72,80 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-b from-obsidian/60 via-obsidian/30 to-obsidian" />
       </div>
 
-      {/* Paint splodges behind the headline — splash in on load, then breathe */}
+      {/* Watercolor paint splash behind headline — bursts on load */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 1 }}>
-        {PAINT_SPLODGES.map((s, i) => (
+
+        {/* Central overlapping color mass */}
+        {SPLASH_CORE.map((s, i) => (
           <motion.div
-            key={i}
+            key={`core-${i}`}
             className="absolute"
             style={{
-              left: `${s.cx}%`,
-              top: `${s.cy}%`,
+              left: `${50 + s.ox}%`,
+              top: `${52 + s.oy}%`,
               width: `${s.rx * 2}vw`,
               height: `${s.ry * 2}vw`,
               transform: 'translate(-50%, -50%)',
-              background: `radial-gradient(ellipse at 45% 45%, ${s.color}cc 0%, ${s.color}77 30%, ${s.color}33 60%, transparent 80%)`,
+              background: `radial-gradient(ellipse at 48% 48%, ${s.color}dd 0%, ${s.color}88 40%, ${s.color}22 70%, transparent 90%)`,
               filter: `blur(${s.blur}px)`,
-              borderRadius: '43% 57% 61% 39% / 47% 42% 58% 53%',
+              borderRadius: '45% 55% 60% 40% / 50% 45% 55% 50%',
             }}
             initial={{ scale: 0, opacity: 0 }}
             animate={{
-              scale:   [0, 1.4, 0.9, 1.1, 1.0, 1.05, 1.0],
-              opacity: [0, 0.7, 0.55, 0.65, 0.55, 0.62, 0.55],
-              rotate:  [0, 8, -4, 3, -2, 1, 0],
+              scale:   [0, 1.6, 1.1, 1.25, 1.15],
+              opacity: [0, 0.85, 0.65, 0.75, 0.65],
+              rotate:  [0, 10, -5, 3, 0],
             }}
             transition={{
-              duration: s.dur,
-              delay: s.inDelay,
-              times: [0, 0.15, 0.35, 0.5, 0.65, 0.8, 1],
+              duration: 3.5,
+              delay: 0.1 + i * 0.08,
+              times: [0, 0.2, 0.5, 0.75, 1],
               repeat: Infinity,
               repeatType: 'mirror',
-              ease: 'easeInOut',
+              repeatDelay: 4,
+              ease: 'easeOut',
             }}
           />
         ))}
+
+        {/* Flying droplets bursting outward */}
+        {SPLASH_DROPLETS.map((d, i) => {
+          const rad = (d.angle * Math.PI) / 180;
+          const tx = Math.cos(rad) * d.dist;
+          const ty = Math.sin(rad) * d.dist;
+          return (
+            <motion.div
+              key={`drop-${i}`}
+              className="absolute"
+              style={{
+                left: '50%',
+                top: '52%',
+                width: `${d.size}vw`,
+                height: `${d.size * 0.7}vw`,
+                transform: 'translate(-50%, -50%)',
+                background: `radial-gradient(ellipse, ${d.color}cc 0%, ${d.color}55 60%, transparent 100%)`,
+                filter: `blur(${d.blur}px)`,
+                borderRadius: '50%',
+              }}
+              initial={{ x: 0, y: 0, scale: 0, opacity: 0 }}
+              animate={{
+                x: [`0vw`, `${tx * 0.3}vw`, `${tx}vw`, `${tx * 1.05}vw`],
+                y: [`0vw`, `${ty * 0.3}vw`, `${ty}vw`, `${ty * 1.05}vw`],
+                scale: [0, 1.2, 0.9, 0.8],
+                opacity: [0, 0.9, 0.7, 0.6],
+              }}
+              transition={{
+                duration: 1.2,
+                delay: 0.15 + i * 0.04,
+                times: [0, 0.25, 0.7, 1],
+                repeat: Infinity,
+                repeatType: 'mirror',
+                repeatDelay: 3.5,
+                ease: [0.2, 0.8, 0.3, 1],
+              }}
+            />
+          );
+        })}
       </div>
 
       {/* Click paint splashes — behind text */}
