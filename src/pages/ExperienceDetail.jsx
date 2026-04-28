@@ -283,16 +283,16 @@ export default function ExperienceDetail() {
                   <>
                     <h3 className="font-heading font-bold text-white text-xl mb-6">{tr(lang, 'detail_reserve')}</h3>
                     <form onSubmit={handleSubmit} className="space-y-4">
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1.5">
                           <Label className="text-white/50 text-xs font-heading">{tr(lang, 'detail_date')}</Label>
                           <Input type="date" required value={form.date} onChange={e => setForm({ ...form, date: e.target.value })}
-                            className="bg-white/5 border-white/10 text-white h-11 rounded-xl text-sm" />
+                            className="bg-white/5 border-white/10 text-white h-12 rounded-xl text-sm w-full" />
                         </div>
                         <div className="space-y-1.5">
                           <Label className="text-white/50 text-xs font-heading">{tr(lang, 'detail_time')}</Label>
                           <Select required onValueChange={v => setForm({ ...form, time: v })}>
-                            <SelectTrigger className="bg-white/5 border-white/10 text-white h-11 rounded-xl text-sm">
+                            <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl text-sm w-full">
                               <SelectValue placeholder={tr(lang, 'detail_pick_time')} />
                             </SelectTrigger>
                             <SelectContent className="bg-obsidian border-white/10">
@@ -322,18 +322,18 @@ export default function ExperienceDetail() {
                           onChange={e => setForm({ ...form, name: e.target.value })}
                           className="bg-white/5 border-white/10 text-white h-11 rounded-xl text-sm placeholder:text-white/20" />
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1.5">
                           <Label className="text-white/50 text-xs font-heading">{tr(lang, 'detail_email')}</Label>
                           <Input type="email" required placeholder="you@email.com" value={form.email}
                             onChange={e => setForm({ ...form, email: e.target.value })}
-                            className="bg-white/5 border-white/10 text-white h-11 rounded-xl text-sm placeholder:text-white/20" />
+                            className="bg-white/5 border-white/10 text-white h-12 rounded-xl text-sm placeholder:text-white/20 w-full" />
                         </div>
                         <div className="space-y-1.5">
                           <Label className="text-white/50 text-xs font-heading">{tr(lang, 'detail_phone')}</Label>
                           <Input placeholder="+966..." value={form.phone}
                             onChange={e => setForm({ ...form, phone: e.target.value })}
-                            className="bg-white/5 border-white/10 text-white h-11 rounded-xl text-sm placeholder:text-white/20" />
+                            className="bg-white/5 border-white/10 text-white h-12 rounded-xl text-sm placeholder:text-white/20 w-full" />
                         </div>
                       </div>
                       <button type="submit"
