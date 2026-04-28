@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Users, Clock, Palette } from 'lucide-react';
+import { Calendar, Users, Clock, Palette, Sparkles } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,18 +9,76 @@ import { useLang } from '@/lib/LanguageContext';
 import { tr } from '@/lib/translations.js';
 
 const WHATSAPP_NUMBER = '966554563447';
-const WHATSAPP_ONLY = ['Birthday Experience', 'Graduation', 'تجارب أعياد الميلاد', 'احتفالات التخرج'];
+const WHATSAPP_ONLY_SLUGS = ['Birthday Experience', 'Graduation', 'تجارب أعياد الميلاد', 'احتفالات التخرج'];
+
+// Sub-experiences per type with max people per group
+const SUB_EXPERIENCES = {
+  'Open Paint Session': [
+    { name: 'Splash', maxPeople: 4 },
+    { name: 'Spin', maxPeople: 4 },
+    { name: 'Group Splash (Big Canvas)', maxPeople: 4 },
+  ],
+  'Group & Friends': [
+    { name: 'Splash', maxPeople: 50 },
+    { name: 'Spin', maxPeople: 50 },
+    { name: 'Group Splash (Big Canvas)', maxPeople: 4 },
+  ],
+  'Kids Experience': [
+    { name: 'Splash', maxPeople: 30 },
+    { name: 'Spin', maxPeople: 30 },
+  ],
+  'Custom Art & Figurines': [
+    { name: 'Pour (Bear / Figurine)', maxPeople: 20 },
+  ],
+  'Special Event': null,
+};
+
+const SUB_EXPERIENCES_AR = {
+  'جلسات الرسم الحرة': [
+    { name: 'سبلاش', maxPeople: 4 },
+    { name: 'سبين', maxPeople: 4 },
+    { name: 'سبلاش لوحة كبيرة (جماعي)', maxPeople: 4 },
+  ],
+  'المجموعات والأصدقاء': [
+    { name: 'سبلاش', maxPeople: 50 },
+    { name: 'سبين', maxPeople: 50 },
+    { name: 'سبلاش لوحة كبيرة (جماعي)', maxPeople: 4 },
+  ],
+  'باقات المدارس': [
+    { name: 'سبلاش', maxPeople: 30 },
+    { name: 'سبين', maxPeople: 30 },
+  ],
+  'الفن المخصص والمجسمات': [
+    { name: 'فن السكب (مجسم)', maxPeople: 20 },
+  ],
+  'الفعاليات الخاصة': null,
+};
 
 export default function BookingSection() {
   const { lang } = useLang();
-  const [form, setForm] = useState({ experience: '', date: '', time: '', people: '', name: '', email: '', phone: '' });
+  const [form, setForm] = useState({ experience: '', subExperience: '', date: '', time: '', people: '', name: '', email: '', phone: '' });
   const [submitted, setSubmitted] = useState(false);
 
   const experienceTypes = lang === 'ar'
-    ? ['جلسات الرسم الحرة', 'تجارب أعياد الميلاد', 'احتفالات التخرج', 'المجموعات والأصدقاء', 'تجارب الأطفال', 'الفن المخصص والمجسمات', 'الفعاليات الخاصة']
+    ? ['جلسات الرسم الحرة', 'تجارب أعياد الميلاد', 'احتفالات التخرج', 'المجموعات والأصدقاء', 'باقات المدارس', 'الفن المخصص والمجسمات', 'الفعاليات الخاصة']
     : ['Open Paint Session', 'Birthday Experience', 'Graduation', 'Group & Friends', 'Kids Experience', 'Custom Art & Figurines', 'Special Event'];
 
-  const isWhatsAppOnly = WHATSAPP_ONLY.includes(form.experience);
+  const isWhatsAppOnly = WHATSAPP_ONLY_SLUGS.includes(form.experience);
+
+  const subExpMap = lang === 'ar' ? SUB_EXPERIENCES_AR : SUB_EXPERIENCES;
+  const subExps = form.experience ? subExpMap[form.experience] : null;
+
+  const selectedSub = subExps?.find(s => s.name === form.subExperience);
+  const maxPeople = selectedSub?.maxPeople || 10;
+  const peopleOptions = Array.from({ length: maxPeople }, (_, i) => i + 1);
+
+  const handleExperienceChange = (v) => {
+    setForm({ ...form, experience: v, subExperience: '', people: '' });
+  };
+
+  const handleSubChange = (v) => {
+    setForm({ ...form, subExperience: v, people: '' });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -56,7 +114,7 @@ export default function BookingSection() {
             <div className="text-6xl mb-5">🎉</div>
             <h3 className="font-heading font-black text-white text-2xl md:text-3xl mb-3">{tr(lang, 'booking_confirmed_title')}</h3>
             <p className="font-body text-white/60 mb-6 leading-relaxed">
-              <span className="text-white">{form.experience}</span> — <span className="text-white">{form.date}</span> {tr(lang, 'booking_choose_time') !== 'Choose time' ? '' : 'at'} <span className="text-white">{form.time}</span>. {tr(lang, 'booking_confirmed_sub')}
+              <span className="text-white">{form.experience}{form.subExperience ? ` — ${form.subExperience}` : ''}</span> · <span className="text-white">{form.date}</span> · <span className="text-white">{form.time}</span>. {tr(lang, 'booking_confirmed_sub')}
             </p>
             <div className="bg-electric-cyan/5 border border-electric-cyan/20 rounded-2xl p-5 text-left max-w-sm mx-auto mb-6">
               <p className="text-electric-cyan font-heading font-bold text-sm mb-2">{tr(lang, 'booking_arrive_title')}</p>
@@ -65,7 +123,7 @@ export default function BookingSection() {
             <div className="bg-neon-pink/5 border border-neon-pink/10 rounded-2xl p-4 text-left max-w-sm mx-auto mb-8">
               <p className="text-white/50 text-xs font-body space-y-1">
                 <span className="block">📅 {form.date} — {form.time}</span>
-                <span className="block">👥 {form.people}</span>
+                <span className="block">👥 {form.people} {lang === 'ar' ? 'أشخاص' : 'people'}</span>
                 <span className="block">👤 {form.name} · {form.email}</span>
               </p>
             </div>
@@ -76,58 +134,71 @@ export default function BookingSection() {
         ) : (
           <motion.form initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             onSubmit={handleSubmit}
-            className="bg-white/[0.03] backdrop-blur-sm border border-white/5 rounded-3xl p-6 md:p-10 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            className="bg-white/[0.03] backdrop-blur-sm border border-white/5 rounded-3xl p-5 sm:p-8 md:p-10 space-y-5">
+
+            {/* Experience Type */}
+            <div className="space-y-2">
+              <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
+                <Palette className="w-4 h-4 text-neon-pink shrink-0" /> {tr(lang, 'booking_experience')}
+              </Label>
+              <Select onValueChange={handleExperienceChange}>
+                <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
+                  <SelectValue placeholder={tr(lang, 'booking_choose_exp')} />
+                </SelectTrigger>
+                <SelectContent className="bg-obsidian border-white/10">
+                  {experienceTypes.map(type => (
+                    <SelectItem key={type} value={type} className="text-white focus:bg-white/10 focus:text-white">{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Sub-experience selector */}
+            {subExps && subExps.length > 0 && (
               <div className="space-y-2">
                 <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
-                  <Palette className="w-4 h-4 text-neon-pink" /> {tr(lang, 'booking_experience')}
+                  <Sparkles className="w-4 h-4 text-electric-cyan shrink-0" />
+                  {lang === 'ar' ? 'اختر النوع' : 'Choose Activity'}
                 </Label>
-                <Select onValueChange={(v) => setForm({ ...form, experience: v })}>
-                  <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl">
-                    <SelectValue placeholder={tr(lang, 'booking_choose_exp')} />
+                <Select onValueChange={handleSubChange}>
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
+                    <SelectValue placeholder={lang === 'ar' ? 'اختر النشاط' : 'Pick an activity'} />
                   </SelectTrigger>
                   <SelectContent className="bg-obsidian border-white/10">
-                    {experienceTypes.map(type => (
-                      <SelectItem key={type} value={type} className="text-white focus:bg-white/10 focus:text-white">{type}</SelectItem>
+                    {subExps.map(s => (
+                      <SelectItem key={s.name} value={s.name} className="text-white focus:bg-white/10 focus:text-white">
+                        {s.name} {s.maxPeople <= 4 ? `(max ${s.maxPeople})` : ''}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {selectedSub && selectedSub.maxPeople <= 4 && (
+                  <p className="text-neon-pink text-xs font-body mt-1">
+                    {lang === 'ar' ? `⚠️ هذا النشاط يتسع لـ ${selectedSub.maxPeople} أشخاص كحد أقصى` : `⚠️ This activity fits up to ${selectedSub.maxPeople} people per group`}
+                  </p>
+                )}
               </div>
+            )}
 
+            {/* Date & Time row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
-                  <Users className="w-4 h-4 text-neon-green" /> {tr(lang, 'booking_people')}
-                </Label>
-                <Select onValueChange={(v) => setForm({ ...form, people: v })}>
-                  <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl">
-                    <SelectValue placeholder={tr(lang, 'booking_how_many')} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-obsidian border-white/10">
-                    {[1,2,3,4,5,6,7,8,9,10,'10+'].map(n => (
-                      <SelectItem key={n} value={String(n)} className="text-white focus:bg-white/10 focus:text-white">{n}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-uv-purple" /> {tr(lang, 'booking_date')}
+                  <Calendar className="w-4 h-4 text-uv-purple shrink-0" /> {tr(lang, 'booking_date')}
                 </Label>
                 <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })}
-                  className="bg-white/5 border-white/10 text-white h-12 rounded-xl" />
+                  className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full" />
               </div>
-
               <div className="space-y-2">
                 <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-electric-cyan" /> {tr(lang, 'booking_time')}
+                  <Clock className="w-4 h-4 text-electric-cyan shrink-0" /> {tr(lang, 'booking_time')}
                 </Label>
                 <Select onValueChange={(v) => setForm({ ...form, time: v })}>
-                  <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl">
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
                     <SelectValue placeholder={tr(lang, 'booking_choose_time')} />
                   </SelectTrigger>
                   <SelectContent className="bg-obsidian border-white/10">
-                    {['10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM'].map(t => (
+                    {['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'].map(t => (
                       <SelectItem key={t} value={t} className="text-white focus:bg-white/10 focus:text-white">{t}</SelectItem>
                     ))}
                   </SelectContent>
@@ -135,26 +206,47 @@ export default function BookingSection() {
               </div>
             </div>
 
-            <div className="border-t border-white/5 pt-6 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* People */}
+            <div className="space-y-2">
+              <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
+                <Users className="w-4 h-4 text-neon-green shrink-0" /> {tr(lang, 'booking_people')}
+              </Label>
+              <Select onValueChange={(v) => setForm({ ...form, people: v })}>
+                <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
+                  <SelectValue placeholder={tr(lang, 'booking_how_many')} />
+                </SelectTrigger>
+                <SelectContent className="bg-obsidian border-white/10">
+                  {(form.subExperience ? peopleOptions : [1,2,3,4,5,6,7,8,9,10]).map(n => (
+                    <SelectItem key={n} value={String(n)} className="text-white focus:bg-white/10 focus:text-white">{n}</SelectItem>
+                  ))}
+                  {!form.subExperience && (
+                    <SelectItem value="10+" className="text-white focus:bg-white/10 focus:text-white">10+</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Contact info */}
+            <div className="border-t border-white/5 pt-5 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-white/70 font-heading text-sm">{tr(lang, 'booking_name')}</Label>
                   <Input placeholder={tr(lang, 'booking_fullname')} value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="bg-white/5 border-white/10 text-white h-12 rounded-xl placeholder:text-white/20" />
+                    className="bg-white/5 border-white/10 text-white h-12 rounded-xl placeholder:text-white/20 w-full" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-white/70 font-heading text-sm">{tr(lang, 'booking_phone')}</Label>
                   <Input placeholder={tr(lang, 'booking_your_number')} value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    className="bg-white/5 border-white/10 text-white h-12 rounded-xl placeholder:text-white/20" />
+                    className="bg-white/5 border-white/10 text-white h-12 rounded-xl placeholder:text-white/20 w-full" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label className="text-white/70 font-heading text-sm">{tr(lang, 'booking_email')}</Label>
                 <Input type="email" placeholder="your@email.com" value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="bg-white/5 border-white/10 text-white h-12 rounded-xl placeholder:text-white/20" />
+                  className="bg-white/5 border-white/10 text-white h-12 rounded-xl placeholder:text-white/20 w-full" />
               </div>
             </div>
 
