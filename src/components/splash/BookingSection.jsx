@@ -37,16 +37,30 @@ export default function BookingSection() {
   });
   const settings = settingsList[0] || null;
 
+  const { data: experiences = [] } = useQuery({
+    queryKey: ['experiences'],
+    queryFn: () => base44.entities.Experience.list('', 100),
+  });
+
   const timeSlots = settings?.timeSlots?.length
     ? settings.timeSlots
     : ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'];
 
-  // Experience types and their activities
-  const experienceTypes = settings?.experienceTypes || [];
-  
-  const selectedTypeObj = experienceTypes.find(t => (isAr ? t.name_ar : t.name_en) === form.experienceType);
-  const activities = selectedTypeObj?.activities || [];
-  const activityNames = activities.map(a => isAr ? a.name_ar : a.name_en);
+  // Get active experience titles as "experience types"
+  const experienceTypes = experiences.filter(e => e.isActive !== false).map(e => ({
+    slug: e.slug,
+    name_en: e.title_en,
+    name_ar: e.title_ar,
+  }));
+
+  // Get selected experience - activities come from BookingSettings
+  const selectedExp = experiences.find(e => e.slug === form.experienceType || (isAr ? e.title_ar : e.title_en) === form.experienceType);
+  const experienceName = selectedExp ? (isAr ? selectedExp.title_ar : selectedExp.title_en) : '';
+
+  // Get activities from BookingSettings that match the selected experience name
+  const activities = settings?.experienceTypes
+    ?.find(t => (isAr ? t.name_ar : t.name_en) === experienceName)
+    ?.activities || [];
 
   const selectedActivityObj = activities.find(a => (isAr ? a.name_ar : a.name_en) === form.experience);
   const isWhatsAppOnly = selectedActivityObj?.whatsappOnly || false;
@@ -87,7 +101,10 @@ export default function BookingSection() {
     }
   }, [form.date, form.people, form.experience]);
 
-  const handleTypeChange = (v) => setForm({ ...form, experienceType: v, experience: '', subExperience: '', people: '' });
+  const handleTypeChange = (v) => {
+    const selected = experienceTypes.find(t => (isAr ? t.name_ar : t.name_en) === v);
+    setForm({ ...form, experienceType: selected?.slug || v, experience: '', subExperience: '', people: '' });
+  };
   const handleActivityChange = (v) => setForm({ ...form, experience: v, subExperience: '', people: '' });
   const handleSubChange = (v) => setForm({ ...form, subExperience: v, people: '' });
 
@@ -206,7 +223,7 @@ export default function BookingSection() {
                 </SelectTrigger>
                 <SelectContent className="bg-obsidian border-white/10">
                   {experienceTypes.map(type => (
-                    <SelectItem key={type.name_en} value={isAr ? type.name_ar : type.name_en} className="text-white focus:bg-white/10 focus:text-white">
+                    <SelectItem key={type.slug} value={isAr ? type.name_ar : type.name_en} className="text-white focus:bg-white/10 focus:text-white">
                       {isAr ? type.name_ar : type.name_en}
                     </SelectItem>
                   ))}
