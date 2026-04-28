@@ -4,10 +4,13 @@
     "experienceSlug": {
       "type": "string"
     },
-    "experienceName": {
+    "experienceType": {
       "type": "string"
     },
-    "subExperience": {
+    "activityName": {
+      "type": "string"
+    },
+    "subActivity": {
       "type": "string"
     },
     "date": {

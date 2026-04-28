@@ -16,8 +16,9 @@ const WHATSAPP_NUMBER = '966554563447';
 export default function BookingSection() {
   const { lang, isAr } = useLang();
   const { user, isAuthenticated } = useAuth();
-  const [form, setForm] = useState({ experience: '', subExperience: '', date: '', time: '', people: '', name: '', email: '', phone: '' });
+  const [form, setForm] = useState({ experienceType: '', experience: '', subExperience: '', date: '', time: '', people: '', name: '', email: '', phone: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null);
 
   // Auto-fill from logged in user
   useEffect(() => {
@@ -40,16 +41,19 @@ export default function BookingSection() {
     ? settings.timeSlots
     : ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'];
 
-  const experienceOptions = settings?.experienceOptions || [];
+  // Experience types and their activities
+  const experienceTypes = settings?.experienceTypes || [];
+  
+  const selectedTypeObj = experienceTypes.find(t => (isAr ? t.name_ar : t.name_en) === form.experienceType);
+  const activities = selectedTypeObj?.activities || [];
+  const activityNames = activities.map(a => isAr ? a.name_ar : a.name_en);
 
-  const experienceNames = experienceOptions.map(e => isAr ? e.name_ar : e.name_en);
+  const selectedActivityObj = activities.find(a => (isAr ? a.name_ar : a.name_en) === form.experience);
+  const isWhatsAppOnly = selectedActivityObj?.whatsappOnly || false;
+  const subActivities = selectedActivityObj?.subActivities || [];
 
-  const selectedExpObj = experienceOptions.find(e => (isAr ? e.name_ar : e.name_en) === form.experience);
-  const isWhatsAppOnly = selectedExpObj?.whatsappOnly || false;
-  const subExps = selectedExpObj?.subExperiences || [];
-
-  const selectedSub = subExps.find(s => (isAr ? s.name_ar : s.name_en) === form.subExperience);
-  const maxPeople = selectedSub?.maxPeople || 10;
+  const selectedSub = subActivities.find(s => (isAr ? s.name_ar : s.name_en) === form.subExperience);
+  const maxPeople = selectedSub?.maxPeople || 4;
   const peopleOptions = Array.from({ length: maxPeople }, (_, i) => i + 1);
 
   const [availableSlots, setAvailableSlots] = useState({});
@@ -83,34 +87,37 @@ export default function BookingSection() {
     }
   }, [form.date, form.people, form.experience]);
 
-  const handleExperienceChange = (v) => setForm({ ...form, experience: v, subExperience: '', people: '' });
+  const handleTypeChange = (v) => setForm({ ...form, experienceType: v, experience: '', subExperience: '', people: '' });
+  const handleActivityChange = (v) => setForm({ ...form, experience: v, subExperience: '', people: '' });
   const handleSubChange = (v) => setForm({ ...form, subExperience: v, people: '' });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
     
     // Check seat availability before booking
     try {
       const availability = await base44.functions.invoke('checkSeatAvailability', {
         date: form.date,
         time: form.time,
-        experienceName: form.experience,
+        activityName: form.experience,
         requestedSeats: parseInt(form.people)
       });
       
       if (!availability.available) {
-        alert(`Sorry, only ${availability.availableSeats} seats available for ${form.time}. Please choose another time.`);
+        setError(`Sorry, this slot is booked. Only ${Math.max(0, availability.availableSeats)} ${availability.availableSeats === 1 ? 'seat' : 'seats'} available for ${form.time}. Please choose another time.`);
         return;
       }
     } catch (error) {
-      alert('Error checking availability. Please try again.');
+      setError('Error checking availability. Please try again.');
       return;
     }
 
     const booking = await base44.entities.Booking.create({
-      experienceSlug: selectedExpObj?.name_en || form.experience,
-      experienceName: form.experience,
-      subExperience: form.subExperience,
+      experienceSlug: selectedActivityObj?.name_en || form.experience,
+      experienceType: form.experienceType,
+      activityName: form.experience,
+      subActivity: form.subExperience,
       date: form.date,
       time: form.time,
       people: form.people,
@@ -180,48 +187,77 @@ export default function BookingSection() {
             onSubmit={handleSubmit}
             className="bg-white/[0.03] backdrop-blur-sm border border-white/5 rounded-3xl p-5 sm:p-8 md:p-10 space-y-5">
 
+            {/* Error Message */}
+            {error && (
+              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                className="bg-destructive/10 border border-destructive/20 rounded-2xl p-4">
+                <p className="text-destructive text-sm font-body leading-relaxed">{error}</p>
+              </motion.div>
+            )}
+
             {/* Experience Type */}
             <div className="space-y-2">
               <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
-                <Palette className="w-4 h-4 text-neon-pink shrink-0" /> {tr(lang, 'booking_experience')}
+                <Palette className="w-4 h-4 text-neon-pink shrink-0" /> {isAr ? 'نوع التجربة' : 'Experience Type'}
               </Label>
-              <Select onValueChange={handleExperienceChange}>
+              <Select onValueChange={handleTypeChange}>
                 <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
-                  <SelectValue placeholder={tr(lang, 'booking_choose_exp')} />
+                  <SelectValue placeholder={isAr ? 'اختر نوع التجربة' : 'Choose experience type'} />
                 </SelectTrigger>
                 <SelectContent className="bg-obsidian border-white/10">
-                  {experienceNames.map(name => (
-                    <SelectItem key={name} value={name} className="text-white focus:bg-white/10 focus:text-white">{name}</SelectItem>
+                  {experienceTypes.map(type => (
+                    <SelectItem key={type.name_en} value={isAr ? type.name_ar : type.name_en} className="text-white focus:bg-white/10 focus:text-white">
+                      {isAr ? type.name_ar : type.name_en}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Sub-experience */}
-            {subExps.length > 0 && (
+            {/* Activity/Experience */}
+            {form.experienceType && (
+              <div className="space-y-2">
+                <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-electric-cyan shrink-0" /> {isAr ? 'النشاط' : 'Activity'}
+                </Label>
+                <Select onValueChange={handleActivityChange}>
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
+                    <SelectValue placeholder={isAr ? 'اختر النشاط' : 'Choose activity'} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-obsidian border-white/10">
+                    {activityNames.map(name => (
+                      <SelectItem key={name} value={name} className="text-white focus:bg-white/10 focus:text-white">{name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Sub-Activity */}
+            {form.experience && subActivities.length > 0 && (
               <div className="space-y-2">
                 <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-electric-cyan shrink-0" />
-                  {isAr ? 'اختر النوع' : 'Choose Activity'}
+                  {isAr ? 'الجلسة' : 'Session'}
                 </Label>
                 <Select onValueChange={handleSubChange}>
                   <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
-                    <SelectValue placeholder={isAr ? 'اختر النشاط' : 'Pick an activity'} />
+                    <SelectValue placeholder={isAr ? 'اختر الجلسة' : 'Choose session'} />
                   </SelectTrigger>
                   <SelectContent className="bg-obsidian border-white/10">
-                    {subExps.map(s => {
+                    {subActivities.map(s => {
                       const name = isAr ? s.name_ar : s.name_en;
                       return (
                         <SelectItem key={name} value={name} className="text-white focus:bg-white/10 focus:text-white">
-                          {name} {s.maxPeople <= 4 ? `(max ${s.maxPeople})` : ''}
+                          {name} {s.maxPeople ? `(max ${s.maxPeople})` : ''}
                         </SelectItem>
                       );
                     })}
                   </SelectContent>
                 </Select>
-                {selectedSub && selectedSub.maxPeople <= 4 && (
+                {selectedSub && selectedSub.maxPeople && (
                   <p className="text-neon-pink text-xs font-body mt-1">
-                    {isAr ? `⚠️ هذا النشاط يتسع لـ ${selectedSub.maxPeople} أشخاص كحد أقصى` : `⚠️ This activity fits up to ${selectedSub.maxPeople} people per group`}
+                    {isAr ? `⚠️ السعة القصوى: ${selectedSub.maxPeople} أشخاص` : `⚠️ Max capacity: ${selectedSub.maxPeople} people`}
                   </p>
                 )}
               </div>
@@ -259,24 +295,23 @@ export default function BookingSection() {
             </div>
 
             {/* People */}
-            <div className="space-y-2">
-              <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
-                <Users className="w-4 h-4 text-neon-green shrink-0" /> {tr(lang, 'booking_people')}
-              </Label>
-              <Select onValueChange={(v) => setForm({ ...form, people: v })}>
-                <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
-                  <SelectValue placeholder={tr(lang, 'booking_how_many')} />
-                </SelectTrigger>
-                <SelectContent className="bg-obsidian border-white/10">
-                  {(form.subExperience ? peopleOptions : [1,2,3,4,5,6,7,8,9,10]).map(n => (
-                    <SelectItem key={n} value={String(n)} className="text-white focus:bg-white/10 focus:text-white">{n}</SelectItem>
-                  ))}
-                  {!form.subExperience && (
-                    <SelectItem value="10+" className="text-white focus:bg-white/10 focus:text-white">10+</SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
+            {form.experience && (
+              <div className="space-y-2">
+                <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
+                  <Users className="w-4 h-4 text-neon-green shrink-0" /> {isAr ? 'عدد الأشخاص' : 'Number of People'}
+                </Label>
+                <Select onValueChange={(v) => setForm({ ...form, people: v })}>
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
+                    <SelectValue placeholder={isAr ? 'اختر العدد' : 'Choose number'} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-obsidian border-white/10">
+                    {peopleOptions.map(n => (
+                      <SelectItem key={n} value={String(n)} className="text-white focus:bg-white/10 focus:text-white">{n}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Contact info */}
             <div className="border-t border-white/5 pt-5 space-y-4">
@@ -327,7 +362,7 @@ export default function BookingSection() {
                   className="w-full h-14 bg-neon-pink hover:bg-neon-pink/90 text-white font-heading font-bold text-lg rounded-xl animate-pulse-glow">
                   {tr(lang, 'booking_confirm')}
                 </Button>
-                <p className="text-center text-white/30 text-xs font-body">{tr(lang, 'booking_cancel_note')}</p>
+                <p className="text-center text-white/30 text-xs font-body">{isAr ? 'يمكنك إلغاء الحجز في أي وقت' : 'You can cancel anytime'}</p>
               </>
             )}
           </motion.form>
