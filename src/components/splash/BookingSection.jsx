@@ -135,14 +135,18 @@ export default function BookingSection() {
               <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
                 <Palette className="w-4 h-4 text-neon-pink shrink-0" /> {tr(lang, 'booking_experience')}
               </Label>
-              <Select onValueChange={handleExperienceChange}>
+              <Select value={form.experience} onValueChange={handleExperienceChange}>
                 <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
                   <SelectValue placeholder={tr(lang, 'booking_choose_exp')} />
                 </SelectTrigger>
                 <SelectContent className="bg-obsidian border-white/10">
-                  {experienceNames.map(name => (
-                    <SelectItem key={name} value={name} className="text-white focus:bg-white/10 focus:text-white">{name}</SelectItem>
-                  ))}
+                  {experienceNames.length > 0 ? (
+                    experienceNames.map(name => (
+                      <SelectItem key={name} value={name} className="text-white focus:bg-white/10 focus:text-white">{name}</SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="loading" disabled className="text-white/40">No experiences available</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
