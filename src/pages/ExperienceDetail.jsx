@@ -1,589 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Clock, Users, Star, CheckCircle, MessageCircle, Shield, Camera } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLang } from '@/lib/LanguageContext';
 import { tr } from '@/lib/translations.js';
+import { useQuery } from '@tanstack/react-query';
 
 const WHATSAPP_NUMBER = '966554563447';
-
-const KIDS_PHOTO1 = "https://media.base44.com/images/public/69e5ef89828747441c931879/3790a7901_image.png";
-const KIDS_PHOTO2 = "https://media.base44.com/images/public/69e5ef89828747441c931879/0b3715ba6_image.png";
-const BIRTHDAY_PHOTO = "https://media.base44.com/images/public/69e5ef89828747441c931879/11d7bf5be_image.png";
-const BIRTHDAY_PACK = "https://media.base44.com/images/public/69e5ef89828747441c931879/f96c1d22f_image.png";
-const OPEN_PAINT_IMG = "https://media.base44.com/images/public/69e5ef89828747441c931879/e8bc2829e_generated_7b2d1bf5.png";
-const GROUP_IMG = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/2828965b7_image.png";
-const EVENTS_IMG = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/427586904_image.png";
-const GALLERY1 = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/64a9b5ac5_image.png";
-const GALLERY2 = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/a9569b78f_image.png";
-const GALLERY3 = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/6c3b5dcdf_image.png";
-const PHONE_CASE_IMG = "https://media.base44.com/images/public/69e5ef89828747441c931879/906f677bf_image.png";
-// Figurine product photos
-const FIG_BUNNY = "https://media.base44.com/images/public/69e5ef89828747441c931879/418062ae7_image.png";
-const FIG_KITTY = "https://media.base44.com/images/public/69e5ef89828747441c931879/174b825da_image.png";
-const FIG_ELEPHANT = "https://media.base44.com/images/public/69e5ef89828747441c931879/cec3dc21c_image.png";
-const FIG_PRINCESS = "https://media.base44.com/images/public/69e5ef89828747441c931879/2d90ae041_image.png";
-const FIG_PIKACHU = "https://media.base44.com/images/public/69e5ef89828747441c931879/06eef13c7_image.png";
-const FIG_BEARBRICK = "https://media.base44.com/images/public/69e5ef89828747441c931879/7a3c6986b_image.png";
-const FIG_BEAR_PLAIN = "https://media.base44.com/images/public/69e5ef89828747441c931879/7064eef9b_image.png";
-const BDAY_PACK_BOX = "https://media.base44.com/images/public/69e5ef89828747441c931879/835731a7c_image.png";
-const NEON_SESSION = "https://media.base44.com/images/public/69e5ef89828747441c931879/ee158501e_image.png";
-
-const EXPERIENCES_EN = {
-  'open-paint-sessions': {
-    title: 'Open Paint Sessions',
-    tagline: 'No rules. Just paint.',
-    description: 'Walk in, pick your colors, and let loose. Open sessions are perfect if you just want to show up and have fun — no pressure, just pure creative chaos. Normal lighting from 3 PM to 6 PM. UV neon lighting from 6 PM to 11 PM. Open daily.',
-    image: OPEN_PAINT_IMG,
-    extraImages: [GALLERY1, GALLERY2, GALLERY3],
-    icon: '🎨', color: '#FF007F',
-    duration: '60–90 min', groupSize: '1–20 people',
-    priceTable: [
-      { name: '🎨 Splash', price: '149 SAR', desc: 'Throw paint on canvas under UV light' },
-      { name: '🌀 Spin', price: '149 SAR', desc: 'Spin art using a spinning canvas machine' },
-      { name: '🖼️ Group Splash (Big Canvas)', price: '385 SAR', desc: 'Shared large canvas for a group — up to 4 people' },
-    ],
-    includes: [
-      'All neon paints & brushes',
-      'Apron & protective cover-up',
-      'Shoe covers',
-      'Locker for your personal items',
-      'Take-home artwork',
-      'Normal lighting: 3 PM – 6 PM',
-      'UV neon lighting: 6 PM – 11 PM',
-    ],
-    rules: [
-      'All ages welcome, preferably from 3 years and above.',
-      'Children under 9 must be accompanied by a trusted adult at all times.',
-      'Any additional guardian beyond one requires a paid entry.',
-      'Wear clothes you do not mind getting paint on.',
-      'Please arrive at least 10 minutes before your session.',
-    ],
-    vibes: ['Solo', 'Couples', 'Small groups', 'Walk-in friendly'],
-    whatsappOnly: false,
-    gallery: [GALLERY1, GALLERY2, GALLERY3],
-  },
-  'birthday-experiences': {
-    title: 'Birthday Experiences',
-    tagline: 'The most colorful birthday ever.',
-    description: 'Forget boring dinner reservations. Celebrate your birthday with a full-on paint party, UV lights, your crew, birthday music, and neon color everywhere. We set everything up so you just have to show up and have the best time of your year. Sessions run 1.5 hours (one service) or 3 hours (two services). Normal lighting: 3 PM – 6 PM. UV neon lighting: 6 PM – 11 PM.',
-    image: BIRTHDAY_PHOTO,
-    extraImages: [BDAY_PACK_BOX, NEON_SESSION],
-    icon: '🎉', color: '#9D00FF',
-    duration: '90 min – 3 hrs', groupSize: '10+ people',
-    priceTable: null,
-    price: 'Custom — DM via WhatsApp',
-    bigBirthdayPack: {
-      allowed: ['Cakes', 'Water', 'Small bites & snacks', 'Up to 5 extra guardians', 'Decorative balloons'],
-      prohibited: ['Large food meals', 'Extra activities (e.g. clowns, soap bubbles)'],
-      booking: ['Contact us via WhatsApp', 'Visit our studio before making any down payment', '20% down payment required'],
-      additional: ['For a private booking, a minimum of 25 children is required', 'One service lasts 1.5 hours', 'Two services last 3 hours', 'Small cake available from us (+100 SAR, serves 3–7 people)', 'Groups of 10–15+ may bring their own big cake'],
-    },
-    includes: [
-      'Birthday music playlist for the whole group',
-      'Birthday card',
-      'Glow in the dark bracelets for everyone',
-      'Glow in the dark glasses for the group',
-      'Happy Birthday hair band',
-      'All neon paints & materials',
-      'Private or semi-private space (we do our best)',
-      'Small cake from Splash Spectrum available (+100 SAR, serves 3–7 people)',
-      'Larger groups (10–15+) are welcome to bring their own big cake',
-    ],
-    rules: [
-      'All ages welcome, preferably from 3 years and above.',
-      'Children under 9 must be accompanied by a trusted adult at all times.',
-      'Booking is done exclusively via WhatsApp.',
-      'Food is NOT provided by Splash Spectrum (except cakes).',
-      'For private booking, minimum 25 children required.',
-      'Please arrive at least 10 minutes before your session.',
-      'Wear clothes you do not mind getting paint on.',
-    ],
-    vibes: ['Birthday parties', 'Milestone celebrations', 'Group events'],
-    whatsappOnly: true,
-    gallery: [BIRTHDAY_PHOTO, BDAY_PACK_BOX, NEON_SESSION, BIRTHDAY_PACK],
-  },
-  'graduation': {
-    title: 'Graduation Celebrations',
-    tagline: 'Mark your milestone in color.',
-    description: 'You made it, celebrate in the most unforgettable way. A graduation paint experience at Splash Spectrum is a vibrant, energetic event that your whole group will talk about for years. We will do everything we can to make your space private and special. Food is NOT provided, but groups of 20 to 25+ are welcome to bring their own.',
-    image: BIRTHDAY_PHOTO,
-    extraImages: [GROUP_IMG],
-    icon: '🎓', color: '#00F3FF',
-    duration: '90–120 min', groupSize: '10+ people',
-    priceTable: null,
-    price: 'Custom — DM via WhatsApp',
-    includes: [
-      'All neon paints & materials for every guest',
-      'Private or semi-private space (we do our best)',
-      'Celebratory atmosphere with music',
-      'Take-home artwork for every participant',
-      'Graduation badge/add-ons available upon request',
-    ],
-    rules: [
-      'All ages welcome, preferably from 3 years and above.',
-      'Children under 9 must be accompanied by a trusted adult at all times.',
-      'Booking is done exclusively via WhatsApp.',
-      'Food is NOT provided by Splash Spectrum.',
-      'Groups of 20 to 25 people or more are welcome to bring their own food.',
-      'We will do our utmost to make the space as private as possible for your group.',
-      'Please arrive 10 minutes before your session.',
-      'Wear clothes you do not mind getting paint on.',
-    ],
-    vibes: ['Graduation parties', 'Private group events', 'Milestone celebrations'],
-    whatsappOnly: true,
-    gallery: [BIRTHDAY_PHOTO, GROUP_IMG, GALLERY2],
-  },
-  'group-friends': {
-    title: 'Group & Friends',
-    tagline: 'Bring your crew. Leave with memories.',
-    description: 'There is no better bonding activity than getting covered in fluorescent paint together. Group sessions are high-energy, loud, and incredibly fun. Whether it\'s a friend group, a date night squad, or a casual gathering, this is the move. Guided by our team, every technique from Splash to Spin to Pour is open to you.',
-    image: GROUP_IMG,
-    extraImages: [GALLERY1, EVENTS_IMG],
-    icon: '👯', color: '#00F3FF',
-    duration: '90 min', groupSize: '4–50 people',
-    priceTable: [
-      { name: '🎨 Splash', price: '149 SAR/person', desc: 'Throw paint on canvas under UV light' },
-      { name: '🌀 Spin', price: '149 SAR/person', desc: 'Spin art using a spinning canvas machine' },
-      { name: '🎢 Swing', price: '149 SAR/person', desc: 'Swing and splash paint mid-air' },
-      { name: '🐻 Pour (e.g. bears)', price: '160 SAR/person', desc: 'Pour paint over a 3D figurine of your choice' },
-      { name: '🖼️ Group Splash (Big Canvas)', price: '385 SAR (shared)', desc: 'One giant canvas for the whole group' },
-    ],
-    includes: [
-      'Guided session by our team',
-      'All neon paints & tools',
-      'Aprons & cover-ups',
-      'Take-home artwork',
-      'Normal lighting: 3 PM – 6 PM',
-      'UV neon lighting: 6 PM – 11 PM',
-    ],
-    rules: [
-      'All ages welcome, preferably from 3 years and above.',
-      'Children under 9 must be accompanied by a trusted adult at all times.',
-      'Wear clothes you do not mind getting paint on.',
-      'Please arrive at least 10 minutes before your session.',
-    ],
-    vibes: ['Friend groups', 'Date nights', 'Team bonding', 'Celebrations'],
-    whatsappOnly: false,
-    gallery: [GROUP_IMG, GALLERY1, EVENTS_IMG],
-  },
-  'kids-experiences': {
-    title: 'School Packages',
-    tagline: 'Safe, silly, and absolutely magical.',
-    description: 'Designed specifically for younger artists (ages 3+). Fully supervised, with child-safe normal paint, and activities tailored to keep little ones engaged. One parent or guardian must be present at all times. Any additional guardian requires an entry fee. Painting is scientifically proven to nurture creativity and promote psychological well-being in children of all ages.',
-    image: "https://media.base44.com/images/public/69e5ef89828747441c931879/607fecb09_generated_83edbf2d.png",
-    extraImages: [KIDS_PHOTO1, KIDS_PHOTO2],
-    icon: '🧸', color: '#39FF14',
-    duration: '60–90 min', groupSize: '2–30 kids',
-    priceTable: [
-      { name: '🎨 Splash', price: '149 SAR/child', desc: 'Throw paint on canvas with normal colors' },
-      { name: '🌀 Spin', price: '149 SAR/child', desc: 'Spin art using a spinning machine with normal colors' },
-    ],
-    schoolPackages: [
-      { students: 30, before: '4,470', discount: '10%', saving: '447', after: '4,023', perKid: '134' },
-      { students: 50, before: '7,450', discount: '15%', saving: '1,118', after: '6,333', perKid: '126' },
-      { students: 80, before: '11,920', discount: '20%', saving: '2,384', after: '9,536', perKid: '119' },
-      { students: 100, before: '14,900', discount: '20%', saving: '2,980', after: '11,920', perKid: '119' },
-    ],
-    includes: [
-      'Child-safe normal paint & brushes',
-      'Fully supervised activities',
-      'Take-home artwork with box to carry it safely',
-      'Aprons & mess protection',
-      'One parent accompaniment included',
-    ],
-    rules: [
-      'Ages 3 and above welcome.',
-      'Children under 9 must be accompanied by a trusted adult at all times.',
-      'ONE parent or guardian must accompany children at all times.',
-      'Any additional guardian requires a paid entry fee.',
-      'Wear clothes you do not mind getting paint on.',
-      'Please arrive at least 10 minutes before your session.',
-    ],
-    vibes: ['Ages 3+', 'Supervised', 'Parent-friendly', 'School trips'],
-    whatsappOnly: false,
-    gallery: [KIDS_PHOTO1, KIDS_PHOTO2, GALLERY3],
-  },
-  'custom-art-figurines': {
-    title: 'Custom Art & Figurines',
-    tagline: 'Paint something you\'ll keep forever.',
-    description: 'Move beyond canvas. Choose from a stunning range of 3D figurines, bears, Hello Kitty, elephants, princesses, Pikachu and more, then pour UV paint over them under neon lights. The paint flows and drips creating a one-of-a-kind glowing masterpiece that you take home. It\'s precise, personal, and mesmerizing to watch come to life.',
-    image: "https://media.base44.com/images/public/69e5ef89828747441c931879/bdceac480_generated_65a48237.png",
-    extraImages: [FIG_BEAR_PLAIN, FIG_BEARBRICK, FIG_BUNNY],
-    icon: '🎁', color: '#FF007F',
-    duration: '90 min', groupSize: '1–20 people',
-    priceTable: [
-      { name: '🐻 Pour (Bear / Figurine)', price: '160 SAR/person', desc: 'Choose your figurine + specialty UV paints + take-home box' },
-    ],
-    figurines: [
-      { name: 'Classic Bear', img: FIG_BEAR_PLAIN },
-      { name: 'Bearbrick', img: FIG_BEARBRICK },
-      { name: 'Bunny Doll', img: FIG_BUNNY },
-      { name: 'Hello Kitty', img: FIG_KITTY },
-      { name: 'Elephant', img: FIG_ELEPHANT },
-      { name: 'Princess', img: FIG_PRINCESS },
-      { name: 'Pikachu', img: FIG_PIKACHU },
-    ],
-    includes: [
-      'Your choice of 3D figurine',
-      'Specialty neon paints in all colors',
-      'Fine pouring tools',
-      'Take-home box for your masterpiece',
-    ],
-    rules: [
-      'All ages welcome, preferably from 3 years and above.',
-      'Children under 9 must be accompanied by a trusted adult.',
-      'No prior art experience needed.',
-      'Wear clothes you do not mind getting paint on.',
-      'Please arrive at least 10 minutes before your session.',
-    ],
-    vibes: ['Artistic', 'Detail-focused', 'Unique keepsake', 'All ages'],
-    whatsappOnly: false,
-    gallery: [FIG_BEAR_PLAIN, FIG_BEARBRICK, FIG_BUNNY, FIG_KITTY, FIG_ELEPHANT, FIG_PRINCESS, FIG_PIKACHU],
-  },
-  'phone-case': {
-    title: 'Custom Phone Case',
-    tagline: 'Your art. Your case. One of a kind.',
-    description: 'Now you can create your own custom iPhone case with our Splash Art experience! Unleash your creativity and design a one-of-a-kind phone case that\'s as unique as you. Throw paint, splash colors, create patterns — then take home a phone case that\'s truly yours.',
-    image: PHONE_CASE_IMG,
-    extraImages: [GALLERY1, GALLERY2],
-    icon: '📱', color: '#00F3FF',
-    duration: '60–90 min', groupSize: '1–20 people',
-    priceTable: [
-      { name: '📱 Splash Phone Case', price: '105 SAR/person', desc: 'Custom painted iPhone case — take it home same day' },
-    ],
-    includes: [
-      'Your own blank phone case',
-      'All neon paints & splashing tools',
-      'Apron & protective cover-up',
-      'Ready-to-use custom case to take home',
-    ],
-    rules: [
-      'All ages welcome, preferably from 3 years and above.',
-      'Children under 9 must be accompanied by a trusted adult.',
-      'No prior art experience needed.',
-      'Wear clothes you do not mind getting paint on.',
-      'Please arrive at least 10 minutes before your session.',
-    ],
-    vibes: ['Creative', 'Unique keepsake', 'All ages', 'Quick session'],
-    whatsappOnly: false,
-    gallery: [PHONE_CASE_IMG, GALLERY1, GALLERY2],
-  },
-  'special-events': {
-    title: 'Special Events',
-    tagline: 'We build the experience around you.',
-    description: 'From corporate team days to brand activations, to anniversary surprises, we craft fully custom immersive paint events for any occasion. Our experienced instructors guide your group through Splash, Spin, Swing and Pour techniques. We can host at our Riyadh studio or bring the experience to your office.',
-    image: EVENTS_IMG,
-    extraImages: [GROUP_IMG, GALLERY1],
-    icon: '🤍', color: '#9D00FF',
-    duration: 'Custom', groupSize: '10–100+ people',
-    priceTable: null,
-    price: 'Custom quote — DM via WhatsApp',
-    includes: [
-      'Full custom event coordination',
-      'All paint techniques: Splash, Spin, Swing, Pour',
-      'Custom branding options available',
-      'Can be hosted at our studio OR at your venue',
-      'Dedicated event team',
-      'Group canvas or individual artwork',
-    ],
-    rules: [
-      'All ages welcome, preferably from 3 years and above.',
-      'Children under 9 must be accompanied by a trusted adult.',
-      'Contact us in advance to plan your event.',
-      'Minimum group size: 10 people.',
-      'Venue details discussed during consultation.',
-      'Please arrive at least 10 minutes before your session.',
-    ],
-    vibes: ['Corporate events', 'Team building', 'Brand activations', 'Large groups'],
-    whatsappOnly: false,
-    gallery: [EVENTS_IMG, GROUP_IMG, GALLERY1],
-  },
-};
-
-const EXPERIENCES_AR = {
-  'open-paint-sessions': {
-    title: 'جلسات الرسم الحرة',
-    tagline: 'لا قواعد. فقط ألوان.',
-    description: 'ادخل، اختر ألوانك، وانطلق. الجلسات الحرة مثالية إذا أردت فقط الاستمتاع، لا ضغط، فقط فوضى إبداعية خالصة. إضاءة عادية من 3 مساءً حتى 6 مساءً. إضاءة نيون UV من 6 مساءً حتى 11 مساءً. مفتوح يومياً.',
-    image: OPEN_PAINT_IMG,
-    extraImages: [GALLERY1, GALLERY2, GALLERY3],
-    icon: '🎨', color: '#FF007F',
-    duration: '60–90 دقيقة', groupSize: '1–20 شخص',
-    priceTable: [
-      { name: '🎨 سبلاش', price: '149 ريال', desc: 'ارمِ الألوان على اللوحة تحت ضوء UV' },
-      { name: '🌀 سبين', price: '149 ريال', desc: 'رسم دوار باستخدام آلة دوارة' },
-      { name: '🖼️ سبلاش لوحة كبيرة (جماعي)', price: '385 ريال', desc: 'لوحة كبيرة مشتركة للمجموعة — حتى 4 أشخاص' },
-    ],
-    includes: [
-      'جميع ألوان النيون والفراشي',
-      'مريلة وغطاء واقي',
-      'غطاء أحذية',
-      'خزانة لحفظ أغراضك الشخصية',
-      'لوحة فنية تأخذها معك للبيت',
-      'إضاءة عادية: 3 مساءً – 6 مساءً',
-      'إضاءة نيون UV: 6 مساءً – 11 مساءً',
-    ],
-    rules: [
-      'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
-      'يجب أن يرافق الأطفال دون 9 سنوات شخص بالغ موثوق في جميع الأوقات.',
-      'أي مرافق إضافي يتطلب رسوم دخول.',
-      'ارتدِ ملابس لا تمانع تلطيخها.',
-      'يُرجى الحضور قبل 10 دقائق على الأقل من موعد جلستك.',
-    ],
-    vibes: ['منفرد', 'ثنائي', 'مجموعات صغيرة', 'دخول حر'],
-    whatsappOnly: false,
-    gallery: [GALLERY1, GALLERY2, GALLERY3],
-  },
-  'birthday-experiences': {
-    title: 'تجارب أعياد الميلاد',
-    tagline: 'أجمل عيد ميلاد في حياتك.',
-    description: 'انسَ حجوزات العشاء المملة. احتفل بعيد ميلادك بحفلة رسم كاملة، أضواء UV، مجموعتك، موسيقى عيد الميلاد، وألوان نيون في كل مكان. نحن نجهز كل شيء، ما عليك إلا الحضور والاستمتاع. الجلسة ساعة ونصف (خدمة واحدة) أو 3 ساعات (خدمتان). إضاءة عادية: 3م – 6م. إضاءة نيون UV: 6م – 11م.',
-    image: BIRTHDAY_PHOTO,
-    extraImages: [BDAY_PACK_BOX, NEON_SESSION],
-    icon: '🎉', color: '#9D00FF',
-    duration: '90 دقيقة – 3 ساعات', groupSize: '10+ أشخاص',
-    priceTable: null,
-    price: 'تواصل عبر واتساب للاستفسار',
-    bigBirthdayPack: {
-      allowed: ['الكيك', 'المياه', 'وجبات خفيفة صغيرة', 'حتى 5 مرافقين إضافيين', 'البالونات الزينة'],
-      prohibited: ['وجبات طعام كبيرة', 'الأنشطة الإضافية (مثل المهرجين، فقاعات الصابون)'],
-      booking: ['التواصل عبر واتساب', 'زيارة الاستوديو قبل أي دفعة', 'دفعة أولى 20%'],
-      additional: ['للحجز الخاص يُشترط 25 طفل كحد أدنى', 'خدمة واحدة = ساعة ونصف', 'خدمتان = 3 ساعات', 'كيكة صغيرة متاحة منا (+100 ريال، تكفي 3–7 أشخاص)', 'المجموعات 10–15+ يمكنها إحضار كيكتها الكبيرة'],
-    },
-    includes: [
-      'موسيقى عيد الميلاد للمجموعة كاملة',
-      'بطاقة عيد الميلاد',
-      'أساور متوهجة في الظلام للجميع',
-      'نظارات متوهجة في الظلام للمجموعة',
-      'طوق شعر Happy Birthday',
-      'جميع ألوان النيون والمواد',
-      'مساحة خاصة أو شبه خاصة (نبذل قصارى جهدنا)',
-      'كيكة صغيرة من سبلاش سبيكتروم (+100 ريال، تكفي 3–7 أشخاص)',
-      'المجموعات الكبيرة (10–15 شخصاً فأكثر) يمكنها إحضار كيكتها الخاصة',
-    ],
-    rules: [
-      'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
-      'يجب أن يرافق الأطفال دون 9 سنوات شخص بالغ موثوق في جميع الأوقات.',
-      'الحجز يتم حصرياً عبر واتساب.',
-      'الطعام غير مقدم من سبلاش سبيكتروم (باستثناء الكيك).',
-      'للحجز الخاص يُشترط 25 طفل على الأقل.',
-      'يُرجى الحضور قبل 10 دقائق على الأقل من موعد جلستك.',
-      'ارتدِ ملابس لا تمانع تلطيخها.',
-    ],
-    vibes: ['حفلات أعياد الميلاد', 'الاحتفالات', 'المجموعات'],
-    whatsappOnly: true,
-    gallery: [BIRTHDAY_PHOTO, BDAY_PACK_BOX, NEON_SESSION, BIRTHDAY_PACK],
-  },
-  'graduation': {
-    title: 'احتفالات التخرج',
-    tagline: 'احتفل بإنجازك بالألوان.',
-    description: 'لقد نجحت، احتفل بأكثر الطرق لا تُنسى. تجربة رسم التخرج في سبلاش سبيكتروم هي حدث نابض بالحياة ومليء بالطاقة ستتحدث عنه مجموعتك لسنوات. الطعام غير مقدم، لكن المجموعات من 20 إلى 25 شخصاً فأكثر يمكنها إحضار طعامها الخاص.',
-    image: BIRTHDAY_PHOTO,
-    extraImages: [GROUP_IMG],
-    icon: '🎓', color: '#00F3FF',
-    duration: '90–120 دقيقة', groupSize: '10+ أشخاص',
-    priceTable: null,
-    price: 'تواصل عبر واتساب للاستفسار',
-    includes: [
-      'جميع ألوان النيون والمواد لكل ضيف',
-      'مساحة خاصة أو شبه خاصة (نبذل قصارى جهدنا)',
-      'أجواء احتفالية مع موسيقى',
-      'لوحة فنية يأخذها كل مشارك للبيت',
-      'إضافات خاصة بالتخرج متاحة عند الطلب',
-    ],
-    rules: [
-      'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
-      'يجب أن يرافق الأطفال دون 9 سنوات شخص بالغ موثوق في جميع الأوقات.',
-      'الحجز يتم حصرياً عبر واتساب.',
-      'الطعام غير مقدم من سبلاش سبيكتروم.',
-      'المجموعات من 20 إلى 25 شخصاً فأكثر يمكنها إحضار طعامها الخاص.',
-      'يُرجى الحضور قبل 10 دقائق.',
-      'ارتدِ ملابس لا تمانع تلطيخها.',
-    ],
-    vibes: ['حفلات التخرج', 'المجموعات الخاصة', 'الاحتفالات الكبرى'],
-    whatsappOnly: true,
-    gallery: [BIRTHDAY_PHOTO, GROUP_IMG, GALLERY2],
-  },
-  'group-friends': {
-    title: 'المجموعات والأصدقاء',
-    tagline: 'أحضر مجموعتك. اخرج بذكريات.',
-    description: 'لا يوجد نشاط لبناء الفريق أفضل من أن تتلطخوا جميعاً بالألوان الفلورسنت. الجلسات الجماعية مليئة بالطاقة والضحك والمرح. سواء كانت مجموعة أصدقاء، ليلة ثنائية، أو احتفال — هذا هو الخيار المثالي.',
-    image: GROUP_IMG,
-    extraImages: [GALLERY1, EVENTS_IMG],
-    icon: '👯', color: '#00F3FF',
-    duration: '90 دقيقة', groupSize: '4–50 شخص',
-    priceTable: [
-      { name: '🎨 سبلاش', price: '149 ريال/شخص', desc: 'ارمِ الألوان على اللوحة تحت ضوء UV' },
-      { name: '🌀 سبين', price: '149 ريال/شخص', desc: 'رسم دوار باستخدام آلة دوارة' },
-      { name: '🎢 سوينق', price: '149 ريال/شخص', desc: 'أرجوحة ورش ألوان في الهواء' },
-      { name: '🐻 فن السكب (مثلاً: دب)', price: '160 ريال/شخص', desc: 'اسكب الألوان على مجسم من اختيارك' },
-      { name: '🖼️ سبلاش لوحة كبيرة', price: '385 ريال (مشترك)', desc: 'لوحة عملاقة للمجموعة كاملة' },
-    ],
-    includes: [
-      'جلسة موجهة من فريقنا',
-      'جميع ألوان النيون والأدوات',
-      'مرايل وأغطية واقية',
-      'لوحة فنية للمنزل',
-      'إضاءة عادية: 3 مساءً – 6 مساءً',
-      'إضاءة نيون UV: 6 مساءً – 11 مساءً',
-    ],
-    rules: [
-      'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
-      'يجب أن يرافق الأطفال دون 9 سنوات شخص بالغ موثوق.',
-      'ارتدِ ملابس لا تمانع تلطيخها.',
-      'يُرجى الحضور قبل 10 دقائق على الأقل من موعد جلستك.',
-    ],
-    vibes: ['مجموعات الأصدقاء', 'الثنائيات', 'بناء الفريق', 'الاحتفالات'],
-    whatsappOnly: false,
-    gallery: [GROUP_IMG, GALLERY1, EVENTS_IMG],
-  },
-  'kids-experiences': {
-    title: 'باقات المدارس',
-    tagline: 'آمنة، مرحة، وسحرية تماماً.',
-    description: 'مصممة خصيصاً للفنانين الصغار (من سن 3 سنوات فأكثر). إشراف كامل، ألوان عادية آمنة للأطفال، وأنشطة مصممة لإبقاء الأطفال منخرطين طوال الوقت. يجب أن يكون أحد الوالدين حاضراً في جميع الأوقات. أثبتت الدراسات العلمية أن الرسم يعزز الإبداع والرفاهية النفسية لدى الأطفال.',
-    image: "https://media.base44.com/images/public/69e5ef89828747441c931879/607fecb09_generated_83edbf2d.png",
-    extraImages: [KIDS_PHOTO1, KIDS_PHOTO2],
-    icon: '🧸', color: '#39FF14',
-    duration: '60–90 دقيقة', groupSize: '2–30 طفل',
-    priceTable: [
-      { name: '🎨 سبلاش', price: '149 ريال/طفل', desc: 'ارمِ الألوان على اللوحة بألوان عادية' },
-      { name: '🌀 سبين', price: '149 ريال/طفل', desc: 'رسم دوار باستخدام آلة دوارة بألوان عادية' },
-    ],
-    schoolPackages: [
-      { students: 30, before: '4,470', discount: '10%', saving: '447', after: '4,023', perKid: '134' },
-      { students: 50, before: '7,450', discount: '15%', saving: '1,118', after: '6,333', perKid: '126' },
-      { students: 80, before: '11,920', discount: '20%', saving: '2,384', after: '9,536', perKid: '119' },
-      { students: 100, before: '14,900', discount: '20%', saving: '2,980', after: '11,920', perKid: '119' },
-    ],
-    includes: [
-      'ألوان عادية آمنة للأطفال وفراشي',
-      'إشراف كامل طوال الجلسة',
-      'لوحة فنية تأخذها معك مع صندوق حمل',
-      'مرايل وأغطية واقية',
-      'دخول أحد الوالدين مشمول',
-    ],
-    rules: [
-      'من سن 3 سنوات فأكثر.',
-      'يجب أن يرافق أحد الوالدين الأطفال في جميع الأوقات.',
-      'أي مرافق إضافي يتطلب رسوم دخول.',
-      'ارتدِ ملابس لا تمانع تلطيخها.',
-      'يُرجى الحضور قبل 10 دقائق من موعد جلستك.',
-    ],
-    vibes: ['من سن 3 سنوات', 'تحت الإشراف', 'صديق للوالدين', 'رحلات مدرسية'],
-    whatsappOnly: false,
-    gallery: [KIDS_PHOTO1, KIDS_PHOTO2, GALLERY3],
-  },
-  'custom-art-figurines': {
-    title: 'الفن المخصص والمجسمات',
-    tagline: 'ارسم شيئاً ستحتفظ به إلى الأبد.',
-    description: 'تجاوز اللوحة العادية. اختر من مجموعة رائعة من المجسمات، دب، هيلو كيتي، فيل، أميرة، بيكاتشو والمزيد، ثم اسكب ألوان UV عليها تحت الأضواء النيون. يتدفق الطلاء وينسكب ليخلق قطعة فنية متوهجة فريدة من نوعها تأخذها للمنزل.',
-    image: "https://media.base44.com/images/public/69e5ef89828747441c931879/bdceac480_generated_65a48237.png",
-    extraImages: [FIG_BEAR_PLAIN, FIG_BEARBRICK, FIG_BUNNY],
-    icon: '🎁', color: '#FF007F',
-    duration: '90 دقيقة', groupSize: '1–20 شخص',
-    priceTable: [
-      { name: '🐻 فن السكب (مجسم)', price: '160 ريال/شخص', desc: 'اختر مجسمك + ألوان UV متخصصة + صندوق حمل' },
-    ],
-    figurines: [
-      { name: 'دب كلاسيكي', img: FIG_BEAR_PLAIN },
-      { name: 'بير بريك', img: FIG_BEARBRICK },
-      { name: 'دمية الأرنب', img: FIG_BUNNY },
-      { name: 'هيلو كيتي', img: FIG_KITTY },
-      { name: 'الفيل', img: FIG_ELEPHANT },
-      { name: 'الأميرة', img: FIG_PRINCESS },
-      { name: 'بيكاتشو', img: FIG_PIKACHU },
-    ],
-    includes: [
-      'مجسمك الثلاثي الأبعاد من اختيارك',
-      'ألوان النيون المتخصصة بجميع الألوان',
-      'أدوات السكب الدقيقة',
-      'صندوق لحمل تحفتك الفنية للمنزل',
-    ],
-    rules: [
-      'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
-      'يجب أن يرافق الأطفال دون 9 سنوات شخص بالغ موثوق.',
-      'لا تحتاج لأي خبرة فنية مسبقة.',
-      'ارتدِ ملابس لا تمانع تلطيخها.',
-      'يُرجى الحضور قبل 10 دقائق على الأقل من موعد جلستك.',
-    ],
-    vibes: ['فني', 'تفصيلي', 'تذكار فريد', 'جميع الأعمار'],
-    whatsappOnly: false,
-    gallery: [FIG_BEAR_PLAIN, FIG_BEARBRICK, FIG_BUNNY, FIG_KITTY, FIG_ELEPHANT, FIG_PRINCESS, FIG_PIKACHU],
-  },
-  'phone-case': {
-    title: 'كفر جوال مخصص',
-    tagline: 'فنك. كفرك. فريد من نوعه.',
-    description: 'الآن يمكنك تصميم كفر آيفون مخصص مع تجربة سبلاش آرت! أطلق إبداعك وصمّم كفراً فريداً بقدر ما أنت مميز. ارمِ الألوان، ارشش، اصنع نقوشاً — وخذ كفر جوالك للبيت.',
-    image: PHONE_CASE_IMG,
-    extraImages: [GALLERY1, GALLERY2],
-    icon: '📱', color: '#00F3FF',
-    duration: '60–90 دقيقة', groupSize: '1–20 شخص',
-    priceTable: [
-      { name: '📱 سبلاش كفر جوال', price: '105 ريال/شخص', desc: 'كفر آيفون مرسوم — خذه للبيت في نفس اليوم' },
-    ],
-    includes: [
-      'كفر جوال فارغ خاص بك',
-      'جميع ألوان النيون وأدوات الرش',
-      'مريلة وغطاء واقي',
-      'كفر جاهز للاستخدام تأخذه للبيت',
-    ],
-    rules: [
-      'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
-      'يجب أن يرافق الأطفال دون 9 سنوات شخص بالغ موثوق.',
-      'لا تحتاج لأي خبرة فنية مسبقة.',
-      'ارتدِ ملابس لا تمانع تلطيخها.',
-      'يُرجى الحضور قبل 10 دقائق على الأقل من موعد جلستك.',
-    ],
-    vibes: ['إبداعي', 'تذكار فريد', 'جميع الأعمار', 'جلسة سريعة'],
-    whatsappOnly: false,
-    gallery: [PHONE_CASE_IMG, GALLERY1, GALLERY2],
-  },
-  'special-events': {
-    title: 'الفعاليات الخاصة',
-    tagline: 'نبني التجربة حول احتياجاتك.',
-    description: 'من أيام فريق الشركات إلى تفعيل العلامات التجارية، إلى مفاجآت الذكرى السنوية، نصمم فعاليات رسم غامرة مخصصة لأي مناسبة. يمكننا الاستضافة في استوديونا بالرياض أو إحضار التجربة إلى مقر شركتك.',
-    image: EVENTS_IMG,
-    extraImages: [GROUP_IMG, GALLERY1],
-    icon: '🤍', color: '#9D00FF',
-    duration: 'مخصص', groupSize: '10–100+ شخص',
-    priceTable: null,
-    price: 'عرض سعر مخصص — تواصل عبر واتساب',
-    includes: [
-      'تنسيق الفعالية الكاملة',
-      'جميع تقنيات الرسم: سبلاش، سبين، سوينق، فن السكب',
-      'خيارات العلامة التجارية المخصصة',
-      'يمكن الاستضافة في استوديونا أو مقرك',
-      'فريق فعاليات متخصص',
-      'لوحة جماعية أو أعمال فردية',
-    ],
-    rules: [
-      'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
-      'يجب أن يرافق الأطفال دون 9 سنوات شخص بالغ موثوق.',
-      'تواصل معنا مسبقاً لتخطيط فعاليتك.',
-      'الحد الأدنى لحجم المجموعة: 10 أشخاص.',
-      'يتم مناقشة تفاصيل المكان خلال الاستشارة.',
-      'يُرجى الحضور قبل 10 دقائق على الأقل من موعد جلستك.',
-    ],
-    vibes: ['فعاليات الشركات', 'بناء الفريق', 'تفعيل العلامة التجارية', 'المجموعات الكبيرة'],
-    whatsappOnly: false,
-    gallery: [EVENTS_IMG, GROUP_IMG, GALLERY1],
-  },
-};
-
 const timeSlots = ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'];
 
 export default function ExperienceDetail() {
   const { lang, isAr } = useLang();
   const urlParams = new URLSearchParams(window.location.search);
   const slug = urlParams.get('id') || 'open-paint-sessions';
-  const EXPERIENCES = isAr ? EXPERIENCES_AR : EXPERIENCES_EN;
-  const exp = EXPERIENCES[slug] || EXPERIENCES['open-paint-sessions'];
+
+  const { data: experiences = [], isLoading } = useQuery({
+    queryKey: ['experiences'],
+    queryFn: () => base44.entities.Experience.list('sortOrder', 100),
+  });
+
+  const exp = experiences.find(e => e.slug === slug) || experiences[0];
 
   const [form, setForm] = useState({ date: '', time: '', people: '', name: '', email: '', phone: '' });
   const [submitted, setSubmitted] = useState(false);
@@ -593,7 +33,7 @@ export default function ExperienceDetail() {
     e.preventDefault();
     await base44.entities.Booking.create({
       experienceSlug: slug,
-      experienceName: exp.title,
+      experienceName: isAr ? exp.title_ar : exp.title_en,
       date: form.date,
       time: form.time,
       people: form.people,
@@ -606,20 +46,51 @@ export default function ExperienceDetail() {
   };
 
   const handleWhatsApp = () => {
+    const title = exp ? (isAr ? exp.title_ar : exp.title_en) : '';
     const msg = encodeURIComponent(
-      `Hi! I'd like to book a *${exp.title}* at Splash Spectrum. Please help me with the details! 🎨`
+      `Hi! I'd like to book a *${title}* at Splash Spectrum. Please help me with the details! 🎨`
     );
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-obsidian flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-neon-pink border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!exp) {
+    return (
+      <div className="min-h-screen bg-obsidian flex items-center justify-center text-white">
+        <div className="text-center">
+          <p className="text-2xl mb-4">Experience not found</p>
+          <Link to="/" className="text-neon-pink underline">Go Home</Link>
+        </div>
+      </div>
+    );
+  }
+
+  const title = isAr ? exp.title_ar : exp.title_en;
+  const tagline = isAr ? exp.tagline_ar : exp.tagline_en;
+  const description = isAr ? exp.description_ar : exp.description_en;
+  const duration = isAr ? exp.duration_ar : exp.duration_en;
+  const groupSize = isAr ? exp.groupSize_ar : exp.groupSize_en;
+  const price = isAr ? exp.price_ar : exp.price_en;
+  const includes = isAr ? (exp.includes_ar || []) : (exp.includes_en || []);
+  const rules = isAr ? (exp.rules_ar || []) : (exp.rules_en || []);
+  const vibes = exp.vibes || [];
+  const priceTable = exp.priceTable || [];
+  const gallery = exp.gallery || [];
 
   return (
     <div className="min-h-screen bg-obsidian" dir={isAr ? 'rtl' : 'ltr'}>
 
       {/* HERO */}
       <div className="relative h-[55vh] md:h-[70vh] overflow-hidden">
-        <img src={exp.image} alt={exp.title} className="w-full h-full object-cover" />
+        <img src={exp.image} alt={title} className="w-full h-full object-cover" />
         <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, rgba(5,5,5,0.3) 0%, rgba(5,5,5,0.5) 50%, rgba(5,5,5,1) 100%)` }} />
-        {/* Color glow overlay */}
         <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at 30% 60%, ${exp.color}20 0%, transparent 60%)` }} />
 
         <div className="absolute inset-0 flex flex-col justify-end pb-12 px-6">
@@ -633,7 +104,7 @@ export default function ExperienceDetail() {
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-5xl">{exp.icon}</span>
                 <div className="flex flex-wrap gap-2">
-                  {exp.vibes.map(vibe => (
+                  {vibes.map(vibe => (
                     <span key={vibe} className="px-3 py-1 rounded-full text-xs font-heading font-semibold"
                       style={{ borderColor: `${exp.color}55`, color: exp.color, background: `${exp.color}15`, border: `1px solid ${exp.color}40` }}>
                       {vibe}
@@ -642,9 +113,9 @@ export default function ExperienceDetail() {
                 </div>
               </div>
               <h1 className="font-heading font-black text-4xl md:text-6xl text-white mb-3 leading-none" style={{ textShadow: `0 0 60px ${exp.color}55` }}>
-                {exp.title}
+                {title}
               </h1>
-              <p className="font-body text-lg md:text-xl" style={{ color: exp.color }}>{exp.tagline}</p>
+              <p className="font-body text-lg md:text-xl" style={{ color: exp.color }}>{tagline}</p>
             </motion.div>
           </div>
         </div>
@@ -653,18 +124,24 @@ export default function ExperienceDetail() {
       {/* QUICK STATS BAR */}
       <div className="border-b border-white/5" style={{ background: `linear-gradient(90deg, ${exp.color}08, transparent)` }}>
         <div className="max-w-5xl mx-auto px-4 py-4 flex flex-wrap gap-6 items-center">
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4" style={{ color: exp.color }} />
-            <span className="font-body text-white/60 text-sm">{exp.duration}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4" style={{ color: exp.color }} />
-            <span className="font-body text-white/60 text-sm">{exp.groupSize}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Star className="w-4 h-4" style={{ color: exp.color }} />
-            <span className="font-body text-white/60 text-sm">{exp.price || (isAr ? 'انظر الأسعار أدناه' : 'See pricing below')}</span>
-          </div>
+          {duration && (
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4" style={{ color: exp.color }} />
+              <span className="font-body text-white/60 text-sm">{duration}</span>
+            </div>
+          )}
+          {groupSize && (
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4" style={{ color: exp.color }} />
+              <span className="font-body text-white/60 text-sm">{groupSize}</span>
+            </div>
+          )}
+          {price && (
+            <div className="flex items-center gap-2">
+              <Star className="w-4 h-4" style={{ color: exp.color }} />
+              <span className="font-body text-white/60 text-sm">{price}</span>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4" style={{ color: exp.color }} />
             <span className="font-body text-white/60 text-sm">{isAr ? 'يُفضل من سن 3 سنوات فأكثر' : 'Preferably ages 3+'}</span>
@@ -675,28 +152,32 @@ export default function ExperienceDetail() {
       <div className="max-w-5xl mx-auto px-4 py-12 md:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
 
-          {/* LEFT: Info (3 cols) */}
+          {/* LEFT: Info */}
           <div className="lg:col-span-3 space-y-10">
 
             {/* Description */}
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              className="font-body text-white/70 leading-relaxed text-base md:text-lg border-l-2 pl-5"
-              style={{ borderColor: exp.color }}>
-              {exp.description}
-            </motion.p>
+            {description && (
+              <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                className="font-body text-white/70 leading-relaxed text-base md:text-lg border-l-2 pl-5"
+                style={{ borderColor: exp.color }}>
+                {description}
+              </motion.p>
+            )}
 
             {/* Pricing Table */}
-            {exp.priceTable && (
+            {priceTable.length > 0 && (
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
                 <h3 className="font-heading font-bold text-white text-xl mb-5 flex items-center gap-2">
                   <span style={{ color: exp.color }}>💰</span> {tr(lang, 'detail_prices')}
                 </h3>
                 <div className="rounded-2xl overflow-hidden border border-white/8" style={{ background: `linear-gradient(135deg, ${exp.color}06, rgba(255,255,255,0.02))` }}>
-                  {exp.priceTable.map((row, i) => (
-                    <div key={i} className={`flex items-center justify-between px-5 py-4 ${i < exp.priceTable.length - 1 ? 'border-b border-white/5' : ''}`}>
+                  {priceTable.map((row, i) => (
+                    <div key={i} className={`flex items-center justify-between px-5 py-4 ${i < priceTable.length - 1 ? 'border-b border-white/5' : ''}`}>
                       <div>
-                        <p className="font-heading font-semibold text-white text-sm">{row.name}</p>
-                        {row.desc && <p className="font-body text-white/35 text-xs mt-0.5">{row.desc}</p>}
+                        <p className="font-heading font-semibold text-white text-sm">{isAr ? row.name_ar : row.name_en}</p>
+                        {(isAr ? row.desc_ar : row.desc_en) && (
+                          <p className="font-body text-white/35 text-xs mt-0.5">{isAr ? row.desc_ar : row.desc_en}</p>
+                        )}
                       </div>
                       <span className="font-heading font-black text-base shrink-0 ml-4" style={{ color: exp.color }}>{row.price}</span>
                     </div>
@@ -705,100 +186,25 @@ export default function ExperienceDetail() {
               </motion.div>
             )}
 
-            {/* School Packages */}
-            {exp.schoolPackages && (
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                <h3 className="font-heading font-bold text-white text-xl mb-2 flex items-center gap-2">
-                  <span>🏫</span> {isAr ? 'باقات المدارس' : 'School Trip Packages'}
-                </h3>
-                <p className="text-white/40 text-sm mb-5 font-body">
-                  {isAr ? 'نوفر صناديق للطلاب لحمل أعمالهم الفنية بسهولة إلى المنزل.' : 'We provide boxes for students to safely take home their artwork.'}
-                </p>
-                <div className="rounded-2xl overflow-hidden border border-white/8">
-                  <div className="grid grid-cols-5 px-4 py-3 border-b border-white/10 text-white/40 font-heading font-semibold text-xs text-center bg-white/[0.02]">
-                    <span>{isAr ? 'طلاب' : 'Students'}</span>
-                    <span>{isAr ? 'قبل الخصم' : 'Before'}</span>
-                    <span>{isAr ? 'خصم' : 'Discount'}</span>
-                    <span className="text-neon-green">{isAr ? 'بعد الخصم' : 'After'}</span>
-                    <span>{isAr ? 'للطالب' : 'Per Kid'}</span>
-                  </div>
-                  {exp.schoolPackages.map((row, i) => (
-                    <div key={i} className={`grid grid-cols-5 px-4 py-3 text-center text-sm ${i < exp.schoolPackages.length - 1 ? 'border-b border-white/5' : ''} ${i % 2 === 0 ? 'bg-white/[0.01]' : ''}`}>
-                      <span className="text-white font-bold">{row.students}</span>
-                      <span className="text-white/40 line-through text-xs">{row.before}</span>
-                      <span className="text-uv-purple font-semibold">{row.discount}</span>
-                      <span className="text-neon-green font-black">{row.after}</span>
-                      <span className="text-white/70">{row.perKid} {isAr ? 'ر' : 'SAR'}</span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Big Birthday Pack */}
-            {exp.bigBirthdayPack && (
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                className="rounded-2xl overflow-hidden border border-white/8">
-                <div className="px-5 py-3 font-heading font-black text-white text-base" style={{ background: `linear-gradient(90deg, ${exp.color}30, ${exp.color}10)` }}>
-                  🎂 {isAr ? 'باقة عيد الميلاد الكبيرة' : 'Big Birthday Pack — Details'}
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-0">
-                  <div className="p-4 border-b sm:border-b-0 sm:border-r border-white/5">
-                    <p className="text-neon-green font-heading font-bold text-xs uppercase tracking-wider mb-2">{isAr ? '✅ مسموح' : '✅ Allowed'}</p>
-                    {exp.bigBirthdayPack.allowed.map((i, k) => <p key={k} className="text-white/60 text-sm font-body">• {i}</p>)}
-                  </div>
-                  <div className="p-4 border-b border-white/5">
-                    <p className="text-neon-pink font-heading font-bold text-xs uppercase tracking-wider mb-2">{isAr ? '🚫 ممنوع' : '🚫 Prohibited'}</p>
-                    {exp.bigBirthdayPack.prohibited.map((i, k) => <p key={k} className="text-white/60 text-sm font-body">• {i}</p>)}
-                  </div>
-                  <div className="p-4 border-b sm:border-b-0 sm:border-r border-white/5">
-                    <p className="text-electric-cyan font-heading font-bold text-xs uppercase tracking-wider mb-2">{isAr ? '📋 لتأكيد الحجز' : '📋 To Confirm Booking'}</p>
-                    {exp.bigBirthdayPack.booking.map((i, k) => <p key={k} className="text-white/60 text-sm font-body">• {i}</p>)}
-                  </div>
-                  <div className="p-4">
-                    <p className="text-uv-purple font-heading font-bold text-xs uppercase tracking-wider mb-2">{isAr ? 'ℹ️ معلومات إضافية' : 'ℹ️ Additional Info'}</p>
-                    {exp.bigBirthdayPack.additional.map((i, k) => <p key={k} className="text-white/60 text-sm font-body">• {i}</p>)}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Figurine Picker */}
-            {exp.figurines && (
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                <h3 className="font-heading font-bold text-white text-xl mb-4 flex items-center gap-2">
-                  <span style={{ color: exp.color }}>🎭</span> {isAr ? 'اختر مجسمك' : 'Choose Your Figurine'}
-                </h3>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                  {exp.figurines.map((fig, i) => (
-                    <div key={i} className="bg-white/[0.03] border border-white/8 rounded-xl p-2 text-center hover:border-white/20 transition-all group cursor-pointer"
-                      onClick={() => setLightbox(fig.img)}>
-                      <img src={fig.img} alt={fig.name} className="w-full aspect-square object-cover rounded-lg mb-1.5 group-hover:scale-105 transition-transform" />
-                      <p className="text-white/60 text-xs font-body">{fig.name}</p>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-white/30 text-xs font-body mt-3">{isAr ? '* اضغط على أي مجسم لتكبيره' : '* Tap any figurine to zoom in'}</p>
-              </motion.div>
-            )}
-
             {/* What's Included */}
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-              <h3 className="font-heading font-bold text-white text-xl mb-5 flex items-center gap-2">
-                <span style={{ color: exp.color }}>✓</span> {tr(lang, 'detail_includes')}
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {exp.includes.map((item, i) => (
-                  <div key={i} className="flex items-start gap-3 bg-white/[0.02] border border-white/5 rounded-xl p-3">
-                    <CheckCircle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: exp.color }} />
-                    <span className="font-body text-white/65 text-sm leading-snug">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
+            {includes.length > 0 && (
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                <h3 className="font-heading font-bold text-white text-xl mb-5 flex items-center gap-2">
+                  <span style={{ color: exp.color }}>✓</span> {tr(lang, 'detail_includes')}
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {includes.map((item, i) => (
+                    <div key={i} className="flex items-start gap-3 bg-white/[0.02] border border-white/5 rounded-xl p-3">
+                      <CheckCircle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: exp.color }} />
+                      <span className="font-body text-white/65 text-sm leading-snug">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
 
             {/* Rules */}
-            {exp.rules && exp.rules.length > 0 && (
+            {rules.length > 0 && (
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 className="rounded-2xl p-5 border"
                 style={{ background: `${exp.color}08`, borderColor: `${exp.color}25` }}>
@@ -806,7 +212,7 @@ export default function ExperienceDetail() {
                   <Shield className="w-4 h-4" style={{ color: exp.color }} /> {tr(lang, 'detail_rules')}
                 </h3>
                 <ul className="space-y-2.5">
-                  {exp.rules.map((rule, i) => (
+                  {rules.map((rule, i) => (
                     <li key={i} className="flex items-start gap-2.5 font-body text-white/55 text-sm leading-relaxed">
                       <span className="shrink-0 mt-1 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: exp.color }} />
                       {rule}
@@ -817,20 +223,19 @@ export default function ExperienceDetail() {
             )}
 
             {/* Gallery */}
-            {exp.gallery && exp.gallery.length > 0 && (
+            {gallery.length > 0 && (
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
                 <h3 className="font-heading font-bold text-white text-xl mb-5 flex items-center gap-2">
                   <Camera className="w-5 h-5" style={{ color: exp.color }} /> {tr(lang, 'detail_gallery')}
                 </h3>
                 <div className="grid grid-cols-3 gap-3">
-                  {exp.gallery.map((img, i) => (
+                  {gallery.map((img, i) => (
                     <motion.div key={i} whileHover={{ scale: 1.03 }} onClick={() => setLightbox(img)}
                       className="relative overflow-hidden rounded-xl cursor-pointer group aspect-square">
                       <img src={img} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                       <div className="absolute inset-0 bg-obsidian/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <Camera className="w-6 h-6 text-white" />
                       </div>
-                      <div className="absolute inset-0 rounded-xl border-2 border-transparent group-hover:border-white/20 transition-all" />
                     </motion.div>
                   ))}
                 </div>
@@ -838,12 +243,10 @@ export default function ExperienceDetail() {
             )}
           </div>
 
-          {/* RIGHT: Booking (2 cols) */}
+          {/* RIGHT: Booking */}
           <div className="lg:col-span-2">
             <div className="rounded-3xl border border-white/8 overflow-hidden"
               style={{ background: `linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))` }}>
-
-              {/* Card top accent */}
               <div className="h-1" style={{ background: `linear-gradient(90deg, ${exp.color}, ${exp.color}44)` }} />
 
               <div className="p-6 md:p-8">
@@ -873,10 +276,6 @@ export default function ExperienceDetail() {
                       <p className="text-white/75 text-sm font-body">📅 {form.date} — {form.time}</p>
                       <p className="text-white/75 text-sm font-body">👥 {form.people} {isAr ? 'أشخاص' : 'people'}</p>
                       <p className="text-white/75 text-sm font-body">👤 {form.name}</p>
-                    </div>
-                    <div className="bg-electric-cyan/5 border border-electric-cyan/20 rounded-xl p-4 mb-6">
-                      <p className="text-electric-cyan font-heading font-bold text-sm mb-1">{tr(lang, 'detail_reminder_title')}</p>
-                      <p className="text-white/50 text-xs font-body leading-relaxed">{tr(lang, 'detail_reminder_body')}</p>
                     </div>
                     <Link to="/" className="text-white/30 hover:text-white text-sm font-body transition-colors">{tr(lang, 'detail_back')}</Link>
                   </motion.div>
@@ -949,7 +348,6 @@ export default function ExperienceDetail() {
               </div>
             </div>
 
-            {/* WhatsApp CTA below form for non-whatsapp-only */}
             {!exp.whatsappOnly && (
               <div className="mt-4">
                 <button onClick={handleWhatsApp}
@@ -965,7 +363,7 @@ export default function ExperienceDetail() {
 
       {/* Lightbox */}
       {lightbox && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           className="fixed inset-0 z-50 bg-obsidian/95 backdrop-blur-xl flex items-center justify-center p-4"
           onClick={() => setLightbox(null)}>
           <button className="absolute top-6 right-6 text-white/60 hover:text-white text-2xl font-bold" onClick={() => setLightbox(null)}>✕</button>
