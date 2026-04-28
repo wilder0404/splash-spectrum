@@ -37,7 +37,7 @@ const EXPERIENCES_EN = {
   'open-paint-sessions': {
     title: 'Open Paint Sessions',
     tagline: 'No rules. Just paint.',
-    description: 'Walk in, pick your colors, and let loose. Under UV lights, every splash becomes a masterpiece. Open sessions are perfect if you just want to show up and have fun, no pressure, just pure creative chaos. Open daily 3 PM to 11 PM.',
+    description: 'Walk in, pick your colors, and let loose. Open sessions are perfect if you just want to show up and have fun — no pressure, just pure creative chaos. Normal lighting from 3 PM to 6 PM. UV neon lighting from 6 PM to 11 PM. Open daily.',
     image: OPEN_PAINT_IMG,
     extraImages: [GALLERY1, GALLERY2, GALLERY3],
     icon: '🎨', color: '#FF007F',
@@ -56,7 +56,8 @@ const EXPERIENCES_EN = {
       'Shoe covers',
       'Locker for your personal items',
       'Take-home artwork',
-      'Open daily 3 PM – 11 PM',
+      'Normal lighting: 3 PM – 6 PM',
+      'UV neon lighting: 6 PM – 11 PM',
     ],
     rules: [
       'All ages welcome, preferably from 3 years and above.',
@@ -71,7 +72,7 @@ const EXPERIENCES_EN = {
   'birthday-experiences': {
     title: 'Birthday Experiences',
     tagline: 'The most colorful birthday ever.',
-    description: 'Forget boring dinner reservations. Celebrate your birthday with a full-on paint party, UV lights, your crew, birthday music, and neon color everywhere. We set everything up so you just have to show up and have the best time of your year. Sessions run 1.5 hours (one service) or 2 hours (two services). Open daily 3 PM to 11 PM.',
+    description: 'Forget boring dinner reservations. Celebrate your birthday with a full-on paint party, UV lights, your crew, birthday music, and neon color everywhere. We set everything up so you just have to show up and have the best time of your year. Sessions run 1.5 hours (one service) or 2 hours (two services). Normal lighting: 3 PM – 6 PM. UV neon lighting: 6 PM – 11 PM.',
     image: BIRTHDAY_PHOTO,
     extraImages: [BDAY_PACK_BOX, NEON_SESSION],
     icon: '🎉', color: '#9D00FF',
@@ -158,7 +159,8 @@ const EXPERIENCES_EN = {
       'All paints & tools',
       'Aprons & cover-ups',
       'Take-home artwork',
-      'Available in regular or UV neon lighting',
+      'Normal lighting: 3 PM – 6 PM',
+      'UV neon lighting: 6 PM – 11 PM',
     ],
     rules: [
       'All ages welcome, preferably from 3 years and above.',
@@ -305,7 +307,7 @@ const EXPERIENCES_AR = {
   'open-paint-sessions': {
     title: 'جلسات الرسم الحرة',
     tagline: 'لا قواعد. فقط ألوان.',
-    description: 'ادخل، اختر ألوانك، وانطلق. تحت أضواء الفلورسنت كل رشة تصبح لوحة فنية. الجلسات الحرة مثالية إذا أردت فقط الاستمتاع، لا ضغط، فقط فوضى إبداعية خالصة. متوفرة بإضاءة عادية (فترة العصر) وإضاءة نيون UV (من الساعة 7 مساءً حتى الإغلاق).',
+    description: 'ادخل، اختر ألوانك، وانطلق. الجلسات الحرة مثالية إذا أردت فقط الاستمتاع، لا ضغط، فقط فوضى إبداعية خالصة. إضاءة عادية من 3 مساءً حتى 6 مساءً. إضاءة نيون UV من 6 مساءً حتى 11 مساءً. مفتوح يومياً.',
     image: OPEN_PAINT_IMG,
     extraImages: [GALLERY1, GALLERY2, GALLERY3],
     icon: '🎨', color: '#FF007F',
@@ -324,7 +326,8 @@ const EXPERIENCES_AR = {
       'غطاء أحذية',
       'خزانة لحفظ أغراضك الشخصية',
       'لوحة فنية تأخذها معك للبيت',
-      'مفتوح يومياً من 3 مساءً حتى 11 مساءً',
+      'إضاءة عادية: 3 مساءً – 6 مساءً',
+      'إضاءة نيون UV: 6 مساءً – 11 مساءً',
     ],
     rules: [
       'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
@@ -339,7 +342,7 @@ const EXPERIENCES_AR = {
   'birthday-experiences': {
     title: 'تجارب أعياد الميلاد',
     tagline: 'أجمل عيد ميلاد في حياتك.',
-    description: 'انسَ حجوزات العشاء المملة. احتفل بعيد ميلادك بحفلة رسم كاملة، أضواء UV، مجموعتك، موسيقى عيد الميلاد، وألوان نيون في كل مكان. نحن نجهز كل شيء، ما عليك إلا الحضور والاستمتاع. الجلسة ساعة ونصف (خدمة واحدة) أو ساعتين (خدمتان). النيون: 7م إلى 11م. الإضاءة العادية: 3م إلى 6:30م.',
+    description: 'انسَ حجوزات العشاء المملة. احتفل بعيد ميلادك بحفلة رسم كاملة، أضواء UV، مجموعتك، موسيقى عيد الميلاد، وألوان نيون في كل مكان. نحن نجهز كل شيء، ما عليك إلا الحضور والاستمتاع. الجلسة ساعة ونصف (خدمة واحدة) أو ساعتين (خدمتان). إضاءة عادية: 3م – 6م. إضاءة نيون UV: 6م – 11م.',
     image: BIRTHDAY_PHOTO,
     extraImages: [BDAY_PACK_BOX, NEON_SESSION],
     icon: '🎉', color: '#9D00FF',
@@ -425,7 +428,8 @@ const EXPERIENCES_AR = {
       'جميع الألوان والأدوات',
       'مرايل وأغطية واقية',
       'لوحة فنية للمنزل',
-      'متاحة بإضاءة عادية أو نيون UV',
+      'إضاءة عادية: 3 مساءً – 6 مساءً',
+      'إضاءة نيون UV: 6 مساءً – 11 مساءً',
     ],
     rules: [
       'جميع الأعمار مرحب بها، ويُفضل من سن 3 سنوات فأكثر.',
