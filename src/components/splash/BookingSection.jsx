@@ -135,7 +135,7 @@ export default function BookingSection() {
               <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
                 <Palette className="w-4 h-4 text-neon-pink shrink-0" /> {tr(lang, 'booking_experience')}
               </Label>
-              <Select onValueChange={handleExperienceChange}>
+              <Select value={form.experience} onValueChange={handleExperienceChange}>
                 <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
                   <SelectValue placeholder={tr(lang, 'booking_choose_exp')} />
                 </SelectTrigger>
@@ -154,7 +154,7 @@ export default function BookingSection() {
                   <Sparkles className="w-4 h-4 text-electric-cyan shrink-0" />
                   {isAr ? 'اختر النوع' : 'Choose Activity'}
                 </Label>
-                <Select onValueChange={handleSubChange}>
+                <Select value={form.subExperience} onValueChange={handleSubChange}>
                   <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
                     <SelectValue placeholder={isAr ? 'اختر النشاط' : 'Pick an activity'} />
                   </SelectTrigger>
@@ -190,7 +190,7 @@ export default function BookingSection() {
                 <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
                   <Clock className="w-4 h-4 text-electric-cyan shrink-0" /> {tr(lang, 'booking_time')}
                 </Label>
-                <Select onValueChange={(v) => setForm({ ...form, time: v })}>
+                <Select value={form.time} onValueChange={(v) => setForm({ ...form, time: v })}>
                   <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
                     <SelectValue placeholder={tr(lang, 'booking_choose_time')} />
                   </SelectTrigger>
@@ -208,7 +208,7 @@ export default function BookingSection() {
               <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
                 <Users className="w-4 h-4 text-neon-green shrink-0" /> {tr(lang, 'booking_people')}
               </Label>
-              <Select onValueChange={(v) => setForm({ ...form, people: v })}>
+              <Select value={form.people} onValueChange={(v) => setForm({ ...form, people: v })}>
                 <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
                   <SelectValue placeholder={tr(lang, 'booking_how_many')} />
                 </SelectTrigger>
