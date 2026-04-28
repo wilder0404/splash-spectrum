@@ -12,7 +12,7 @@ import AdminDashboard from './pages/AdminDashboard';
 // Add page imports here
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user, isAuthenticated } = useAuth();
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
@@ -28,16 +28,24 @@ const AuthenticatedApp = () => {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
       navigateToLogin();
       return null;
     }
   }
 
+  // If user is logged in as admin and tries to access "/", redirect to /admin
+  const AdminRedirect = () => {
+    if (isAuthenticated && user?.role === 'admin') {
+      window.location.replace('/admin');
+      return null;
+    }
+    return <Home />;
+  };
+
   // Render the main app
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<AdminRedirect />} />
       <Route path="/experience" element={<ExperienceDetail />} />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="*" element={<PageNotFound />} />
