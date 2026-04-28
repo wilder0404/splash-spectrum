@@ -88,6 +88,25 @@ export default function BookingSection() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Check seat availability before booking
+    try {
+      const availability = await base44.functions.invoke('checkSeatAvailability', {
+        date: form.date,
+        time: form.time,
+        experienceName: form.experience,
+        requestedSeats: parseInt(form.people)
+      });
+      
+      if (!availability.available) {
+        alert(`Sorry, only ${availability.availableSeats} seats available for ${form.time}. Please choose another time.`);
+        return;
+      }
+    } catch (error) {
+      alert('Error checking availability. Please try again.');
+      return;
+    }
+
     const booking = await base44.entities.Booking.create({
       experienceSlug: selectedExpObj?.name_en || form.experience,
       experienceName: form.experience,
