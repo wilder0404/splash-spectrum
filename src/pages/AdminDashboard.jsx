@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import AdminBookings from '@/components/admin/AdminBookings';
 import AdminExperiences from '@/components/admin/AdminExperiences';
-import { LayoutDashboard, BookOpen, Palette, LogOut } from 'lucide-react';
+import { BookOpen, Palette, LogOut, Home } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
@@ -55,6 +56,12 @@ export default function AdminDashboard() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-white/40 text-sm font-body hidden sm:block">{user.email}</span>
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-white/50 hover:text-white transition-colors text-sm font-body"
+            >
+              <Home className="w-4 h-4" /> Home
+            </Link>
             <button
               onClick={() => base44.auth.logout('/')}
               className="flex items-center gap-2 text-white/50 hover:text-white transition-colors text-sm font-body"

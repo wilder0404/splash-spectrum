@@ -33,19 +33,10 @@ const AuthenticatedApp = () => {
     }
   }
 
-  // If user is logged in as admin and tries to access "/", redirect to /admin
-  const AdminRedirect = () => {
-    if (isAuthenticated && user?.role === 'admin') {
-      window.location.replace('/admin');
-      return null;
-    }
-    return <Home />;
-  };
-
   // Render the main app
   return (
     <Routes>
-      <Route path="/" element={<AdminRedirect />} />
+      <Route path="/" element={<Home />} />
       <Route path="/experience" element={<ExperienceDetail />} />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="*" element={<PageNotFound />} />
