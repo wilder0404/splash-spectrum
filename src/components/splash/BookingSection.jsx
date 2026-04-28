@@ -36,17 +36,21 @@ export default function BookingSection() {
   });
   const settings = settingsList[0] || null;
 
+  const { data: experiences = [] } = useQuery({
+    queryKey: ['experiences-booking'],
+    queryFn: () => base44.entities.Experience.list('sortOrder', 100),
+  });
+
   const timeSlots = settings?.timeSlots?.length
     ? settings.timeSlots
     : ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'];
 
-  const experienceOptions = settings?.experienceOptions || [];
+  const activeExperiences = experiences.filter(e => e.isActive !== false);
+  const experienceNames = activeExperiences.map(e => isAr ? e.title_ar : e.title_en);
 
-  const experienceNames = experienceOptions.map(e => isAr ? e.name_ar : e.name_en);
-
-  const selectedExpObj = experienceOptions.find(e => (isAr ? e.name_ar : e.name_en) === form.experience);
+  const selectedExpObj = activeExperiences.find(e => (isAr ? e.title_ar : e.title_en) === form.experience);
   const isWhatsAppOnly = selectedExpObj?.whatsappOnly || false;
-  const subExps = selectedExpObj?.subExperiences || [];
+  const subExps = [];
 
   const selectedSub = subExps.find(s => (isAr ? s.name_ar : s.name_en) === form.subExperience);
   const maxPeople = selectedSub?.maxPeople || 10;
@@ -151,35 +155,7 @@ export default function BookingSection() {
               </Select>
             </div>
 
-            {/* Sub-experience */}
-            {subExps.length > 0 && (
-              <div className="space-y-2">
-                <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-electric-cyan shrink-0" />
-                  {isAr ? 'اختر النوع' : 'Choose Activity'}
-                </Label>
-                <Select onValueChange={handleSubChange}>
-                  <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
-                    <SelectValue placeholder={isAr ? 'اختر النشاط' : 'Pick an activity'} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-obsidian border-white/10">
-                    {subExps.map(s => {
-                      const name = isAr ? s.name_ar : s.name_en;
-                      return (
-                        <SelectItem key={name} value={name} className="text-white focus:bg-white/10 focus:text-white">
-                          {name} {s.maxPeople <= 4 ? `(max ${s.maxPeople})` : ''}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-                {selectedSub && selectedSub.maxPeople <= 4 && (
-                  <p className="text-neon-pink text-xs font-body mt-1">
-                    {isAr ? `⚠️ هذا النشاط يتسع لـ ${selectedSub.maxPeople} أشخاص كحد أقصى` : `⚠️ This activity fits up to ${selectedSub.maxPeople} people per group`}
-                  </p>
-                )}
-              </div>
-            )}
+
 
             {/* Date & Time */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
