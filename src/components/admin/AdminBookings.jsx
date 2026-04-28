@@ -7,8 +7,8 @@ import { Calendar, Users, Clock, Phone, Mail, User, ChevronDown, ChevronUp, Sear
 import { Input } from '@/components/ui/input';
 
 const statusColors = {
-  pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
   confirmed: 'bg-green-500/20 text-green-400 border-green-500/30',
+  done: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
   cancelled: 'bg-red-500/20 text-red-400 border-red-500/30',
 };
 
@@ -40,8 +40,8 @@ export default function AdminBookings() {
 
   const counts = {
     total: bookings.length,
-    pending: bookings.filter(b => b.status === 'pending').length,
     confirmed: bookings.filter(b => b.status === 'confirmed').length,
+    done: bookings.filter(b => b.status === 'done').length,
     cancelled: bookings.filter(b => b.status === 'cancelled').length,
   };
 
@@ -53,8 +53,8 @@ export default function AdminBookings() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         {[
           { label: 'Total', value: counts.total, color: 'text-white' },
-          { label: 'Pending', value: counts.pending, color: 'text-yellow-400' },
           { label: 'Confirmed', value: counts.confirmed, color: 'text-green-400' },
+          { label: 'Done', value: counts.done, color: 'text-blue-400' },
           { label: 'Cancelled', value: counts.cancelled, color: 'text-red-400' },
         ].map(s => (
           <div key={s.label} className="bg-white/[0.03] border border-white/10 rounded-xl p-4">
@@ -101,19 +101,19 @@ export default function AdminBookings() {
                   <p className="text-white/40 text-xs font-body">{booking.time} · {booking.people} people</p>
                 </div>
                 <Select
-                  value={booking.status || 'pending'}
-                  onValueChange={(val) => { updateStatus.mutate({ id: booking.id, status: val }); }}
-                  onClick={e => e.stopPropagation()}
-                >
-                  <SelectTrigger className={`h-8 w-28 text-xs font-heading font-semibold border rounded-lg ${statusColors[booking.status || 'pending']}`}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-obsidian border-white/10">
-                    <SelectItem value="pending" className="text-yellow-400">Pending</SelectItem>
-                    <SelectItem value="confirmed" className="text-green-400">Confirmed</SelectItem>
-                    <SelectItem value="cancelled" className="text-red-400">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
+                   value={booking.status || 'confirmed'}
+                   onValueChange={(val) => { updateStatus.mutate({ id: booking.id, status: val }); }}
+                   onClick={e => e.stopPropagation()}
+                 >
+                   <SelectTrigger className={`h-8 w-28 text-xs font-heading font-semibold border rounded-lg ${statusColors[booking.status || 'confirmed']}`}>
+                     <SelectValue />
+                   </SelectTrigger>
+                   <SelectContent className="bg-obsidian border-white/10">
+                     <SelectItem value="confirmed" className="text-green-400">Confirmed</SelectItem>
+                     <SelectItem value="done" className="text-blue-400">Done</SelectItem>
+                     <SelectItem value="cancelled" className="text-red-400">Cancelled</SelectItem>
+                   </SelectContent>
+                 </Select>
                 {expandedId === booking.id ? <ChevronUp className="w-4 h-4 text-white/30" /> : <ChevronDown className="w-4 h-4 text-white/30" />}
               </div>
             </div>
