@@ -38,8 +38,8 @@ Deno.serve(async (req) => {
       ? `مرحباً ${booking.name} 👋\n\nتم تأكيد حجزك في ${booking.experienceName} بنجاح.\n\n📅 التاريخ: ${formattedDate}\n⏰ الوقت: ${booking.time}\n👥 عدد الضيوف: ${booking.people} أشخاص\n📱 رقم هاتفك: ${booking.phone}\n\nنتطلع لاستضافتك وإنشاء تجربة لا تُنسى 🎉\n\nإذا احتجت إلى أي تعديلات أو لديك أي أسئلة، يمكنك التواصل معنا في أي وقت.`
       : `Hi ${booking.name} 👋\n\nYour booking for the ${booking.experienceName} has been successfully confirmed.\n\n📅 Date: ${formattedDate}\n⏰ Time: ${booking.time}\n👥 Guests: ${booking.people} people\n📱 Phone number: ${booking.phone}\n\nWe're looking forward to hosting you and making it a memorable experience 🎉\n\nIf you need any changes or have any questions, feel free to reach out anytime.`;
 
-    // Send email via Core integration
-    await base44.integrations.Core.SendEmail({
+    // Send email via Core integration (using service role for external emails)
+    await base44.asServiceRole.integrations.Core.SendEmail({
       to: booking.email,
       subject,
       body,
