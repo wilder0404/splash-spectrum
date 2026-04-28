@@ -232,7 +232,7 @@ export default function BookingSection() {
             </div>
 
             {/* Activity/Experience */}
-            {form.experienceType && (
+            {form.experienceType && activities.length > 0 && (
               <div className="space-y-2">
                 <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-electric-cyan shrink-0" /> {isAr ? 'النشاط' : 'Activity'}
@@ -242,9 +242,12 @@ export default function BookingSection() {
                     <SelectValue placeholder={isAr ? 'اختر النشاط' : 'Choose activity'} />
                   </SelectTrigger>
                   <SelectContent className="bg-obsidian border-white/10">
-                    {activityNames.map(name => (
-                      <SelectItem key={name} value={name} className="text-white focus:bg-white/10 focus:text-white">{name}</SelectItem>
-                    ))}
+                    {activities.map(activity => {
+                      const name = isAr ? activity.name_ar : activity.name_en;
+                      return (
+                        <SelectItem key={name} value={name} className="text-white focus:bg-white/10 focus:text-white">{name}</SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
