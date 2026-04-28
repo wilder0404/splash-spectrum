@@ -23,16 +23,20 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Booking not found' }, { status: 404 });
     }
 
-    // Determine language based on booking content
+    // Format date nicely (e.g., "22 April")
+    const dateObj = new Date(booking.date + 'T00:00:00');
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const formattedDate = `${dateObj.getDate()} ${monthNames[dateObj.getMonth()]}`;
+
     const isAr = booking.experienceName && booking.experienceName.match(/[\u0600-\u06FF]/);
 
     const subject = isAr 
       ? '✨ تم تأكيد حجزك في Splash Spectrum' 
-      : '✨ Your Booking Confirmation at Splash Spectrum';
+      : '✨ Your Booking Confirmation';
 
     const body = isAr
-      ? `مرحباً ${booking.name},\n\nشكراً لحجزك معنا! فيما يلي تفاصيل حجزك:\n\n🎨 الخبرة: ${booking.experienceName}\n${booking.subExperience ? `📌 النشاط: ${booking.subExperience}\n` : ''}📅 التاريخ: ${booking.date}\n⏰ الوقت: ${booking.time}\n👥 عدد الأشخاص: ${booking.people}\n\nحجزك مؤكد الآن! نتطلع لرؤيتك قريباً.\n\nمع أطيب التحيات,\nفريق Splash Spectrum ✨`
-      : `Hi ${booking.name},\n\nThank you for booking with us!\n\n🎨 Experience: ${booking.experienceName}\n${booking.subExperience ? `📌 Activity: ${booking.subExperience}\n` : ''}📅 Date: ${booking.date}\n⏰ Time: ${booking.time}\n👥 People: ${booking.people}\n\nYour booking has been confirmed. We hope to see you soon!\n\nBest regards,\nSplash Spectrum Team ✨`;
+      ? `مرحباً ${booking.name} 👋\n\nتم تأكيد حجزك في ${booking.experienceName}${booking.subExperience ? ` - ${booking.subExperience}` : ''} بنجاح.\n\n📅 التاريخ: ${formattedDate}\n⏰ الوقت: ${booking.time}\n👥 عدد الضيوف: ${booking.people} أشخاص\n\nنتطلع لاستضافتك وإنشاء تجربة لا تُنسى 🎉\n\nإذا احتجت إلى أي تعديلات أو لديك أي أسئلة، يمكنك التواصل معنا في أي وقت على الرقم ${booking.phone}`
+      : `Hi ${booking.name} 👋\n\nYour booking for the ${booking.experienceName}${booking.subExperience ? ` - ${booking.subExperience}` : ''} has been successfully confirmed.\n\n📅 Date: ${formattedDate}\n⏰ Time: ${booking.time}\n👥 Guests: ${booking.people} people\n\nWe're looking forward to hosting you and making it a memorable experience 🎉\n\nIf you need any changes or have any questions, feel free to reach out anytime at this number ${booking.phone}`;
 
     // Send email via Core integration
     await base44.integrations.Core.SendEmail({
