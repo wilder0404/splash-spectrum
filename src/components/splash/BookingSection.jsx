@@ -121,29 +121,33 @@ export default function BookingSection() {
       return;
     }
 
-    const booking = await base44.entities.Booking.create({
-      experienceSlug: selectedActivityObj?.name_en || form.experience,
-      experienceType: form.experienceType,
-      activityName: form.experience,
-      subActivity: form.subExperience,
-      date: form.date,
-      time: form.time,
-      people: form.people,
-      name: form.name,
-      email: form.email,
-      phone: form.phone,
-      userId: user?.id || '',
-      status: 'confirmed',
-    });
-
-    // Send confirmation email via backend function
     try {
-      await base44.functions.invoke('sendBookingConfirmation', { bookingId: booking.id });
-    } catch (emailError) {
-      console.warn('Email sending failed, but booking was created:', emailError);
-    }
+      const booking = await base44.entities.Booking.create({
+        experienceSlug: selectedActivityObj?.name_en || form.experience,
+        experienceType: form.experienceType,
+        activityName: form.experience,
+        subActivity: form.subExperience,
+        date: form.date,
+        time: form.time,
+        people: form.people,
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        userId: user?.id || '',
+        status: 'confirmed',
+      });
 
-    setSubmitted(true);
+      // Send confirmation email via backend function
+      try {
+        await base44.functions.invoke('sendBookingConfirmation', { bookingId: booking.id });
+      } catch (emailError) {
+        console.warn('Email sending failed, but booking was created:', emailError);
+      }
+
+      setSubmitted(true);
+    } catch (bookingError) {
+      setError(`Booking failed: ${bookingError.message}`);
+    }
   };
 
   const handleWhatsAppRedirect = () => {
