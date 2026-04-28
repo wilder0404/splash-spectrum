@@ -42,7 +42,7 @@ export default function BookingSection() {
     queryFn: () => base44.entities.Experience.list('', 100),
   });
 
-  const timeSlots = settings?.timeSlots?.length
+  const timeSlots = settings?.timeSlots?.length > 0
     ? settings.timeSlots
     : ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'];
 
@@ -53,18 +53,14 @@ export default function BookingSection() {
     name_ar: e.title_ar,
   }));
 
-  // Get selected experience - activities come from BookingSettings
-  const selectedExp = experiences.find(e => (isAr ? e.title_ar : e.title_en) === form.experienceType);
-  const experienceName = form.experienceType;
-
   // Get activities from BookingSettings that match the selected experience name
-  const activities = settings?.experienceTypes
-    ?.find(t => (isAr ? t.name_ar : t.name_en) === experienceName)
-    ?.activities || [];
+  const activities = settings?.experienceOptions
+    ?.find(t => (isAr ? t.name_ar : t.name_en) === form.experienceType)
+    ?.subExperiences || [];
 
   const selectedActivityObj = activities.find(a => (isAr ? a.name_ar : a.name_en) === form.experience);
   const isWhatsAppOnly = selectedActivityObj?.whatsappOnly || false;
-  const subActivities = selectedActivityObj?.subActivities || [];
+  const subActivities = [];
 
   const selectedSub = subActivities.find(s => (isAr ? s.name_ar : s.name_en) === form.subExperience);
   const maxPeople = selectedSub?.maxPeople || 4;
