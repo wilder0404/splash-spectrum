@@ -21,6 +21,10 @@
           "whatsappOnly": {
             "type": "boolean"
           },
+          "seatsPerHour": {
+            "type": "number",
+            "description": "Maximum seats available per hour"
+          },
           "subExperiences": {
             "type": "array",
             "items": {

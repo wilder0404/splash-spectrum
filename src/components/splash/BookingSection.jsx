@@ -52,6 +52,37 @@ export default function BookingSection() {
   const maxPeople = selectedSub?.maxPeople || 10;
   const peopleOptions = Array.from({ length: maxPeople }, (_, i) => i + 1);
 
+  const [availableSlots, setAvailableSlots] = useState({});
+  const [checkingSlots, setCheckingSlots] = useState(false);
+
+  const checkAllSlots = async () => {
+    if (!form.experience || !form.date || !form.people) return;
+    setCheckingSlots(true);
+    const slots = {};
+    
+    for (const slot of timeSlots) {
+      try {
+        const res = await base44.functions.invoke('checkSeatAvailability', {
+          date: form.date,
+          time: slot,
+          experienceName: form.experience,
+          requestedSeats: parseInt(form.people)
+        });
+        slots[slot] = res.available;
+      } catch (error) {
+        slots[slot] = false;
+      }
+    }
+    setAvailableSlots(slots);
+    setCheckingSlots(false);
+  };
+
+  useEffect(() => {
+    if (form.date && form.people && form.experience) {
+      checkAllSlots();
+    }
+  }, [form.date, form.people, form.experience]);
+
   const handleExperienceChange = (v) => setForm({ ...form, experience: v, subExperience: '', people: '' });
   const handleSubChange = (v) => setForm({ ...form, subExperience: v, people: '' });
 
@@ -192,12 +223,17 @@ export default function BookingSection() {
                 </Label>
                 <Select onValueChange={(v) => setForm({ ...form, time: v })}>
                   <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
-                    <SelectValue placeholder={tr(lang, 'booking_choose_time')} />
+                    <SelectValue placeholder={checkingSlots ? 'Checking...' : tr(lang, 'booking_choose_time')} />
                   </SelectTrigger>
                   <SelectContent className="bg-obsidian border-white/10">
-                    {timeSlots.map(t => (
-                      <SelectItem key={t} value={t} className="text-white focus:bg-white/10 focus:text-white">{t}</SelectItem>
-                    ))}
+                    {timeSlots.map(t => {
+                      const isAvailable = availableSlots[t] !== false;
+                      return (
+                        <SelectItem key={t} value={t} disabled={!isAvailable} className={`text-white focus:bg-white/10 focus:text-white ${!isAvailable ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                          {t} {!isAvailable ? '(Fully booked)' : ''}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
