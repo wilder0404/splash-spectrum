@@ -31,13 +31,24 @@ export default function HeroSection() {
   useEffect(() => {
     const handleClick = (e) => {
       const colors = ['#FF007F', '#39FF14', '#9D00FF', '#00F3FF'];
-      const newSplash = {
-        id: Date.now() + Math.random(),
-        x: e.clientX,
-        y: e.clientY,
-        color: colors[Math.floor(Math.random() * colors.length)],
-      };
-      setSplashes(prev => [...prev.slice(-8), newSplash]);
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      // Generate multiple droplets per splash for realistic paint splat
+      const dropletCount = 8 + Math.floor(Math.random() * 6);
+      const newDroplets = Array.from({ length: dropletCount }, (_, idx) => {
+        const angle = (idx / dropletCount) * 360 + Math.random() * 30;
+        const distance = 30 + Math.random() * 80;
+        return {
+          id: Date.now() + Math.random() + idx,
+          x: e.clientX,
+          y: e.clientY,
+          color,
+          angle,
+          distance,
+          size: 4 + Math.random() * 14,
+          isCore: idx === 0,
+        };
+      });
+      setSplashes(prev => [...prev.slice(-60), ...newDroplets]);
     };
     window.addEventListener('click', handleClick);
     return () => window.removeEventListener('click', handleClick);
@@ -83,23 +94,54 @@ export default function HeroSection() {
 
       {/* Click Paint Splash Effects */}
       <AnimatePresence>
-        {splashes.map(splash => (
-          <motion.div
-            key={splash.id}
-            initial={{ scale: 0, opacity: 1 }}
-            animate={{ scale: 4, opacity: 0 }}
-            exit={{}}
-            transition={{ duration: 0.9, ease: 'easeOut' }}
-            className="pointer-events-none fixed z-40 rounded-full"
-            style={{
-              left: splash.x - 30,
-              top: splash.y - 30,
-              width: 60,
-              height: 60,
-              background: `radial-gradient(circle, ${splash.color}cc, ${splash.color}44, transparent)`,
-            }}
-          />
-        ))}
+        {splashes.map(droplet => {
+          const rad = (droplet.angle * Math.PI) / 180;
+          const tx = Math.cos(rad) * droplet.distance;
+          const ty = Math.sin(rad) * droplet.distance;
+          return droplet.isCore ? (
+            // Central burst
+            <motion.div
+              key={droplet.id}
+              initial={{ scale: 0, opacity: 0.95 }}
+              animate={{ scale: 2.5, opacity: 0 }}
+              exit={{}}
+              transition={{ duration: 0.6, ease: [0.2, 0.8, 0.4, 1] }}
+              className="pointer-events-none fixed z-40 rounded-full"
+              style={{
+                left: droplet.x - 25,
+                top: droplet.y - 25,
+                width: 50,
+                height: 50,
+                background: `radial-gradient(circle, ${droplet.color}ff 0%, ${droplet.color}99 40%, ${droplet.color}22 70%, transparent 100%)`,
+                filter: 'blur(1px)',
+              }}
+            />
+          ) : (
+            // Flying droplets
+            <motion.div
+              key={droplet.id}
+              initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+              animate={{
+                x: tx,
+                y: ty,
+                scale: [1, 1.2, 0.3],
+                opacity: [1, 0.9, 0],
+              }}
+              exit={{}}
+              transition={{ duration: 0.5 + Math.random() * 0.35, ease: [0.1, 0.7, 0.3, 1] }}
+              className="pointer-events-none fixed z-40"
+              style={{
+                left: droplet.x - droplet.size / 2,
+                top: droplet.y - droplet.size / 2,
+                width: droplet.size,
+                height: droplet.size * 1.4,
+                backgroundColor: droplet.color,
+                borderRadius: '50% 50% 60% 60%',
+                boxShadow: `0 0 ${droplet.size}px ${droplet.color}88`,
+              }}
+            />
+          );
+        })}
       </AnimatePresence>
 
       {/* Content */}

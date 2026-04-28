@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Clock, Users, Star, CheckCircle, MessageCircle, Shield, Camera } from 'lucide-react';
@@ -23,7 +23,7 @@ export default function ExperienceDetail() {
     queryFn: () => base44.entities.Experience.list('sortOrder', 100),
   });
 
-  const exp = experiences.find(e => e.slug === slug) || experiences[0];
+  const exp = experiences.length > 0 ? (experiences.find(e => e.slug === slug) || null) : null;
 
   const [form, setForm] = useState({ date: '', time: '', people: '', name: '', email: '', phone: '' });
   const [submitted, setSubmitted] = useState(false);
