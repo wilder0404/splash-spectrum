@@ -62,7 +62,6 @@ export default function BookingSection() {
     ?.find(t => (isAr ? t.name_ar : t.name_en) === experienceName)
     ?.activities || [];
 
-  const activityNames = activities.map(a => isAr ? a.name_ar : a.name_en);
   const selectedActivityObj = activities.find(a => (isAr ? a.name_ar : a.name_en) === form.experience);
   const isWhatsAppOnly = selectedActivityObj?.whatsappOnly || false;
   const subActivities = selectedActivityObj?.subActivities || [];
@@ -70,6 +69,7 @@ export default function BookingSection() {
   const selectedSub = subActivities.find(s => (isAr ? s.name_ar : s.name_en) === form.subExperience);
   const maxPeople = selectedSub?.maxPeople || 4;
   const peopleOptions = Array.from({ length: maxPeople }, (_, i) => i + 1);
+  const activityNames = activities.map(a => isAr ? a.name_ar : a.name_en);
 
   const [availableSlots, setAvailableSlots] = useState({});
   const [checkingSlots, setCheckingSlots] = useState(false);
