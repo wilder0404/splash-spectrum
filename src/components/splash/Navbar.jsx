@@ -5,6 +5,7 @@ import { useLang } from '@/lib/LanguageContext';
 import { tr } from '@/lib/translations.js';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { Link } from 'react-router-dom';
 
 const LOGO_URL = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/0677e9ccc_image.png";
 
@@ -57,18 +58,28 @@ export default function Navbar() {
             </button>
             {/* Auth Buttons */}
             {isAuthenticated ? (
-              <button
-                onClick={() => base44.auth.logout('/')}
-                className="px-4 py-2 border border-white/20 text-white/70 hover:text-white hover:border-white/40 rounded-full text-xs font-heading font-semibold transition-all"
-              >
-                {isAr ? 'تسجيل خروج' : 'Log Out'}
-              </button>
+              <>
+                {user?.role === 'admin' && (
+                  <Link
+                    to="/admin"
+                    className="px-4 py-2 border border-uv-purple/50 text-uv-purple hover:bg-uv-purple/10 rounded-full text-xs font-heading font-semibold transition-all"
+                  >
+                    {isAr ? 'لوحة التحكم' : 'Admin'}
+                  </Link>
+                )}
+                <button
+                  onClick={() => base44.auth.logout('/')}
+                  className="px-4 py-2 border border-white/20 text-white/70 hover:text-white hover:border-white/40 rounded-full text-xs font-heading font-semibold transition-all"
+                >
+                  {isAr ? 'تسجيل خروج' : 'Log Out'}
+                </button>
+              </>
             ) : (
               <button
                 onClick={() => base44.auth.redirectToLogin(window.location.href)}
                 className="px-4 py-2 border border-neon-pink/50 text-neon-pink hover:bg-neon-pink/10 rounded-full text-xs font-heading font-semibold transition-all"
               >
-                {isAr ? 'تسجيل الدخول' : 'Log In / Sign Up'}
+                {isAr ? 'تسجيل الدخول' : 'Log In'}
               </button>
             )}
             {/* Language Toggle */}
@@ -114,18 +125,29 @@ export default function Navbar() {
                 {tr(lang, 'nav_book')}
               </button>
               {isAuthenticated ? (
-                <button
-                  onClick={() => base44.auth.logout('/')}
-                  className="w-full px-6 py-3 border border-white/20 text-white/70 font-heading font-semibold rounded-full text-base"
-                >
-                  {isAr ? 'تسجيل خروج' : 'Log Out'}
-                </button>
+                <>
+                  {user?.role === 'admin' && (
+                    <Link
+                      to="/admin"
+                      onClick={() => setMobileOpen(false)}
+                      className="block w-full px-6 py-3 border border-uv-purple/50 text-uv-purple font-heading font-semibold rounded-full text-base text-center"
+                    >
+                      {isAr ? 'لوحة التحكم' : 'Admin Dashboard'}
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => base44.auth.logout('/')}
+                    className="w-full px-6 py-3 border border-white/20 text-white/70 font-heading font-semibold rounded-full text-base"
+                  >
+                    {isAr ? 'تسجيل خروج' : 'Log Out'}
+                  </button>
+                </>
               ) : (
                 <button
                   onClick={() => base44.auth.redirectToLogin(window.location.href)}
                   className="w-full px-6 py-3 border border-neon-pink/50 text-neon-pink font-heading font-semibold rounded-full text-base"
                 >
-                  {isAr ? 'تسجيل الدخول' : 'Log In / Sign Up'}
+                  {isAr ? 'تسجيل الدخول' : 'Log In'}
                 </button>
               )}
             </div>
