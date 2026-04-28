@@ -57,7 +57,7 @@ export default function BookingSection() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await base44.entities.Booking.create({
+    const booking = await base44.entities.Booking.create({
       experienceSlug: selectedExpObj?.name_en || form.experience,
       experienceName: form.experience,
       subExperience: form.subExperience,
@@ -70,6 +70,16 @@ export default function BookingSection() {
       userId: user?.id || '',
       status: 'pending',
     });
+
+    // Send confirmation email
+    await base44.integrations.Core.SendEmail({
+      to: form.email,
+      subject: isAr ? '✨ تم تأكيد حجزك في Splash Spectrum' : '✨ Your Booking Confirmation at Splash Spectrum',
+      body: isAr
+        ? `مرحباً ${form.name},\n\nشكراً لحجزك معنا! فيما يلي تفاصيل حجزك:\n\n🎨 الخبرة: ${form.experience}\n${form.subExperience ? `📌 النشاط: ${form.subExperience}\n` : ''}📅 التاريخ: ${form.date}\n⏰ الوقت: ${form.time}\n👥 عدد الأشخاص: ${form.people}\n\nسيتم مراجعة حجزك وسنتواصل معك قريباً للتأكيد النهائي.\n\nمع أطيب التحيات,\nفريق Splash Spectrum ✨`
+        : `Hi ${form.name},\n\nThank you for booking with us! Here are your booking details:\n\n🎨 Experience: ${form.experience}\n${form.subExperience ? `📌 Activity: ${form.subExperience}\n` : ''}📅 Date: ${form.date}\n⏰ Time: ${form.time}\n👥 People: ${form.people}\n\nWe'll review your booking and contact you soon to confirm.\n\nBest regards,\nSplash Spectrum Team ✨`,
+    });
+
     setSubmitted(true);
   };
 
