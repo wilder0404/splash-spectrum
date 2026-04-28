@@ -3,6 +3,8 @@ import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLang } from '@/lib/LanguageContext';
 import { tr } from '@/lib/translations.js';
+import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 
 const LOGO_URL = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/0677e9ccc_image.png";
 
@@ -10,6 +12,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { lang, setLang, isAr } = useLang();
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -52,6 +55,22 @@ export default function Navbar() {
               className="px-6 py-2.5 bg-neon-pink text-white font-heading font-bold rounded-full text-sm animate-pulse-glow hover:scale-105 transition-transform">
               {tr(lang, 'nav_book')}
             </button>
+            {/* Auth Buttons */}
+            {isAuthenticated ? (
+              <button
+                onClick={() => base44.auth.logout('/')}
+                className="px-4 py-2 border border-white/20 text-white/70 hover:text-white hover:border-white/40 rounded-full text-xs font-heading font-semibold transition-all"
+              >
+                {isAr ? 'تسجيل خروج' : 'Log Out'}
+              </button>
+            ) : (
+              <button
+                onClick={() => base44.auth.redirectToLogin(window.location.href)}
+                className="px-4 py-2 border border-neon-pink/50 text-neon-pink hover:bg-neon-pink/10 rounded-full text-xs font-heading font-semibold transition-all"
+              >
+                {isAr ? 'تسجيل الدخول' : 'Log In / Sign Up'}
+              </button>
+            )}
             {/* Language Toggle */}
             <button
               onClick={() => setLang(isAr ? 'en' : 'ar')}
@@ -94,6 +113,21 @@ export default function Navbar() {
                 className="w-full px-6 py-3 bg-neon-pink text-white font-heading font-bold rounded-full text-base animate-pulse-glow">
                 {tr(lang, 'nav_book')}
               </button>
+              {isAuthenticated ? (
+                <button
+                  onClick={() => base44.auth.logout('/')}
+                  className="w-full px-6 py-3 border border-white/20 text-white/70 font-heading font-semibold rounded-full text-base"
+                >
+                  {isAr ? 'تسجيل خروج' : 'Log Out'}
+                </button>
+              ) : (
+                <button
+                  onClick={() => base44.auth.redirectToLogin(window.location.href)}
+                  className="w-full px-6 py-3 border border-neon-pink/50 text-neon-pink font-heading font-semibold rounded-full text-base"
+                >
+                  {isAr ? 'تسجيل الدخول' : 'Log In / Sign Up'}
+                </button>
+              )}
             </div>
           </motion.div>
         )}
