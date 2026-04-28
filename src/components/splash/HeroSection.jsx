@@ -6,12 +6,13 @@ import { tr } from '@/lib/translations.js';
 
 const HERO_BG = "https://media.base44.com/images/public/69e5ef89828747441c931879/d591ebed4_generated_ffef7112.png";
 
-// Large soft paint splodges centered roughly behind the headline text
+// Paint splodges behind the headline — animate in on load like splashing paint
 const PAINT_SPLODGES = [
-  { color: '#FF007F', cx: 48, cy: 50, rx: 28, ry: 18, blur: 55, opacity: [0.18, 0.28, 0.15, 0.25, 0.18], dur: 9,  delay: 0   },
-  { color: '#9D00FF', cx: 35, cy: 55, rx: 22, ry: 14, blur: 50, opacity: [0.12, 0.22, 0.10, 0.20, 0.12], dur: 11, delay: 2   },
-  { color: '#00F3FF', cx: 62, cy: 48, rx: 20, ry: 13, blur: 48, opacity: [0.10, 0.20, 0.08, 0.18, 0.10], dur: 10, delay: 1.2 },
-  { color: '#39FF14', cx: 50, cy: 62, rx: 16, ry: 10, blur: 44, opacity: [0.08, 0.14, 0.06, 0.12, 0.08], dur: 13, delay: 3   },
+  { color: '#FF007F', cx: 50, cy: 52, rx: 32, ry: 20, blur: 45, dur: 8,  delay: 0.2,  inDelay: 0.1  },
+  { color: '#9D00FF', cx: 38, cy: 55, rx: 26, ry: 16, blur: 40, dur: 10, delay: 0.5,  inDelay: 0.3  },
+  { color: '#00F3FF', cx: 63, cy: 48, rx: 24, ry: 15, blur: 42, dur: 9,  delay: 0.3,  inDelay: 0.5  },
+  { color: '#39FF14', cx: 52, cy: 65, rx: 18, ry: 11, blur: 38, dur: 12, delay: 0.8,  inDelay: 0.7  },
+  { color: '#FF4500', cx: 30, cy: 45, rx: 20, ry: 12, blur: 40, dur: 11, delay: 0.4,  inDelay: 0.2  },
 ];
 
 export default function HeroSection() {
@@ -52,7 +53,7 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-b from-obsidian/60 via-obsidian/30 to-obsidian" />
       </div>
 
-      {/* Soft paint splodges behind the headline — very subtle, paint-like */}
+      {/* Paint splodges behind the headline — splash in on load, then breathe */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 1 }}>
         {PAINT_SPLODGES.map((s, i) => (
           <motion.div
@@ -64,19 +65,22 @@ export default function HeroSection() {
               width: `${s.rx * 2}vw`,
               height: `${s.ry * 2}vw`,
               transform: 'translate(-50%, -50%)',
-              background: `radial-gradient(ellipse at 45% 45%, ${s.color} 0%, ${s.color}88 25%, ${s.color}22 55%, transparent 75%)`,
+              background: `radial-gradient(ellipse at 45% 45%, ${s.color}cc 0%, ${s.color}77 30%, ${s.color}33 60%, transparent 80%)`,
               filter: `blur(${s.blur}px)`,
               borderRadius: '43% 57% 61% 39% / 47% 42% 58% 53%',
             }}
+            initial={{ scale: 0, opacity: 0 }}
             animate={{
-              opacity: s.opacity,
-              scale:   [1, 1.06, 0.97, 1.04, 1],
-              rotate:  [0, 4, -3, 2, 0],
+              scale:   [0, 1.4, 0.9, 1.1, 1.0, 1.05, 1.0],
+              opacity: [0, 0.7, 0.55, 0.65, 0.55, 0.62, 0.55],
+              rotate:  [0, 8, -4, 3, -2, 1, 0],
             }}
             transition={{
               duration: s.dur,
-              delay: s.delay,
+              delay: s.inDelay,
+              times: [0, 0.15, 0.35, 0.5, 0.65, 0.8, 1],
               repeat: Infinity,
+              repeatType: 'mirror',
               ease: 'easeInOut',
             }}
           />
