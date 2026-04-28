@@ -75,7 +75,7 @@ export default function BookingSection() {
         const res = await base44.functions.invoke('checkSeatAvailability', {
           date: form.date,
           time: slot,
-          experienceName: form.experience,
+          activityName: form.experience,
           requestedSeats: parseInt(form.people)
         });
         slots[slot] = res.available;
