@@ -6,23 +6,13 @@ import { tr } from '@/lib/translations.js';
 
 const HERO_BG = "https://media.base44.com/images/public/69e5ef89828747441c931879/d591ebed4_generated_ffef7112.png";
 
-const BLOB_COLORS = ['#FF007F', '#39FF14', '#9D00FF', '#00F3FF', '#FF4500', '#FFD700'];
-
-function generateBlobs(count) {
-  return Array.from({ length: count }, (_, i) => ({
-    id: i,
-    color: BLOB_COLORS[i % BLOB_COLORS.length],
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: 80 + Math.random() * 160,
-    duration: 4 + Math.random() * 6,
-    delay: Math.random() * 4,
-    xAmp: 8 + Math.random() * 14,
-    yAmp: 8 + Math.random() * 14,
-  }));
-}
-
-const blobs = generateBlobs(14);
+// Large soft paint splodges centered roughly behind the headline text
+const PAINT_SPLODGES = [
+  { color: '#FF007F', cx: 48, cy: 50, rx: 28, ry: 18, blur: 55, opacity: [0.18, 0.28, 0.15, 0.25, 0.18], dur: 9,  delay: 0   },
+  { color: '#9D00FF', cx: 35, cy: 55, rx: 22, ry: 14, blur: 50, opacity: [0.12, 0.22, 0.10, 0.20, 0.12], dur: 11, delay: 2   },
+  { color: '#00F3FF', cx: 62, cy: 48, rx: 20, ry: 13, blur: 48, opacity: [0.10, 0.20, 0.08, 0.18, 0.10], dur: 10, delay: 1.2 },
+  { color: '#39FF14', cx: 50, cy: 62, rx: 16, ry: 10, blur: 44, opacity: [0.08, 0.14, 0.06, 0.12, 0.08], dur: 13, delay: 3   },
+];
 
 export default function HeroSection() {
   const { lang } = useLang();
@@ -32,23 +22,22 @@ export default function HeroSection() {
     const handleClick = (e) => {
       const colors = ['#FF007F', '#39FF14', '#9D00FF', '#00F3FF'];
       const color = colors[Math.floor(Math.random() * colors.length)];
-      // Generate multiple droplets per splash for realistic paint splat
-      const dropletCount = 8 + Math.floor(Math.random() * 6);
-      const newDroplets = Array.from({ length: dropletCount }, (_, idx) => {
-        const angle = (idx / dropletCount) * 360 + Math.random() * 30;
-        const distance = 30 + Math.random() * 80;
+      const count = 6 + Math.floor(Math.random() * 5);
+      const newDroplets = Array.from({ length: count }, (_, idx) => {
+        const angle = (idx / count) * 360 + Math.random() * 40;
+        const dist = 25 + Math.random() * 65;
         return {
           id: Date.now() + Math.random() + idx,
           x: e.clientX,
           y: e.clientY,
           color,
           angle,
-          distance,
-          size: 4 + Math.random() * 14,
+          dist,
+          size: 8 + Math.random() * 18,
           isCore: idx === 0,
         };
       });
-      setSplashes(prev => [...prev.slice(-60), ...newDroplets]);
+      setSplashes(prev => [...prev.slice(-40), ...newDroplets]);
     };
     window.addEventListener('click', handleClick);
     return () => window.removeEventListener('click', handleClick);
@@ -56,69 +45,36 @@ export default function HeroSection() {
 
   return (
     <section className="relative h-screen w-full overflow-hidden bg-obsidian">
+
       {/* Background Image */}
       <div className="absolute inset-0">
-        <img src={HERO_BG} alt="" className="w-full h-full object-cover opacity-50" />
-        <div className="absolute inset-0 bg-gradient-to-b from-obsidian/50 via-obsidian/20 to-obsidian" />
+        <img src={HERO_BG} alt="" className="w-full h-full object-cover opacity-40" />
+        <div className="absolute inset-0 bg-gradient-to-b from-obsidian/60 via-obsidian/30 to-obsidian" />
       </div>
 
-      {/* Animated Paint Blobs — background layer */}
+      {/* Soft paint splodges behind the headline — very subtle, paint-like */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 1 }}>
-        {blobs.map((blob) => (
+        {PAINT_SPLODGES.map((s, i) => (
           <motion.div
-            key={blob.id}
-            className="absolute rounded-full"
-            style={{
-              left: `${blob.x}%`,
-              top: `${blob.y}%`,
-              width: blob.size,
-              height: blob.size,
-              background: `radial-gradient(circle, ${blob.color}55 0%, ${blob.color}22 50%, transparent 70%)`,
-              filter: 'blur(18px)',
-            }}
-            animate={{
-              x: [`0px`, `${blob.xAmp}px`, `-${blob.xAmp * 0.6}px`, `${blob.xAmp * 0.3}px`, `0px`],
-              y: [`0px`, `-${blob.yAmp}px`, `${blob.yAmp * 0.8}px`, `-${blob.yAmp * 0.4}px`, `0px`],
-              scale: [1, 1.15, 0.9, 1.08, 1],
-              opacity: [0.6, 0.9, 0.5, 0.8, 0.6],
-            }}
-            transition={{
-              duration: blob.duration,
-              delay: blob.delay,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-          />
-        ))}
-
-        {/* Persistent paint splat shapes — static large splashes in background */}
-        {[
-          { x: 20, y: 35, color: '#FF007F', r: 160, delay: 0 },
-          { x: 65, y: 45, color: '#00F3FF', r: 200, delay: 1.5 },
-          { x: 45, y: 60, color: '#39FF14', r: 140, delay: 0.8 },
-          { x: 80, y: 25, color: '#9D00FF', r: 120, delay: 2.2 },
-          { x: 10, y: 70, color: '#FF4500', r: 110, delay: 1.1 },
-        ].map((s, i) => (
-          <motion.div
-            key={`splash-bg-${i}`}
+            key={i}
             className="absolute"
             style={{
-              left: `${s.x}%`,
-              top: `${s.y}%`,
-              width: s.r * 2,
-              height: s.r * 1.3,
+              left: `${s.cx}%`,
+              top: `${s.cy}%`,
+              width: `${s.rx * 2}vw`,
+              height: `${s.ry * 2}vw`,
               transform: 'translate(-50%, -50%)',
-              background: `radial-gradient(ellipse at 40% 40%, ${s.color}44 0%, ${s.color}22 40%, transparent 70%)`,
-              filter: 'blur(30px)',
-              borderRadius: '40% 60% 55% 45% / 45% 55% 60% 40%',
+              background: `radial-gradient(ellipse at 45% 45%, ${s.color} 0%, ${s.color}88 25%, ${s.color}22 55%, transparent 75%)`,
+              filter: `blur(${s.blur}px)`,
+              borderRadius: '43% 57% 61% 39% / 47% 42% 58% 53%',
             }}
             animate={{
-              scale: [1, 1.08, 0.95, 1.05, 1],
-              opacity: [0.5, 0.75, 0.45, 0.7, 0.5],
-              rotate: [0, 3, -2, 1, 0],
+              opacity: s.opacity,
+              scale:   [1, 1.06, 0.97, 1.04, 1],
+              rotate:  [0, 4, -3, 2, 0],
             }}
             transition={{
-              duration: 6 + i * 1.2,
+              duration: s.dur,
               delay: s.delay,
               repeat: Infinity,
               ease: 'easeInOut',
@@ -127,57 +83,52 @@ export default function HeroSection() {
         ))}
       </div>
 
-      {/* Click Paint Splash Effects — behind content */}
+      {/* Click paint splashes — behind text */}
       <AnimatePresence>
         {splashes.map(droplet => {
           const rad = (droplet.angle * Math.PI) / 180;
-          const tx = Math.cos(rad) * droplet.distance;
-          const ty = Math.sin(rad) * droplet.distance;
+          const tx = Math.cos(rad) * droplet.dist;
+          const ty = Math.sin(rad) * droplet.dist;
           return droplet.isCore ? (
             <motion.div
               key={droplet.id}
-              initial={{ scale: 0, opacity: 0.8 }}
-              animate={{ scale: 3.5, opacity: 0 }}
+              initial={{ scale: 0, opacity: 0.7 }}
+              animate={{ scale: 4, opacity: 0 }}
               exit={{}}
-              transition={{ duration: 0.7, ease: [0.2, 0.8, 0.4, 1] }}
+              transition={{ duration: 0.9, ease: 'easeOut' }}
               className="pointer-events-none fixed z-[2] rounded-full"
               style={{
-                left: droplet.x - 35,
-                top: droplet.y - 35,
-                width: 70,
-                height: 70,
-                background: `radial-gradient(circle, ${droplet.color}cc 0%, ${droplet.color}66 40%, ${droplet.color}11 70%, transparent 100%)`,
-                filter: 'blur(2px)',
+                left: droplet.x - 30,
+                top: droplet.y - 30,
+                width: 60,
+                height: 60,
+                background: `radial-gradient(circle, ${droplet.color}88 0%, ${droplet.color}33 50%, transparent 80%)`,
+                filter: 'blur(6px)',
               }}
             />
           ) : (
             <motion.div
               key={droplet.id}
-              initial={{ x: 0, y: 0, scale: 1, opacity: 0.9 }}
-              animate={{
-                x: tx,
-                y: ty,
-                scale: [1, 1.3, 0.2],
-                opacity: [0.9, 0.7, 0],
-              }}
+              initial={{ x: 0, y: 0, scale: 1, opacity: 0.8 }}
+              animate={{ x: tx, y: ty, scale: [1, 1.2, 0], opacity: [0.8, 0.6, 0] }}
               exit={{}}
-              transition={{ duration: 0.55 + Math.random() * 0.3, ease: [0.1, 0.7, 0.3, 1] }}
-              className="pointer-events-none fixed z-[2]"
+              transition={{ duration: 0.6 + Math.random() * 0.3, ease: 'easeOut' }}
+              className="pointer-events-none fixed z-[2] rounded-full"
               style={{
                 left: droplet.x - droplet.size / 2,
                 top: droplet.y - droplet.size / 2,
                 width: droplet.size,
-                height: droplet.size * 1.5,
+                height: droplet.size * 1.3,
                 backgroundColor: droplet.color,
-                borderRadius: '50% 50% 55% 55%',
-                filter: `blur(0.5px)`,
+                filter: 'blur(2px)',
+                borderRadius: '50% 50% 58% 42%',
               }}
             />
           );
         })}
       </AnimatePresence>
 
-      {/* Content — above splashes */}
+      {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
