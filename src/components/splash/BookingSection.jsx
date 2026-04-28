@@ -57,6 +57,11 @@ export default function BookingSection() {
   const activities = settings?.experienceOptions
     ?.find(t => (isAr ? t.name_ar : t.name_en) === form.experienceType)
     ?.subExperiences || [];
+  
+  // Debug
+  console.log('Selected experience type:', form.experienceType);
+  console.log('Available experience options:', settings?.experienceOptions);
+  console.log('Found activities:', activities);
 
   const selectedActivityObj = activities.find(a => (isAr ? a.name_ar : a.name_en) === form.experience);
   const isWhatsAppOnly = selectedActivityObj?.whatsappOnly || false;
