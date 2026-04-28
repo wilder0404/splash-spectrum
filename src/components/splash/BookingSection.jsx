@@ -23,7 +23,7 @@ const SUB_EXPERIENCES = {
     { name: 'Spin', maxPeople: 50 },
     { name: 'Group Splash (Big Canvas)', maxPeople: 4 },
   ],
-  'Kids Experience': [
+  'School Packages': [
     { name: 'Splash', maxPeople: 30 },
     { name: 'Spin', maxPeople: 30 },
   ],
@@ -61,7 +61,7 @@ export default function BookingSection() {
 
   const experienceTypes = lang === 'ar'
     ? ['جلسات الرسم الحرة', 'تجارب أعياد الميلاد', 'احتفالات التخرج', 'المجموعات والأصدقاء', 'باقات المدارس', 'الفن المخصص والمجسمات', 'الفعاليات الخاصة']
-    : ['Open Paint Session', 'Birthday Experience', 'Graduation', 'Group & Friends', 'Kids Experience', 'Custom Art & Figurines', 'Special Event'];
+    : ['Open Paint Session', 'Birthday Experience', 'Graduation', 'Group & Friends', 'School Packages', 'Custom Art & Figurines', 'Special Event'];
 
   const isWhatsAppOnly = WHATSAPP_ONLY_SLUGS.includes(form.experience);
 
