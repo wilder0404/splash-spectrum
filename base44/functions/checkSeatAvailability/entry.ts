@@ -17,15 +17,19 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Booking settings not configured' }, { status: 500 });
     }
 
-    // Find activity in experience types
-    let seatsPerHour = 20;
-    for (const type of (settings.experienceTypes || [])) {
-      const activity = (type.activities || []).find(a => a.name_en === activityName || a.name_ar === activityName);
-      if (activity) {
-        seatsPerHour = activity.seatsPerHour || 20;
-        break;
-      }
-    }
+    // Map activity names to their seat capacities per hour
+    const activityCapacities = {
+      'Splash': 20,
+      'سبلاش': 20,
+      'Spin': 4,
+      'سبين': 4,
+      'Pouring': 14,
+      'صب': 14,
+      'Group Splash (Big Canvas)': 14,
+      'سبلاش لوحة كبيرة (جماعي)': 14
+    };
+    
+    let seatsPerHour = activityCapacities[activityName] || 20;
 
     // Get all confirmed bookings for this date and time
     const bookings = await base44.asServiceRole.entities.Booking.list('', 1000);
