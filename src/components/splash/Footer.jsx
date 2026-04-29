@@ -1,5 +1,5 @@
 import React from 'react';
-import { Instagram, MessageCircle, Facebook } from 'lucide-react';
+import { Instagram, MessageCircle, Facebook, Phone } from 'lucide-react';
 import { useLang } from '@/lib/LanguageContext';
 
 const LOGO_URL = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/0677e9ccc_image.png";
@@ -48,6 +48,11 @@ export default function Footer() {
                 {s.icon}
               </a>
             ))}
+            <a href="tel:+966554563447"
+              className="flex items-center gap-2 px-4 py-2 bg-neon-pink/10 border border-neon-pink/30 hover:bg-neon-pink/20 hover:border-neon-pink/60 rounded-full text-neon-pink transition-all font-heading font-semibold text-sm">
+              <Phone className="w-4 h-4" />
+              <span>Call Us</span>
+            </a>
           </div>
         </div>
 
