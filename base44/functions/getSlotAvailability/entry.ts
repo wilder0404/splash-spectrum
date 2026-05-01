@@ -3,7 +3,6 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 // Capacity per hour per activity slug
 const CAPACITY = {
   splash: 20,
-  spin: 4,
   pouring: 14,
 };
 
