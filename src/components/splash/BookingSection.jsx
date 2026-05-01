@@ -82,6 +82,19 @@ export default function BookingSection() {
       console.warn('Email sending failed, but booking was created:', emailError);
     }
 
+    // Append customer data to Google Sheet
+    try {
+      await base44.functions.invoke('appendToSheet', {
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        experience: form.experience + (form.subExperience ? ` — ${form.subExperience}` : ''),
+        date: form.date,
+      });
+    } catch (sheetError) {
+      console.warn('Sheet append failed, but booking was created:', sheetError);
+    }
+
     setSubmitted(true);
   };
 
