@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from '../components/splash/Navbar';
 import HeroSection from '../components/splash/HeroSection';
 import PaintDrips from '../components/splash/PaintDrips';
@@ -12,8 +12,15 @@ import BookingSection from '../components/splash/BookingSection';
 import LocationSection from '../components/splash/LocationSection';
 import FloatingBookButton from '../components/splash/FloatingBookButton';
 import Footer from '../components/splash/Footer';
+import ExperienceQuiz from '../components/splash/ExperienceQuiz';
 
 export default function Home() {
+  const [quizResult, setQuizResult] = useState(null);
+
+  const handleQuizBook = (result) => {
+    setQuizResult(result);
+  };
+
   return (
     <div className="bg-obsidian min-h-screen overflow-x-hidden">
       <Navbar />
@@ -21,13 +28,14 @@ export default function Home() {
       <PaintDrips />
       <ExperiencesSection />
       <PaintDrips />
+      <ExperienceQuiz onBookWithExperience={handleQuizBook} />
       <VibeSelector />
       <PaintStatsSection />
       <GallerySection />
       <PaintDrips />
       <WhySection />
       <ReactionsSection />
-      <BookingSection />
+      <BookingSection preSelectedExperience={quizResult} />
       <LocationSection />
       <Footer />
       <FloatingBookButton />

@@ -13,7 +13,7 @@ import { useAuth } from '@/lib/AuthContext';
 
 const WHATSAPP_NUMBER = '966554563447';
 
-export default function BookingSection() {
+export default function BookingSection({ preSelectedExperience }) {
   const { lang, isAr } = useLang();
   const { user, isAuthenticated } = useAuth();
   const [form, setForm] = useState({ experience: '', subExperience: '', date: '', time: '', people: '', name: '', email: '', phone: '' });
@@ -53,6 +53,20 @@ export default function BookingSection() {
 
   const activeExperiences = experiences.filter(e => e.isActive !== false);
   const experienceNames = activeExperiences.map(e => isAr ? e.title_ar : e.title_en);
+
+  // Pre-select from quiz result
+  useEffect(() => {
+    if (!preSelectedExperience || activeExperiences.length === 0) return;
+    const keyword = preSelectedExperience.toLowerCase(); // 'splash' | 'spin' | 'pouring'
+    const matched = activeExperiences.find(e =>
+      (e.title_en || '').toLowerCase().includes(keyword) ||
+      (e.slug || '').toLowerCase().includes(keyword)
+    );
+    if (matched) {
+      const name = isAr ? matched.title_ar : matched.title_en;
+      setForm(f => ({ ...f, experience: name, subExperience: '', time: '', people: '' }));
+    }
+  }, [preSelectedExperience, activeExperiences.length]);
 
   const selectedExpObj = activeExperiences.find(e => (isAr ? e.title_ar : e.title_en) === form.experience);
   const isWhatsAppOnly = selectedExpObj?.whatsappOnly || false;
