@@ -1,35 +1,38 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
-// Capacity per hour per activity slug
-const CAPACITY = {
-  splash: 20,
-  pouring: 14,
-};
+// Capacity per hour based on subExperience name (case-insensitive keyword match)
+function getCapacityForSubExperience(subExperience) {
+  if (!subExperience) return null;
+  const s = subExperience.toLowerCase();
+  if (s.includes('pour')) return 14;
+  if (s.includes('splash')) return 20; // covers "Splash", "Group Splash (Big Canvas)"
+  return null;
+}
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { experienceSlug, date } = await req.json();
+    const { experienceSlug, date, subExperience } = await req.json();
 
-    if (!experienceSlug || !date) {
-      return Response.json({ error: 'Missing experienceSlug or date' }, { status: 400 });
+    if (!date) {
+      return Response.json({ error: 'Missing date' }, { status: 400 });
     }
 
-    const slug = experienceSlug.toLowerCase();
-    const maxCapacity = CAPACITY[slug];
+    const maxCapacity = getCapacityForSubExperience(subExperience);
 
-    if (maxCapacity === undefined) {
-      // No capacity constraint for this experience — all slots open
-      return Response.json({ availability: null, maxCapacity: null });
+    if (maxCapacity === null) {
+      // No capacity constraint for this sub-experience
+      return Response.json({ bookedPerSlot: {}, maxCapacity: null });
     }
 
-    // Fetch all confirmed bookings for this experience + date
+    // Fetch all non-cancelled bookings for this date
     const allBookings = await base44.asServiceRole.entities.Booking.list('', 500);
-    const relevant = allBookings.filter(b =>
-      b.date === date &&
-      b.experienceSlug?.toLowerCase() === slug &&
-      b.status !== 'cancelled'
-    );
+    const relevant = allBookings.filter(b => {
+      if (b.date !== date || b.status === 'cancelled') return false;
+      // Match by subExperience keyword
+      const cap = getCapacityForSubExperience(b.subExperience);
+      return cap === maxCapacity;
+    });
 
     // Sum people per time slot
     const bookedPerSlot = {};

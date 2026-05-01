@@ -61,7 +61,7 @@ export default function BookingSection() {
   const maxPeople = 10;
   const peopleOptions = Array.from({ length: maxPeople }, (_, i) => i + 1);
 
-  // Fetch availability whenever experience + date change
+  // Fetch availability whenever experience + date + subExperience change
   useEffect(() => {
     if (!selectedExpObj?.slug || !form.date) {
       setAvailability(null);
@@ -72,6 +72,7 @@ export default function BookingSection() {
     base44.functions.invoke('getSlotAvailability', {
       experienceSlug: selectedExpObj.slug,
       date: form.date,
+      subExperience: form.subExperience,
     }).then(res => {
       setAvailability(res.data);
     }).catch(() => {
@@ -79,7 +80,7 @@ export default function BookingSection() {
     }).finally(() => {
       setLoadingAvailability(false);
     });
-  }, [selectedExpObj?.slug, form.date]);
+  }, [selectedExpObj?.slug, form.date, form.subExperience]);
 
   const getSlotRemaining = (slot) => {
     if (!availability || availability.maxCapacity === null) return null;
@@ -121,6 +122,7 @@ export default function BookingSection() {
           base44.functions.invoke('getSlotAvailability', {
             experienceSlug: selectedExpObj.slug,
             date: form.date,
+            subExperience: form.subExperience,
           }).then(r => setAvailability(r.data)).catch(() => {});
         }
         return;
