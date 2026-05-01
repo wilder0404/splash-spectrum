@@ -88,8 +88,6 @@ export default function BookingSection() {
         name: form.name,
         email: form.email,
         phone: form.phone,
-        experience: form.experience + (form.subExperience ? ` — ${form.subExperience}` : ''),
-        date: form.date,
       });
     } catch (sheetError) {
       console.warn('Sheet append failed, but booking was created:', sheetError);

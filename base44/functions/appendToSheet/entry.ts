@@ -1,13 +1,13 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 const SHEET_ID = '1-MlRv8Gx4iWNIDXGoyCQ2E_tC5py_nnxo3asQC05VK4';
-const SHEET_RANGE = 'Sheet1!A:E';
+const SHEET_RANGE = 'Sheet1!A:C';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    const { name, email, phone, experience, date } = await req.json();
+    const { name, email, phone } = await req.json();
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('googlesheets');
 
@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          values: [[name, email, phone, experience, date]],
+          values: [[name, phone, email]],
         }),
       }
     );
