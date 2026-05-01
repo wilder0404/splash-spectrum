@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Users, Clock, Palette, Sparkles } from 'lucide-react';
+import { Calendar, Users, Clock, Palette, Sparkles, AlertCircle } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,12 @@ export default function BookingSection() {
   const { user, isAuthenticated } = useAuth();
   const [form, setForm] = useState({ experience: '', subExperience: '', date: '', time: '', people: '', name: '', email: '', phone: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [bookingError, setBookingError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Availability state: { bookedPerSlot: {time: count}, maxCapacity: number } | null
+  const [availability, setAvailability] = useState(null);
+  const [loadingAvailability, setLoadingAvailability] = useState(false);
 
   // Auto-fill from logged in user
   useEffect(() => {
@@ -52,48 +58,98 @@ export default function BookingSection() {
   const isWhatsAppOnly = selectedExpObj?.whatsappOnly || false;
   const subExps = selectedExpObj?.priceTable || [];
 
-  const selectedSub = subExps.find(s => (isAr ? s.name_ar : s.name_en) === form.subExperience);
   const maxPeople = 10;
   const peopleOptions = Array.from({ length: maxPeople }, (_, i) => i + 1);
 
-  const handleExperienceChange = (v) => setForm({ ...form, experience: v, subExperience: '', people: '' });
+  // Fetch availability whenever experience + date change
+  useEffect(() => {
+    if (!selectedExpObj?.slug || !form.date) {
+      setAvailability(null);
+      return;
+    }
+    setLoadingAvailability(true);
+    setForm(f => ({ ...f, time: '', people: '' }));
+    base44.functions.invoke('getSlotAvailability', {
+      experienceSlug: selectedExpObj.slug,
+      date: form.date,
+    }).then(res => {
+      setAvailability(res.data);
+    }).catch(() => {
+      setAvailability(null);
+    }).finally(() => {
+      setLoadingAvailability(false);
+    });
+  }, [selectedExpObj?.slug, form.date]);
+
+  const getSlotRemaining = (slot) => {
+    if (!availability || availability.maxCapacity === null) return null;
+    const booked = availability.bookedPerSlot?.[slot] || 0;
+    return Math.max(0, availability.maxCapacity - booked);
+  };
+
+  const handleExperienceChange = (v) => {
+    setForm({ ...form, experience: v, subExperience: '', people: '', time: '' });
+    setBookingError('');
+    setAvailability(null);
+  };
   const handleSubChange = (v) => setForm({ ...form, subExperience: v, people: '' });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const booking = await base44.entities.Booking.create({
-      experienceSlug: selectedExpObj?.name_en || form.experience,
-      experienceName: form.experience,
-      subExperience: form.subExperience,
-      date: form.date,
-      time: form.time,
-      people: form.people,
-      name: form.name,
-      email: form.email,
-      phone: form.phone,
-      userId: user?.id || '',
-      status: 'confirmed',
-    });
+    setBookingError('');
+    setIsSubmitting(true);
 
-    // Send confirmation email via backend function
     try {
-      await base44.functions.invoke('sendBookingConfirmation', { bookingId: booking.id });
-    } catch (emailError) {
-      console.warn('Email sending failed, but booking was created:', emailError);
-    }
-
-    // Append customer data to Google Sheet
-    try {
-      await base44.functions.invoke('appendToSheet', {
+      const res = await base44.functions.invoke('createBookingWithCapacityCheck', {
+        experienceSlug: selectedExpObj?.slug || form.experience,
+        experienceName: form.experience,
+        subExperience: form.subExperience,
+        date: form.date,
+        time: form.time,
+        people: form.people,
         name: form.name,
         email: form.email,
         phone: form.phone,
+        userId: user?.id || '',
+        status: 'confirmed',
       });
-    } catch (sheetError) {
-      console.warn('Sheet append failed, but booking was created:', sheetError);
-    }
 
-    setSubmitted(true);
+      if (res.data?.error === 'not_enough_seats') {
+        setBookingError(res.data.message);
+        // Refresh availability after conflict
+        if (selectedExpObj?.slug && form.date) {
+          base44.functions.invoke('getSlotAvailability', {
+            experienceSlug: selectedExpObj.slug,
+            date: form.date,
+          }).then(r => setAvailability(r.data)).catch(() => {});
+        }
+        return;
+      }
+
+      const booking = res.data?.booking;
+      if (!booking) {
+        setBookingError('Something went wrong. Please try again.');
+        return;
+      }
+
+      // Send confirmation email
+      try {
+        await base44.functions.invoke('sendBookingConfirmation', { bookingId: booking.id });
+      } catch {}
+
+      // Append to Google Sheet
+      try {
+        await base44.functions.invoke('appendToSheet', {
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+        });
+      } catch {}
+
+      setSubmitted(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleWhatsAppRedirect = () => {
@@ -191,28 +247,46 @@ export default function BookingSection() {
               </div>
             )}
 
-
             {/* Date & Time */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-uv-purple shrink-0" /> {tr(lang, 'booking_date')}
                 </Label>
-                <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })}
+                <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value, time: '', people: '' })}
                   className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full" />
               </div>
               <div className="space-y-2">
                 <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
                   <Clock className="w-4 h-4 text-electric-cyan shrink-0" /> {tr(lang, 'booking_time')}
+                  {loadingAvailability && <span className="text-white/30 text-xs font-body">{isAr ? 'جارٍ التحقق...' : 'Checking...'}</span>}
                 </Label>
-                <Select onValueChange={(v) => setForm({ ...form, time: v })}>
+                <Select value={form.time} onValueChange={(v) => { setForm({ ...form, time: v, people: '' }); setBookingError(''); }}>
                   <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
                     <SelectValue placeholder={tr(lang, 'booking_choose_time')} />
                   </SelectTrigger>
                   <SelectContent className="bg-obsidian border-white/10">
-                    {timeSlots.map(t => (
-                      <SelectItem key={t} value={t} className="text-white focus:bg-white/10 focus:text-white">{t}</SelectItem>
-                    ))}
+                    {timeSlots.map(t => {
+                      const remaining = getSlotRemaining(t);
+                      const isFull = remaining !== null && remaining === 0;
+                      return (
+                        <SelectItem
+                          key={t}
+                          value={t}
+                          disabled={isFull}
+                          className="text-white focus:bg-white/10 focus:text-white"
+                        >
+                          <span className="flex items-center justify-between w-full gap-3">
+                            <span>{t}</span>
+                            {remaining !== null && (
+                              isFull
+                                ? <span className="text-xs text-red-400 font-heading">{isAr ? 'محجوز بالكامل' : 'Fully Booked'}</span>
+                                : <span className="text-xs text-neon-green/80 font-heading">{remaining} {isAr ? 'مقعد' : 'left'}</span>
+                            )}
+                          </span>
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
@@ -223,20 +297,39 @@ export default function BookingSection() {
               <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
                 <Users className="w-4 h-4 text-neon-green shrink-0" /> {tr(lang, 'booking_people')}
               </Label>
-              <Select onValueChange={(v) => setForm({ ...form, people: v })}>
+              <Select value={form.people} onValueChange={(v) => { setForm({ ...form, people: v }); setBookingError(''); }}>
                 <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full">
                   <SelectValue placeholder={tr(lang, 'booking_how_many')} />
                 </SelectTrigger>
                 <SelectContent className="bg-obsidian border-white/10">
-                  {(form.subExperience ? peopleOptions : [1,2,3,4,5,6,7,8,9,10]).map(n => (
-                    <SelectItem key={n} value={String(n)} className="text-white focus:bg-white/10 focus:text-white">{n}</SelectItem>
-                  ))}
-                  {!form.subExperience && (
+                  {(() => {
+                    const remaining = form.time ? getSlotRemaining(form.time) : null;
+                    const max = remaining !== null ? Math.min(remaining, 10) : 10;
+                    const options = Array.from({ length: max }, (_, i) => i + 1);
+                    if (options.length === 0) return (
+                      <SelectItem value="none" disabled className="text-red-400">
+                        {isAr ? 'لا توجد مقاعد متاحة' : 'No seats available'}
+                      </SelectItem>
+                    );
+                    return options.map(n => (
+                      <SelectItem key={n} value={String(n)} className="text-white focus:bg-white/10 focus:text-white">{n}</SelectItem>
+                    ));
+                  })()}
+                  {/* Allow 10+ only if no capacity constraint */}
+                  {form.time && getSlotRemaining(form.time) === null && (
                     <SelectItem value="10+" className="text-white focus:bg-white/10 focus:text-white">10+</SelectItem>
                   )}
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Booking error */}
+            {bookingError && (
+              <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+                <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                <p className="text-red-400 text-sm font-body">{bookingError}</p>
+              </div>
+            )}
 
             {/* Contact info */}
             <div className="border-t border-white/5 pt-5 space-y-4">
@@ -283,9 +376,9 @@ export default function BookingSection() {
               </div>
             ) : (
               <>
-                <Button type="submit"
-                  className="w-full h-14 bg-neon-pink hover:bg-neon-pink/90 text-white font-heading font-bold text-lg rounded-xl animate-pulse-glow">
-                  {tr(lang, 'booking_confirm')}
+                <Button type="submit" disabled={isSubmitting}
+                  className="w-full h-14 bg-neon-pink hover:bg-neon-pink/90 text-white font-heading font-bold text-lg rounded-xl animate-pulse-glow disabled:opacity-60 disabled:cursor-not-allowed">
+                  {isSubmitting ? (isAr ? 'جارٍ الحجز...' : 'Booking...') : tr(lang, 'booking_confirm')}
                 </Button>
                 <p className="text-center text-white/30 text-xs font-body">{tr(lang, 'booking_cancel_note')}</p>
               </>
