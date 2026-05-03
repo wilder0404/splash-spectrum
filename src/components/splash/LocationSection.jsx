@@ -7,7 +7,7 @@ import { tr } from '@/lib/translations.js';
 
 const faqsEn = [
   { q: 'What should I wear?', a: "Wear clothes you don't mind getting paint on! We provide aprons and cover-ups, but paint can splash anywhere. That's the fun part!" },
-  { q: 'Is there an age limit?', a: 'All ages are welcome — preferably from 3 years and above. Children under 16 must be accompanied by a trusted adult at all times. Any additional guardian beyond one requires a paid entry.' },
+  { q: 'Is there an age limit?', a: 'All ages are welcome — preferably from 3 years and above. Children under 9 must be accompanied by a trusted adult at all times. Any additional guardian beyond one requires a paid entry.' },
   { q: 'How messy does it get?', a: "VERY messy. That's the whole point! Our UV paint is water-based and washes off skin easily. Clothes may stain." },
   { q: 'Do I need to bring anything?', a: 'Just yourself and your energy! We provide all materials, paint, canvases, aprons, and cleaning supplies.' },
   { q: 'Can I book for a large group?', a: 'Absolutely! We host groups of 2–50+. Contact us for custom packages for corporate events, parties, or special occasions.' },
@@ -16,7 +16,7 @@ const faqsEn = [
 
 const faqsAr = [
   { q: 'ماذا أرتدي؟', a: 'ارتدِ ملابس لا تمانع تلطيخها! نوفر مرايل وأغطية واقية، لكن الألوان قد ترش في أي مكان. وهذا هو الجزء الممتع!' },
-  { q: 'هل هناك حد عمري؟', a: 'جميع الأعمار مرحب بها — ويُفضل من سن 3 سنوات فأكثر. يجب أن يرافق الأطفال دون 16 سنة شخص بالغ موثوق في جميع الأوقات. أي مرافق إضافي يتطلب رسوم دخول.' },
+  { q: 'هل هناك حد عمري؟', a: 'جميع الأعمار مرحب بها — ويُفضل من سن 3 سنوات فأكثر. يجب أن يرافق الأطفال دون 9 سنوات شخص بالغ موثوق في جميع الأوقات. أي مرافق إضافي يتطلب رسوم دخول.' },
   { q: 'كم تكون الفوضى؟', a: 'كثيرة جداً! وهذه هي النقطة! ألوان UV لدينا على أساس مائي وتنسل من الجلد بسهولة. قد تتلطخ الملابس.' },
   { q: 'هل أحتاج أن أحضر شيئاً؟', a: 'فقط نفسك وطاقتك! نوفر نحن جميع المواد والألوان واللوحات والمرايل ومستلزمات التنظيف.' },
   { q: 'هل يمكنني الحجز لمجموعة كبيرة؟', a: 'بالتأكيد! نستضيف مجموعات من 2–50 شخصاً أو أكثر. تواصل معنا للحصول على باقات مخصصة.' },

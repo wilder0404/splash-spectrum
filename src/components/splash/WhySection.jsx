@@ -33,7 +33,7 @@ export default function WhySection() {
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 mb-16">
           {reasons.map((reason, i) => (
             <motion.div
               key={reason.titleKey}
@@ -53,6 +53,36 @@ export default function WhySection() {
               <p className="font-body text-white/50 leading-relaxed">{tr(lang, reason.descKey)}</p>
             </motion.div>
           ))}
+        </div>
+
+        {/* Vision & Mission */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-white/[0.03] border border-neon-pink/20 rounded-2xl p-6 md:p-8 relative overflow-hidden"
+          >
+            <div className="absolute -top-10 -left-10 w-40 h-40 bg-neon-pink/10 rounded-full blur-[80px]" />
+            <h3 className="font-heading font-black text-2xl text-neon-pink text-glow-pink mb-4 relative z-10">Our Vision</h3>
+            <p className="font-body text-white/60 leading-relaxed relative z-10">
+              At SS, we envision a vibrant community where individuals of all ages and backgrounds (artists and non-artists) come together to unleash their creativity and express themselves through the captivating world of art. No skills are required to create beautiful artworks and take them home! Our vision is to be the foremost destination for artistic inspiration, fostering a culture where every stroke of the brush brings joy, passion, and a kaleidoscope of colors to life.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="bg-white/[0.03] border border-neon-green/20 rounded-2xl p-6 md:p-8 relative overflow-hidden"
+          >
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-neon-green/10 rounded-full blur-[80px]" />
+            <h3 className="font-heading font-black text-2xl text-neon-green text-glow-green mb-4 relative z-10">Our Mission</h3>
+            <p className="font-body text-white/60 leading-relaxed relative z-10">
+              Our mission is to harness the psychological benefits of painting as a therapeutic and enriching experience. We strive to provide a nurturing space where individuals can explore the healing and transformative aspects of art, promoting mental wellness, self-discovery, and emotional resilience within the vibrant tapestry of Saudi culture.
+            </p>
+          </motion.div>
         </div>
       </div>
     </section>
