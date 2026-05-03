@@ -70,14 +70,16 @@ export default function BookingSection({ preSelectedExperience }) {
   }, [preSelectedExperience, activeExperiences.length]);
 
   const selectedExpObj = activeExperiences.find(e => (isAr ? e.title_ar : e.title_en) === form.experience);
-  const isWhatsAppOnly = selectedExpObj?.whatsappOnly || false;
   const subExps = selectedExpObj?.priceTable || [];
 
-  const maxPeople = 10;
-  const peopleOptions = Array.from({ length: maxPeople }, (_, i) => i + 1);
+  // Birthday pack logic: "20+" or ≥20 people must use WhatsApp
+  const peopleCount = parseInt(form.people) || 0;
+  const birthdayWhatsAppOnly = birthdayPack && (form.people === '20+' || peopleCount >= 20);
+
+  // If birthday pack is selected and group < 20, allow online booking even for whatsappOnly experiences
+  const isWhatsAppOnly = (selectedExpObj?.whatsappOnly || false) && !(birthdayPack && !birthdayWhatsAppOnly);
 
   // Fetch availability whenever experience + date + subExperience change
-  // For experiences with sub-experiences, wait until one is selected
   const shouldFetchAvailability = selectedExpObj?.slug && form.date && (subExps.length === 0 || form.subExperience);
 
   useEffect(() => {
@@ -112,10 +114,6 @@ export default function BookingSection({ preSelectedExperience }) {
     setAvailability(null);
     setBirthdayPack(false);
   };
-
-  // Birthday pack logic: "20+" or ≥20 people must use WhatsApp
-  const peopleCount = parseInt(form.people) || 0;
-  const birthdayWhatsAppOnly = birthdayPack && (form.people === '20+' || peopleCount >= 20);
   const handleSubChange = (v) => setForm({ ...form, subExperience: v, time: '', people: '' });
 
   const handleSubmit = async (e) => {
