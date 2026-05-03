@@ -1,73 +1,18 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { useLang } from '@/lib/LanguageContext';
 import { tr } from '@/lib/translations.js';
 
 const HERO_BG = "https://media.base44.com/images/public/69e5ef89828747441c931879/d591ebed4_generated_ffef7112.png";
-const BLOB_COLORS = ['#FF007F', '#39FF14', '#9D00FF', '#00F3FF', '#FF4500', '#FFD700'];
-
-// Fewer blobs, smaller, less intense for performance
-const BLOBS_DESKTOP = Array.from({ length: 8 }, (_, i) => ({
-  id: i,
-  color: BLOB_COLORS[i % BLOB_COLORS.length],
-  x: [15, 65, 40, 80, 10, 55, 30, 70][i],
-  y: [30, 45, 65, 25, 70, 55, 20, 80][i],
-  size: 80 + (i * 20),
-  duration: 6 + i * 1.2,
-  delay: i * 0.5,
-  xAmp: 8 + (i % 3) * 4,
-  yAmp: 6 + (i % 3) * 4,
-}));
-
-const BLOBS_MOBILE = BLOBS_DESKTOP.slice(0, 4);
-
-const BG_SHAPES = [
-  { x: 20, y: 35, color: '#FF007F', r: 160, delay: 0 },
-  { x: 65, y: 45, color: '#00F3FF', r: 200, delay: 1.5 },
-  { x: 80, y: 25, color: '#9D00FF', r: 120, delay: 2.2 },
+const BLOBS = [
+  { id: 0, color: '#FF007F', x: 15, y: 35, size: 200, duration: 8, delay: 0,   xAmp: 10, yAmp: 8 },
+  { id: 1, color: '#00F3FF', x: 70, y: 40, size: 250, duration: 10, delay: 1.5, xAmp: 8,  yAmp: 10 },
+  { id: 2, color: '#9D00FF', x: 45, y: 65, size: 180, duration: 9,  delay: 0.8, xAmp: 12, yAmp: 6 },
 ];
 
 export default function HeroSection() {
   const { lang } = useLang();
-  const [splashes, setSplashes] = useState([]);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Only add click splashes on desktop
-  useEffect(() => {
-    if (isMobile) return;
-    const handleClick = (e) => {
-      const colors = ['#FF007F', '#39FF14', '#9D00FF', '#00F3FF'];
-      const color = colors[Math.floor(Math.random() * colors.length)];
-      const dropletCount = 6 + Math.floor(Math.random() * 4);
-      const newDroplets = Array.from({ length: dropletCount }, (_, idx) => {
-        const angle = (idx / dropletCount) * 360 + Math.random() * 30;
-        const distance = 30 + Math.random() * 60;
-        return {
-          id: Date.now() + Math.random() + idx,
-          x: e.clientX,
-          y: e.clientY,
-          color,
-          angle,
-          distance,
-          size: 4 + Math.random() * 10,
-          isCore: idx === 0,
-        };
-      });
-      setSplashes(prev => [...prev.slice(-30), ...newDroplets]);
-    };
-    window.addEventListener('click', handleClick);
-    return () => window.removeEventListener('click', handleClick);
-  }, [isMobile]);
-
-  const blobs = isMobile ? BLOBS_MOBILE : BLOBS_DESKTOP;
 
   return (
     <section className="relative h-screen w-full overflow-hidden bg-obsidian">
@@ -77,9 +22,9 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-b from-obsidian/50 via-obsidian/20 to-obsidian" />
       </div>
 
-      {/* Animated Blobs */}
+      {/* Ambient Blobs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 1 }}>
-        {blobs.map((blob) => (
+        {BLOBS.map((blob) => (
           <motion.div
             key={blob.id}
             className="absolute rounded-full"
@@ -88,14 +33,13 @@ export default function HeroSection() {
               top: `${blob.y}%`,
               width: blob.size,
               height: blob.size,
-              background: `radial-gradient(circle, ${blob.color}44 0%, ${blob.color}11 60%, transparent 80%)`,
-              filter: 'blur(20px)',
+              background: `radial-gradient(circle, ${blob.color}30 0%, transparent 70%)`,
+              filter: 'blur(60px)',
               willChange: 'transform',
             }}
             animate={{
-              x: [`0px`, `${blob.xAmp}px`, `-${blob.xAmp * 0.5}px`, `0px`],
-              y: [`0px`, `-${blob.yAmp}px`, `${blob.yAmp * 0.6}px`, `0px`],
-              opacity: [0.5, 0.8, 0.4, 0.5],
+              x: [`0px`, `${blob.xAmp}px`, `0px`],
+              y: [`0px`, `-${blob.yAmp}px`, `0px`],
             }}
             transition={{
               duration: blob.duration,
@@ -105,80 +49,7 @@ export default function HeroSection() {
             }}
           />
         ))}
-
-        {/* Reduced static background shapes — desktop only */}
-        {!isMobile && BG_SHAPES.map((s, i) => (
-          <motion.div
-            key={`splash-bg-${i}`}
-            className="absolute"
-            style={{
-              left: `${s.x}%`,
-              top: `${s.y}%`,
-              width: s.r * 2,
-              height: s.r * 1.3,
-              transform: 'translate(-50%, -50%)',
-              background: `radial-gradient(ellipse at 40% 40%, ${s.color}33 0%, transparent 70%)`,
-              filter: 'blur(40px)',
-              borderRadius: '40% 60% 55% 45% / 45% 55% 60% 40%',
-              willChange: 'transform',
-            }}
-            animate={{
-              scale: [1, 1.06, 0.97, 1],
-              opacity: [0.4, 0.65, 0.35, 0.4],
-            }}
-            transition={{
-              duration: 7 + i * 1.5,
-              delay: s.delay,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-          />
-        ))}
       </div>
-
-      {/* Click Paint Splashes — desktop only */}
-      <AnimatePresence>
-        {splashes.map(droplet => {
-          const rad = (droplet.angle * Math.PI) / 180;
-          const tx = Math.cos(rad) * droplet.distance;
-          const ty = Math.sin(rad) * droplet.distance;
-          return droplet.isCore ? (
-            <motion.div
-              key={droplet.id}
-              initial={{ scale: 0, opacity: 0.8 }}
-              animate={{ scale: 3, opacity: 0 }}
-              exit={{}}
-              transition={{ duration: 0.6, ease: [0.2, 0.8, 0.4, 1] }}
-              className="pointer-events-none fixed z-[2] rounded-full"
-              style={{
-                left: droplet.x - 30,
-                top: droplet.y - 30,
-                width: 60,
-                height: 60,
-                background: `radial-gradient(circle, ${droplet.color}bb 0%, ${droplet.color}44 50%, transparent 100%)`,
-                filter: 'blur(2px)',
-              }}
-            />
-          ) : (
-            <motion.div
-              key={droplet.id}
-              initial={{ x: 0, y: 0, scale: 1, opacity: 0.9 }}
-              animate={{ x: tx, y: ty, scale: [1, 1.2, 0.1], opacity: [0.9, 0.6, 0] }}
-              exit={{}}
-              transition={{ duration: 0.5, ease: [0.1, 0.7, 0.3, 1] }}
-              className="pointer-events-none fixed z-[2]"
-              style={{
-                left: droplet.x - droplet.size / 2,
-                top: droplet.y - droplet.size / 2,
-                width: droplet.size,
-                height: droplet.size * 1.4,
-                backgroundColor: droplet.color,
-                borderRadius: '50% 50% 55% 55%',
-              }}
-            />
-          );
-        })}
-      </AnimatePresence>
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-5">

@@ -27,12 +27,10 @@ export default function Home() {
       <HeroSection />
       <PaintDrips />
       <ExperiencesSection />
-      <PaintDrips />
       <ExperienceQuiz onBookWithExperience={handleQuizBook} />
       <VibeSelector />
       <PaintStatsSection />
       <GallerySection />
-      <PaintDrips />
       <WhySection />
       <ReactionsSection />
       <BookingSection preSelectedExperience={quizResult} />
