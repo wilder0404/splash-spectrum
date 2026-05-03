@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Users, Clock, Palette, Sparkles, AlertCircle } from 'lucide-react';
+import { Calendar, Users, Clock, Palette, Sparkles, AlertCircle, Gift } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,7 @@ export default function BookingSection({ preSelectedExperience }) {
   const { lang, isAr } = useLang();
   const { user, isAuthenticated } = useAuth();
   const [form, setForm] = useState({ experience: '', subExperience: '', date: '', time: '', people: '', name: '', email: '', phone: '' });
+  const [birthdayPack, setBirthdayPack] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [bookingError, setBookingError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -109,7 +110,12 @@ export default function BookingSection({ preSelectedExperience }) {
     setForm({ ...form, experience: v, subExperience: '', people: '', time: '' });
     setBookingError('');
     setAvailability(null);
+    setBirthdayPack(false);
   };
+
+  // Birthday pack logic: ≥20 people must use WhatsApp
+  const peopleCount = parseInt(form.people) || 0;
+  const birthdayWhatsAppOnly = birthdayPack && peopleCount >= 20;
   const handleSubChange = (v) => setForm({ ...form, subExperience: v, time: '', people: '' });
 
   const handleSubmit = async (e) => {
@@ -121,7 +127,7 @@ export default function BookingSection({ preSelectedExperience }) {
       const res = await base44.functions.invoke('createBookingWithCapacityCheck', {
         experienceSlug: selectedExpObj?.slug || form.experience,
         experienceName: form.experience,
-        subExperience: form.subExperience,
+        subExperience: birthdayPack ? `${form.subExperience ? form.subExperience + ' + ' : ''}Birthday Pack` : form.subExperience,
         date: form.date,
         time: form.time,
         people: form.people,
@@ -171,8 +177,10 @@ export default function BookingSection({ preSelectedExperience }) {
     }
   };
 
-  const handleWhatsAppRedirect = () => {
-    const msg = encodeURIComponent(`Hi! I'd like to book a *${form.experience}* at Splash Spectrum. Please help me with the details! 🎨`);
+  const handleWhatsAppRedirect = (isBirthday = false) => {
+    const msg = isBirthday
+      ? encodeURIComponent(`Hi! I'd like to book a *Birthday Pack* for *${form.people || '20+'}* people at Splash Spectrum. Please help me with the details! 🎂🎨`)
+      : encodeURIComponent(`Hi! I'd like to book a *${form.experience}* at Splash Spectrum. Please help me with the details! 🎨`);
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
   };
 
@@ -342,6 +350,54 @@ export default function BookingSection({ preSelectedExperience }) {
               </Select>
             </div>
 
+            {/* Birthday Pack Add-on */}
+            {form.people && (
+              <div
+                onClick={() => setBirthdayPack(v => !v)}
+                className={`flex items-center gap-3 cursor-pointer rounded-2xl border p-4 transition-all ${
+                  birthdayPack
+                    ? 'bg-neon-pink/10 border-neon-pink/40'
+                    : 'bg-white/[0.02] border-white/10 hover:border-white/20'
+                }`}
+              >
+                <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${
+                  birthdayPack ? 'bg-neon-pink border-neon-pink' : 'border-white/30'
+                }`}>
+                  {birthdayPack && <span className="text-white text-xs font-bold">✓</span>}
+                </div>
+                <Gift className={`w-4 h-4 shrink-0 ${birthdayPack ? 'text-neon-pink' : 'text-white/40'}`} />
+                <div>
+                  <p className={`font-heading font-semibold text-sm ${birthdayPack ? 'text-white' : 'text-white/70'}`}>
+                    {isAr ? 'إضافة باقة عيد الميلاد 🎂' : 'Add Birthday Pack 🎂'}
+                  </p>
+                  <p className="text-white/40 text-xs font-body">
+                    {isAr ? 'للمجموعات أقل من 20: احجز أونلاين. 20 فأكثر: عبر واتساب' : 'Under 20 people: book online. 20+ people: via WhatsApp'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Birthday large group — WhatsApp only */}
+            {birthdayWhatsAppOnly && (
+              <div className="bg-neon-pink/5 border border-neon-pink/20 rounded-2xl p-5 text-center">
+                <div className="text-3xl mb-3">🎂</div>
+                <p className="font-heading font-bold text-white text-base mb-1">
+                  {isAr ? 'مجموعات 20+ تحجز عبر واتساب' : 'Groups of 20+ Book via WhatsApp'}
+                </p>
+                <p className="font-body text-white/50 text-sm mb-4 leading-relaxed">
+                  {isAr
+                    ? 'للمجموعات الكبيرة وباقات أعياد الميلاد الخاصة، تواصل معنا مباشرة لنخطط لك تجربة مثالية.'
+                    : 'For large birthday groups, contact us directly so we can plan the perfect experience for you.'}
+                </p>
+                <button type="button" onClick={() => handleWhatsAppRedirect(true)}
+                  className="w-full h-14 rounded-xl font-heading font-bold text-lg text-white flex items-center justify-center gap-3 transition-transform hover:scale-105"
+                  style={{ background: 'linear-gradient(135deg, #25D366, #128C7E)' }}>
+                  <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.862L.054 23.5l5.797-1.517A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.891 0-3.667-.497-5.2-1.366l-.373-.22-3.44.9.921-3.353-.242-.386A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+                  {isAr ? 'تحدث على واتساب' : 'Chat on WhatsApp'}
+                </button>
+              </div>
+            )}
+
             {/* Booking error */}
             {bookingError && (
               <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/20 rounded-xl p-4">
@@ -393,7 +449,7 @@ export default function BookingSection({ preSelectedExperience }) {
                   {tr(lang, 'booking_whatsapp_btn')}
                 </button>
               </div>
-            ) : (
+            ) : !birthdayWhatsAppOnly ? (
               <>
                 <Button type="submit" disabled={isSubmitting}
                   className="w-full h-14 bg-neon-pink hover:bg-neon-pink/90 text-white font-heading font-bold text-lg rounded-xl animate-pulse-glow disabled:opacity-60 disabled:cursor-not-allowed">
@@ -401,7 +457,7 @@ export default function BookingSection({ preSelectedExperience }) {
                 </Button>
                 <p className="text-center text-white/30 text-xs font-body">{tr(lang, 'booking_cancel_note')}</p>
               </>
-            )}
+            ) : null}
           </motion.form>
         )}
       </div>
