@@ -6,6 +6,18 @@ function getCapacityForSubExperience(subExperience) {
   const s = subExperience.toLowerCase();
   if (s.includes('pour')) return 14;
   if (s.includes('splash')) return 20; // covers "Splash", "Group Splash (Big Canvas)"
+  if (s.includes('spin')) return 6;
+  return null;
+}
+
+// Also apply capacity based on experienceSlug when no subExperience is set
+function getCapacityForExperience(experienceSlug, subExperience) {
+  if (subExperience) return getCapacityForSubExperience(subExperience);
+  if (!experienceSlug) return null;
+  const s = experienceSlug.toLowerCase();
+  if (s.includes('pour')) return 14;
+  if (s.includes('splash')) return 20;
+  if (s.includes('spin')) return 6;
   return null;
 }
 
@@ -18,10 +30,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing date' }, { status: 400 });
     }
 
-    const maxCapacity = getCapacityForSubExperience(subExperience);
+    const maxCapacity = getCapacityForExperience(experienceSlug, subExperience);
 
     if (maxCapacity === null) {
-      // No capacity constraint for this sub-experience
+      // No capacity constraint
       return Response.json({ bookedPerSlot: {}, maxCapacity: null });
     }
 
@@ -29,8 +41,8 @@ Deno.serve(async (req) => {
     const allBookings = await base44.asServiceRole.entities.Booking.list('', 500);
     const relevant = allBookings.filter(b => {
       if (b.date !== date || b.status === 'cancelled') return false;
-      // Match by subExperience keyword
-      const cap = getCapacityForSubExperience(b.subExperience);
+      // Match by same capacity bucket (subExperience or slug)
+      const cap = getCapacityForExperience(b.experienceSlug, b.subExperience);
       return cap === maxCapacity;
     });
 

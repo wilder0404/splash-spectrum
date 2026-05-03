@@ -76,8 +76,11 @@ export default function BookingSection({ preSelectedExperience }) {
   const peopleOptions = Array.from({ length: maxPeople }, (_, i) => i + 1);
 
   // Fetch availability whenever experience + date + subExperience change
+  // For experiences with sub-experiences, wait until one is selected
+  const shouldFetchAvailability = selectedExpObj?.slug && form.date && (subExps.length === 0 || form.subExperience);
+
   useEffect(() => {
-    if (!selectedExpObj?.slug || !form.date) {
+    if (!shouldFetchAvailability) {
       setAvailability(null);
       return;
     }
@@ -94,7 +97,7 @@ export default function BookingSection({ preSelectedExperience }) {
     }).finally(() => {
       setLoadingAvailability(false);
     });
-  }, [selectedExpObj?.slug, form.date, form.subExperience]);
+  }, [selectedExpObj?.slug, form.date, form.subExperience, subExps.length]);
 
   const getSlotRemaining = (slot) => {
     if (!availability || availability.maxCapacity === null) return null;
@@ -107,7 +110,7 @@ export default function BookingSection({ preSelectedExperience }) {
     setBookingError('');
     setAvailability(null);
   };
-  const handleSubChange = (v) => setForm({ ...form, subExperience: v, people: '' });
+  const handleSubChange = (v) => setForm({ ...form, subExperience: v, time: '', people: '' });
 
   const handleSubmit = async (e) => {
     e.preventDefault();

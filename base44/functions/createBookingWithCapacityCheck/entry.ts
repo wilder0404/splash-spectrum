@@ -6,6 +6,17 @@ function getCapacityForSubExperience(subExperience) {
   const s = subExperience.toLowerCase();
   if (s.includes('pour')) return 14;
   if (s.includes('splash')) return 20; // covers "Splash", "Group Splash (Big Canvas)"
+  if (s.includes('spin')) return 6;
+  return null;
+}
+
+function getCapacityForExperience(experienceSlug, subExperience) {
+  if (subExperience) return getCapacityForSubExperience(subExperience);
+  if (!experienceSlug) return null;
+  const s = experienceSlug.toLowerCase();
+  if (s.includes('pour')) return 14;
+  if (s.includes('splash')) return 20;
+  if (s.includes('spin')) return 6;
   return null;
 }
 
@@ -20,14 +31,14 @@ Deno.serve(async (req) => {
     }
 
     const requestedPeople = parseInt(people) || 0;
-    const maxCapacity = getCapacityForSubExperience(subExperience);
+    const maxCapacity = getCapacityForExperience(experienceSlug, subExperience);
 
-    // If this sub-experience has a capacity constraint, validate atomically
+    // If this experience has a capacity constraint, validate atomically
     if (maxCapacity !== null) {
       const allBookings = await base44.asServiceRole.entities.Booking.list('', 500);
       const relevant = allBookings.filter(b => {
         if (b.date !== date || b.time !== time || b.status === 'cancelled') return false;
-        const cap = getCapacityForSubExperience(b.subExperience);
+        const cap = getCapacityForExperience(b.experienceSlug, b.subExperience);
         return cap === maxCapacity;
       });
 
