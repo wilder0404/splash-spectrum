@@ -113,9 +113,9 @@ export default function BookingSection({ preSelectedExperience }) {
     setBirthdayPack(false);
   };
 
-  // Birthday pack logic: ≥20 people must use WhatsApp
+  // Birthday pack logic: "20+" or ≥20 people must use WhatsApp
   const peopleCount = parseInt(form.people) || 0;
-  const birthdayWhatsAppOnly = birthdayPack && peopleCount >= 20;
+  const birthdayWhatsAppOnly = birthdayPack && (form.people === '20+' || peopleCount >= 20);
   const handleSubChange = (v) => setForm({ ...form, subExperience: v, time: '', people: '' });
 
   const handleSubmit = async (e) => {
@@ -331,7 +331,9 @@ export default function BookingSection({ preSelectedExperience }) {
                 <SelectContent className="bg-obsidian border-white/10">
                   {(() => {
                     const remaining = form.time ? getSlotRemaining(form.time) : null;
-                    const max = remaining !== null ? Math.min(remaining, 10) : 10;
+                    // When birthday pack is on, allow up to 19 online + "20+" for WhatsApp
+                    const onlineMax = birthdayPack ? 19 : 10;
+                    const max = remaining !== null ? Math.min(remaining, onlineMax) : onlineMax;
                     const options = Array.from({ length: max }, (_, i) => i + 1);
                     if (options.length === 0) return (
                       <SelectItem value="none" disabled className="text-red-400">
@@ -342,8 +344,14 @@ export default function BookingSection({ preSelectedExperience }) {
                       <SelectItem key={n} value={String(n)} className="text-white focus:bg-white/10 focus:text-white">{n}</SelectItem>
                     ));
                   })()}
-                  {/* Allow 10+ only if no capacity constraint */}
-                  {form.time && getSlotRemaining(form.time) === null && (
+                  {/* "20+" option for birthday pack — triggers WhatsApp flow */}
+                  {birthdayPack && (
+                    <SelectItem value="20+" className="text-neon-pink focus:bg-white/10 focus:text-white">
+                      20+ {isAr ? '(واتساب)' : '(WhatsApp)'}
+                    </SelectItem>
+                  )}
+                  {/* Allow 10+ only if no capacity constraint and no birthday pack */}
+                  {!birthdayPack && form.time && getSlotRemaining(form.time) === null && (
                     <SelectItem value="10+" className="text-white focus:bg-white/10 focus:text-white">10+</SelectItem>
                   )}
                 </SelectContent>
@@ -353,7 +361,7 @@ export default function BookingSection({ preSelectedExperience }) {
             {/* Birthday Pack Add-on */}
             {form.people && (
               <div
-                onClick={() => setBirthdayPack(v => !v)}
+                onClick={() => { setBirthdayPack(v => !v); setForm(f => ({ ...f, people: '' })); }}
                 className={`flex items-center gap-3 cursor-pointer rounded-2xl border p-4 transition-all ${
                   birthdayPack
                     ? 'bg-neon-pink/10 border-neon-pink/40'
