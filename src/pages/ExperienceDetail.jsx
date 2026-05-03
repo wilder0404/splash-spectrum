@@ -29,6 +29,10 @@ export default function ExperienceDetail() {
   const [submitted, setSubmitted] = useState(false);
   const [lightbox, setLightbox] = useState(null);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [slug]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     await base44.entities.Booking.create({
