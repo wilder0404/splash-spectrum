@@ -72,6 +72,16 @@ export default function BookingSection({ preSelectedExperience }) {
   const selectedExpObj = activeExperiences.find(e => (isAr ? e.title_ar : e.title_en) === form.experience);
   const subExps = selectedExpObj?.priceTable || [];
 
+  const isGroupSplash = selectedExpObj && (selectedExpObj.slug || '').toLowerCase().includes('group');
+
+  const getCanvasInfo = (people) => {
+    const n = parseInt(people) || 0;
+    if (n === 0) return null;
+    if (n <= 4) return { label: isAr ? '١ كانفاس كبير' : '1 Big Canvas', emoji: '🖼️' };
+    if (n <= 8) return { label: isAr ? '٢ كانفاس كبير' : '2 Big Canvases', emoji: '🖼️🖼️' };
+    return { label: isAr ? '٣ كانفاسات كبيرة' : '3 Big Canvases', emoji: '🖼️🖼️🖼️' };
+  };
+
   // Birthday pack logic: "20+" or ≥20 people must use WhatsApp
   const peopleCount = parseInt(form.people) || 0;
   const birthdayWhatsAppOnly = birthdayPack && (form.people === '20+' || peopleCount >= 20);
@@ -362,6 +372,19 @@ export default function BookingSection({ preSelectedExperience }) {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Group Splash canvas info */}
+            {isGroupSplash && form.people && (() => {
+              const canvas = getCanvasInfo(form.people);
+              return canvas ? (
+                <div className="flex items-center gap-2 bg-electric-cyan/10 border border-electric-cyan/25 rounded-xl px-4 py-3">
+                  <span className="text-lg">{canvas.emoji}</span>
+                  <p className="text-electric-cyan font-heading font-semibold text-sm">
+                    {isAr ? `ستحصلون على ${canvas.label}` : `You'll get ${canvas.label}`}
+                  </p>
+                </div>
+              ) : null;
+            })()}
 
             {/* Birthday Pack Add-on */}
             {form.people && (

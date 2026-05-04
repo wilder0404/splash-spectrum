@@ -29,6 +29,16 @@ export default function ExperienceDetail() {
   const [submitted, setSubmitted] = useState(false);
   const [lightbox, setLightbox] = useState(null);
 
+  const isGroupSplash = exp && (exp.slug || '').toLowerCase().includes('group');
+
+  const getCanvasInfo = (people) => {
+    const n = parseInt(people) || 0;
+    if (n === 0) return null;
+    if (n <= 4) return { count: 1, label: isAr ? '١ كانفاس كبير' : '1 Big Canvas', emoji: '🖼️' };
+    if (n <= 8) return { count: 2, label: isAr ? '٢ كانفاس كبير' : '2 Big Canvases', emoji: '🖼️🖼️' };
+    return { count: 3, label: isAr ? '٣ كانفاسات كبيرة' : '3 Big Canvases', emoji: '🖼️🖼️🖼️' };
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [slug]);
@@ -319,6 +329,17 @@ export default function ExperienceDetail() {
                             ))}
                           </SelectContent>
                         </Select>
+                        {isGroupSplash && form.people && (() => {
+                          const canvas = getCanvasInfo(form.people);
+                          return canvas ? (
+                            <div className="mt-2 flex items-center gap-2 bg-electric-cyan/10 border border-electric-cyan/25 rounded-xl px-3 py-2">
+                              <span className="text-base">{canvas.emoji}</span>
+                              <p className="text-electric-cyan font-heading font-semibold text-xs">
+                                {isAr ? `ستحصلون على ${canvas.label}` : `You'll get ${canvas.label}`}
+                              </p>
+                            </div>
+                          ) : null;
+                        })()}
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-white/50 text-xs font-heading">{tr(lang, 'detail_your_name')}</Label>
