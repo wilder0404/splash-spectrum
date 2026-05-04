@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Clock, Users, Star, CheckCircle, MessageCircle, Shield, Camera } from 'lucide-react';
+import { ArrowLeft, Clock, Users, Star, CheckCircle, MessageCircle, Shield, Camera, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -25,11 +25,17 @@ export default function ExperienceDetail() {
 
   const exp = experiences.length > 0 ? (experiences.find(e => e.slug === slug) || null) : null;
 
-  const [form, setForm] = useState({ date: '', time: '', people: '', name: '', email: '', phone: '' });
+  const [form, setForm] = useState({ date: '', time: '', people: '', name: '', email: '', phone: '', subExperience: '' });
   const [submitted, setSubmitted] = useState(false);
   const [lightbox, setLightbox] = useState(null);
+  const [availability, setAvailability] = useState(null);
+  const [loadingAvailability, setLoadingAvailability] = useState(false);
+  const [bookingError, setBookingError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isGroupSplash = exp && (exp.slug || '') === 'group-friends';
+  const priceTable = exp?.priceTable || [];
+  const hasSubExperiences = priceTable.length > 1;
 
   const getCanvasInfo = (people) => {
     const n = parseInt(people) || 0;
@@ -43,20 +49,79 @@ export default function ExperienceDetail() {
     window.scrollTo(0, 0);
   }, [slug]);
 
+  // Derive active subExperience: if only one option, auto-select it
+  const activeSubExp = hasSubExperiences
+    ? form.subExperience
+    : (priceTable[0] ? (isAr ? priceTable[0].name_ar : priceTable[0].name_en) : '');
+
+  // Fetch availability whenever date or subExperience changes
+  useEffect(() => {
+    if (!exp || !form.date) { setAvailability(null); return; }
+    // Need subExperience resolved before fetching
+    const subExp = hasSubExperiences ? form.subExperience : activeSubExp;
+    if (hasSubExperiences && !subExp) { setAvailability(null); return; }
+
+    setLoadingAvailability(true);
+    setForm(f => ({ ...f, time: '', people: '' }));
+    base44.functions.invoke('getSlotAvailability', {
+      experienceSlug: exp.slug,
+      date: form.date,
+      subExperience: subExp,
+    }).then(res => {
+      setAvailability(res.data);
+    }).catch(() => {
+      setAvailability(null);
+    }).finally(() => {
+      setLoadingAvailability(false);
+    });
+  }, [exp?.slug, form.date, form.subExperience]);
+
+  const getSlotRemaining = (slot) => {
+    if (!availability || availability.maxCapacity === null) return null;
+    const booked = availability.bookedPerSlot?.[slot] || 0;
+    return Math.max(0, availability.maxCapacity - booked);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await base44.entities.Booking.create({
-      experienceSlug: slug,
-      experienceName: isAr ? exp.title_ar : exp.title_en,
-      date: form.date,
-      time: form.time,
-      people: form.people,
-      name: form.name,
-      email: form.email,
-      phone: form.phone,
-      status: 'pending',
-    });
-    setSubmitted(true);
+    setBookingError('');
+    setIsSubmitting(true);
+    try {
+      const res = await base44.functions.invoke('createBookingWithCapacityCheck', {
+        experienceSlug: slug,
+        experienceName: isAr ? exp.title_ar : exp.title_en,
+        subExperience: activeSubExp,
+        date: form.date,
+        time: form.time,
+        people: form.people,
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        userId: '',
+        status: 'confirmed',
+      });
+
+      if (res.data?.error === 'not_enough_seats') {
+        setBookingError(res.data.message);
+        // Refresh availability
+        base44.functions.invoke('getSlotAvailability', {
+          experienceSlug: exp.slug,
+          date: form.date,
+          subExperience: activeSubExp,
+        }).then(r => setAvailability(r.data)).catch(() => {});
+        return;
+      }
+
+      if (!res.data?.booking) {
+        setBookingError('Something went wrong. Please try again.');
+        return;
+      }
+
+      try { await base44.functions.invoke('sendBookingConfirmation', { bookingId: res.data.booking.id }); } catch {}
+      setSubmitted(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleWhatsApp = () => {
@@ -95,7 +160,6 @@ export default function ExperienceDetail() {
   const includes = isAr ? (exp.includes_ar || []) : (exp.includes_en || []);
   const rules = isAr ? (exp.rules_ar || []) : (exp.rules_en || []);
   const vibes = exp.vibes || [];
-  const priceTable = exp.priceTable || [];
   const gallery = exp.gallery || [];
 
   return (
@@ -297,36 +361,85 @@ export default function ExperienceDetail() {
                   <>
                     <h3 className="font-heading font-bold text-white text-xl mb-6">{tr(lang, 'detail_reserve')}</h3>
                     <form onSubmit={handleSubmit} className="space-y-4">
+
+                      {/* Sub-experience picker (only when multiple options) */}
+                      {hasSubExperiences && (
+                        <div className="space-y-1.5">
+                          <Label className="text-white/50 text-xs font-heading">{isAr ? 'اختر النشاط' : 'Choose Activity'}</Label>
+                          <Select required value={form.subExperience} onValueChange={v => setForm({ ...form, subExperience: v, time: '', people: '' })}>
+                            <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl text-sm w-full">
+                              <SelectValue placeholder={isAr ? 'اختر النشاط' : 'Pick an activity'} />
+                            </SelectTrigger>
+                            <SelectContent className="bg-obsidian border-white/10">
+                              {priceTable.map((row, i) => {
+                                const name = isAr ? row.name_ar : row.name_en;
+                                return <SelectItem key={i} value={name} className="text-white focus:bg-white/10">{name}</SelectItem>;
+                              })}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1.5">
                           <Label className="text-white/50 text-xs font-heading">{tr(lang, 'detail_date')}</Label>
-                          <Input type="date" required value={form.date} onChange={e => setForm({ ...form, date: e.target.value })}
+                          <Input type="date" required value={form.date}
+                            onChange={e => setForm({ ...form, date: e.target.value, time: '', people: '' })}
                             className="bg-white/5 border-white/10 text-white h-12 rounded-xl text-sm w-full" />
                         </div>
                         <div className="space-y-1.5">
-                          <Label className="text-white/50 text-xs font-heading">{tr(lang, 'detail_time')}</Label>
-                          <Select required onValueChange={v => setForm({ ...form, time: v })}>
+                          <Label className="text-white/50 text-xs font-heading flex items-center gap-1">
+                            {tr(lang, 'detail_time')}
+                            {loadingAvailability && <span className="text-white/30 text-xs">{isAr ? '...' : '...'}</span>}
+                          </Label>
+                          <Select required value={form.time} onValueChange={v => { setForm({ ...form, time: v, people: '' }); setBookingError(''); }}>
                             <SelectTrigger className="bg-white/5 border-white/10 text-white h-12 rounded-xl text-sm w-full">
                               <SelectValue placeholder={tr(lang, 'detail_pick_time')} />
                             </SelectTrigger>
                             <SelectContent className="bg-obsidian border-white/10">
-                              {timeSlots.map(t => (
-                                <SelectItem key={t} value={t} className="text-white focus:bg-white/10">{t}</SelectItem>
-                              ))}
+                              {timeSlots.map(t => {
+                                const remaining = getSlotRemaining(t);
+                                const isFull = remaining !== null && remaining === 0;
+                                return (
+                                  <SelectItem key={t} value={t} disabled={isFull} className="text-white focus:bg-white/10">
+                                    <span className="flex items-center justify-between w-full gap-3">
+                                      <span>{t}</span>
+                                      {remaining !== null && (
+                                        isFull
+                                          ? <span className="text-xs text-red-400 font-heading">{isAr ? 'محجوز' : 'Full'}</span>
+                                          : <span className="text-xs text-neon-green/80 font-heading">{remaining} {isAr ? 'مقعد' : 'left'}</span>
+                                      )}
+                                    </span>
+                                  </SelectItem>
+                                );
+                              })}
                             </SelectContent>
                           </Select>
                         </div>
                       </div>
+
                       <div className="space-y-1.5">
                         <Label className="text-white/50 text-xs font-heading">{tr(lang, 'detail_num_people')}</Label>
-                        <Select required onValueChange={v => setForm({ ...form, people: v })}>
+                        <Select required value={form.people} onValueChange={v => { setForm({ ...form, people: v }); setBookingError(''); }}>
                           <SelectTrigger className="bg-white/5 border-white/10 text-white h-11 rounded-xl text-sm">
                             <SelectValue placeholder={tr(lang, 'booking_how_many')} />
                           </SelectTrigger>
                           <SelectContent className="bg-obsidian border-white/10">
-                            {[1,2,3,4,5,6,7,8,9,10,'10+'].map(n => (
-                              <SelectItem key={n} value={String(n)} className="text-white focus:bg-white/10">{n}</SelectItem>
-                            ))}
+                            {(() => {
+                              const remaining = form.time ? getSlotRemaining(form.time) : null;
+                              const max = remaining !== null ? Math.min(remaining, 10) : 10;
+                              if (max <= 0) return (
+                                <SelectItem value="none" disabled className="text-red-400">
+                                  {isAr ? 'لا توجد مقاعد' : 'No seats available'}
+                                </SelectItem>
+                              );
+                              return Array.from({ length: max }, (_, i) => i + 1).map(n => (
+                                <SelectItem key={n} value={String(n)} className="text-white focus:bg-white/10">{n}</SelectItem>
+                              ));
+                            })()}
+                            {form.time && getSlotRemaining(form.time) === null && (
+                              <SelectItem value="10+" className="text-white focus:bg-white/10">10+</SelectItem>
+                            )}
                           </SelectContent>
                         </Select>
                         {isGroupSplash && form.people && (() => {
@@ -343,6 +456,15 @@ export default function ExperienceDetail() {
                           ) : null;
                         })()}
                       </div>
+
+                      {/* Booking error */}
+                      {bookingError && (
+                        <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+                          <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                          <p className="text-red-400 text-sm font-body">{bookingError}</p>
+                        </div>
+                      )}
+
                       <div className="space-y-1.5">
                         <Label className="text-white/50 text-xs font-heading">{tr(lang, 'detail_your_name')}</Label>
                         <Input required placeholder={tr(lang, 'booking_fullname')} value={form.name}
@@ -363,10 +485,10 @@ export default function ExperienceDetail() {
                             className="bg-white/5 border-white/10 text-white h-12 rounded-xl text-sm placeholder:text-white/20 w-full" />
                         </div>
                       </div>
-                      <button type="submit"
-                        className="w-full h-13 py-3.5 text-white font-heading font-bold rounded-xl text-base transition-all hover:scale-[1.02] hover:brightness-110"
+                      <button type="submit" disabled={isSubmitting}
+                        className="w-full h-13 py-3.5 text-white font-heading font-bold rounded-xl text-base transition-all hover:scale-[1.02] hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed"
                         style={{ backgroundColor: exp.color, boxShadow: `0 8px 30px ${exp.color}40` }}>
-                        {tr(lang, 'detail_book_btn')}
+                        {isSubmitting ? (isAr ? 'جارٍ الحجز...' : 'Booking...') : tr(lang, 'detail_book_btn')}
                       </button>
                       <p className="text-center text-white/20 text-xs font-body">{tr(lang, 'detail_cancel')}</p>
                     </form>
