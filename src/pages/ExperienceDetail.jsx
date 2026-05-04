@@ -29,14 +29,14 @@ export default function ExperienceDetail() {
   const [submitted, setSubmitted] = useState(false);
   const [lightbox, setLightbox] = useState(null);
 
-  const isGroupSplash = exp && (exp.slug || '').toLowerCase().includes('group');
+  const isGroupSplash = exp && (exp.slug || '') === 'group-friends';
 
   const getCanvasInfo = (people) => {
     const n = parseInt(people) || 0;
     if (n === 0) return null;
-    if (n <= 4) return { count: 1, label: isAr ? '١ كانفاس كبير' : '1 Big Canvas', emoji: '🖼️' };
-    if (n <= 8) return { count: 2, label: isAr ? '٢ كانفاس كبير' : '2 Big Canvases', emoji: '🖼️🖼️' };
-    return { count: 3, label: isAr ? '٣ كانفاسات كبيرة' : '3 Big Canvases', emoji: '🖼️🖼️🖼️' };
+    if (n <= 4) return { label: isAr ? '١ كانفاس كبير' : '1 Big Canvas', emoji: '🖼️' };
+    if (n <= 8) return { label: isAr ? '٢ كانفاس كبير' : '2 Big Canvases', emoji: '🖼️🖼️' };
+    return { label: isAr ? '٣ كانفاسات كبيرة' : '3 Big Canvases', emoji: '🖼️🖼️🖼️' };
   };
 
   useEffect(() => {
@@ -335,7 +335,9 @@ export default function ExperienceDetail() {
                             <div className="mt-2 flex items-center gap-2 bg-electric-cyan/10 border border-electric-cyan/25 rounded-xl px-3 py-2">
                               <span className="text-base">{canvas.emoji}</span>
                               <p className="text-electric-cyan font-heading font-semibold text-xs">
-                                {isAr ? `ستحصلون على ${canvas.label}` : `You'll get ${canvas.label}`}
+                                {isAr
+                                  ? `لـ ${form.people} أشخاص — ستحصلون على ${canvas.label}`
+                                  : `For ${form.people} people — you'll get ${canvas.label}`}
                               </p>
                             </div>
                           ) : null;

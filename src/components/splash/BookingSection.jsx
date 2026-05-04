@@ -72,7 +72,7 @@ export default function BookingSection({ preSelectedExperience }) {
   const selectedExpObj = activeExperiences.find(e => (isAr ? e.title_ar : e.title_en) === form.experience);
   const subExps = selectedExpObj?.priceTable || [];
 
-  const isGroupSplash = selectedExpObj && (selectedExpObj.slug || '').toLowerCase().includes('group');
+  const isBigCanvas = form.subExperience && form.subExperience.toLowerCase().includes('big canvas');
 
   const getCanvasInfo = (people) => {
     const n = parseInt(people) || 0;
@@ -374,13 +374,15 @@ export default function BookingSection({ preSelectedExperience }) {
             </div>
 
             {/* Group Splash canvas info */}
-            {isGroupSplash && form.people && (() => {
+            {isBigCanvas && form.people && (() => {
               const canvas = getCanvasInfo(form.people);
               return canvas ? (
                 <div className="flex items-center gap-2 bg-electric-cyan/10 border border-electric-cyan/25 rounded-xl px-4 py-3">
                   <span className="text-lg">{canvas.emoji}</span>
                   <p className="text-electric-cyan font-heading font-semibold text-sm">
-                    {isAr ? `ستحصلون على ${canvas.label}` : `You'll get ${canvas.label}`}
+                    {isAr
+                      ? `لـ ${form.people} أشخاص — ستحصلون على ${canvas.label}`
+                      : `For ${form.people} people — you'll get ${canvas.label}`}
                   </p>
                 </div>
               ) : null;
