@@ -11,7 +11,7 @@ import { tr } from '@/lib/translations.js';
 import { useQuery } from '@tanstack/react-query';
 
 const WHATSAPP_NUMBER = '966554563447';
-const timeSlots = ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'];
+const timeSlots = ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'];
 
 export default function ExperienceDetail() {
   const { lang, isAr } = useLang();

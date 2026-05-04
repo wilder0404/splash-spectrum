@@ -50,7 +50,7 @@ export default function BookingSection({ preSelectedExperience }) {
 
   const timeSlots = settings?.timeSlots?.length
     ? settings.timeSlots
-    : ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'];
+    : ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'];
 
   const activeExperiences = experiences.filter(e => e.isActive !== false);
   const experienceNames = activeExperiences.map(e => isAr ? e.title_ar : e.title_en);
