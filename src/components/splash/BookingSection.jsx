@@ -119,6 +119,13 @@ export default function BookingSection({ preSelectedExperience }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setBookingError('');
+
+    // Validate required fields before submitting
+    if (!form.experience || !form.date || !form.time || !form.people || !form.name || !form.email || !form.phone) {
+      setBookingError(isAr ? 'يرجى تعبئة جميع الحقول المطلوبة' : 'Please fill in all required fields.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
