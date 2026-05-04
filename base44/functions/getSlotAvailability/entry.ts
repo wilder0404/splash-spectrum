@@ -1,24 +1,23 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
-// Capacity per hour based on subExperience name (case-insensitive keyword match)
-function getCapacityForSubExperience(subExperience) {
-  if (!subExperience) return null;
-  const s = subExperience.toLowerCase();
-  if (s.includes('pour')) return 14;
-  if (s.includes('splash')) return 20; // covers "Splash", "Group Splash (Big Canvas)"
-  if (s.includes('spin')) return 6;
-  return null;
-}
+// Returns the activity key and max capacity for a given booking's subExperience/slug
+function getActivityKey(subExperience, experienceSlug) {
+  const sub = (subExperience || '').toLowerCase();
+  const slug = (experienceSlug || '').toLowerCase();
 
-// Also apply capacity based on experienceSlug when no subExperience is set
-function getCapacityForExperience(experienceSlug, subExperience) {
-  if (subExperience) return getCapacityForSubExperience(subExperience);
-  if (!experienceSlug) return null;
-  const s = experienceSlug.toLowerCase();
-  if (s.includes('pour')) return 14;
-  if (s.includes('splash')) return 20;
-  if (s.includes('spin')) return 6;
-  return null;
+  // Specific activity checks on subExperience first (most precise)
+  if (sub.includes('spin')) return { key: 'spin', capacity: 4 };
+  if (sub.includes('phone case') || sub.includes('phone')) return { key: 'phone_case', capacity: 12 };
+  if (sub.includes('pour') || sub.includes('figurine') || sub.includes('bear')) return { key: 'pour', capacity: 14 };
+  if (sub.includes('splash')) return { key: 'splash', capacity: 30 };
+
+  // Fall back to slug
+  if (slug.includes('phone-case') || slug.includes('phone')) return { key: 'phone_case', capacity: 12 };
+  if (slug.includes('spin')) return { key: 'spin', capacity: 4 };
+  if (slug.includes('figurine') || slug.includes('pour')) return { key: 'pour', capacity: 14 };
+  if (slug.includes('splash') || slug.includes('open-paint') || slug.includes('group-friends')) return { key: 'splash', capacity: 30 };
+
+  return { key: null, capacity: null };
 }
 
 Deno.serve(async (req) => {
@@ -30,10 +29,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing date' }, { status: 400 });
     }
 
-    const maxCapacity = getCapacityForExperience(experienceSlug, subExperience);
+    const { key: activityKey, capacity: maxCapacity } = getActivityKey(subExperience, experienceSlug);
 
-    if (maxCapacity === null) {
-      // No capacity constraint
+    if (activityKey === null) {
+      // No capacity constraint for this activity
       return Response.json({ bookedPerSlot: {}, maxCapacity: null });
     }
 
@@ -41,9 +40,8 @@ Deno.serve(async (req) => {
     const allBookings = await base44.asServiceRole.entities.Booking.list('', 500);
     const relevant = allBookings.filter(b => {
       if (b.date !== date || b.status === 'cancelled') return false;
-      // Match by same capacity bucket (subExperience or slug)
-      const cap = getCapacityForExperience(b.experienceSlug, b.subExperience);
-      return cap === maxCapacity;
+      const { key } = getActivityKey(b.subExperience, b.experienceSlug);
+      return key === activityKey;
     });
 
     // Sum people per time slot
