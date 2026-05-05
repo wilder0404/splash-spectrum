@@ -10,14 +10,17 @@ function getActivityKey(subExperience, experienceSlug) {
   if (sub.includes('phone case') || sub.includes('phone')) return { key: 'phone_case', capacity: 12 };
   if (sub.includes('pour') || sub.includes('figurine') || sub.includes('bear')) return { key: 'pour', capacity: 12 };
   if (sub.includes('group splash') || sub.includes('big canvas')) return { key: 'group_splash', capacity: 15 };
-  if (sub.includes('splash')) return { key: 'splash', capacity: 30 };
 
-  // Fall back to slug
+  // Fall back to slug BEFORE generic splash check
   if (slug.includes('phone-case') || slug.includes('phone')) return { key: 'phone_case', capacity: 12 };
   if (slug.includes('spin')) return { key: 'spin', capacity: 4 };
   if (slug.includes('group-splash')) return { key: 'group_splash', capacity: 15 };
-  if (slug.includes('figurine') || slug.includes('pour')) return { key: 'pour', capacity: 12 };
-  if (slug.includes('splash') || slug.includes('open-paint')) return { key: 'splash', capacity: 30 };
+  if (slug.includes('figurine') || slug.includes('pour') || slug.includes('custom-art')) return { key: 'pour', capacity: 12 };
+  if (slug.includes('open-paint') || slug.includes('open_paint')) return { key: 'splash', capacity: 30 };
+
+  // Generic splash check last (so group-splash slug is already handled above)
+  if (sub.includes('splash')) return { key: 'splash', capacity: 30 };
+  if (slug.includes('splash')) return { key: 'splash', capacity: 30 };
 
   return { key: null, capacity: null };
 }
