@@ -13,6 +13,7 @@ import LocationSection from '../components/splash/LocationSection';
 import FloatingBookButton from '../components/splash/FloatingBookButton';
 import Footer from '../components/splash/Footer';
 import ExperienceQuiz from '../components/splash/ExperienceQuiz';
+import PaintSplashIntro from '../components/splash/PaintSplashIntro';
 
 export default function Home() {
   const [quizResult, setQuizResult] = useState(null);
@@ -23,6 +24,7 @@ export default function Home() {
 
   return (
     <div className="bg-obsidian min-h-screen overflow-x-hidden">
+      <PaintSplashIntro />
       <Navbar />
       <HeroSection />
       <PaintDrips />
