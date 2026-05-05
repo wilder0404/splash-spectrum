@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import SplashScreen from '../components/splash/SplashScreen';
 import Navbar from '../components/splash/Navbar';
 import HeroSection from '../components/splash/HeroSection';
 import PaintDrips from '../components/splash/PaintDrips';
@@ -15,6 +16,7 @@ import Footer from '../components/splash/Footer';
 import ExperienceQuiz from '../components/splash/ExperienceQuiz';
 export default function Home() {
   const [quizResult, setQuizResult] = useState(null);
+  const [splashDone, setSplashDone] = useState(false);
 
   const handleQuizBook = (result) => {
     setQuizResult(result);
@@ -22,6 +24,7 @@ export default function Home() {
 
   return (
     <div className="bg-obsidian min-h-screen overflow-x-hidden">
+      {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
       <Navbar />
       <HeroSection />
       <PaintDrips />
