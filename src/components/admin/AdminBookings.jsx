@@ -96,7 +96,16 @@ export default function AdminBookings() {
                   <td className="px-4 py-3 text-white/30">{idx + 1}</td>
                   <td className="px-4 py-3 text-white font-semibold whitespace-nowrap">{booking.experienceName || booking.experienceSlug || '—'}</td>
                   <td className="px-4 py-3 text-white/70 whitespace-nowrap">{booking.subExperience || '—'}</td>
-                  <td className="px-4 py-3 text-white/70 whitespace-nowrap">{booking.date || '—'}</td>
+                  <td className="px-4 py-3 text-white/70 whitespace-nowrap">
+                    {booking.date ? (
+                      <span>
+                        {booking.date}{' '}
+                        <span className="text-white/40 text-xs">
+                          ({new Date(booking.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long' })})
+                        </span>
+                      </span>
+                    ) : '—'}
+                  </td>
                   <td className="px-4 py-3 text-white/70 whitespace-nowrap">{booking.time || '—'}</td>
                   <td className="px-4 py-3 text-white/70 text-center">{booking.people || '—'}</td>
                   <td className="px-4 py-3 text-white whitespace-nowrap">{booking.name || '—'}</td>
