@@ -73,7 +73,7 @@ export default function WhySection() {
               <p className="font-body text-white/45 text-base leading-relaxed mb-6">
                 {isAr
                   ? 'مجتمع حيث الفن ليس للمحترفين فقط — بل للجميع. حيث كل شخص يشعر بالإبداع بداخله ويستطيع أن يعبّر عنه.'
-                  : 'A world where art isn\'t just for the talented — it\'s for everyone. Where every person discovers the artist within.'}
+                  : 'A world where art isn\'t just for the talented it\'s for everyone. Where every person discovers the artist within.'}
               </p>
               <div className="w-12 h-1 rounded-full"
                 style={{ background: '#FF007F', boxShadow: '0 0 12px #FF007F' }} />
