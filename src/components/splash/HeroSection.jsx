@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useRef } from 'react';
+
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { useLang } from '@/lib/LanguageContext';
 import { tr } from '@/lib/translations.js';
 
-const HERO_BG = "https://media.base44.com/images/public/69e5ef89828747441c931879/d591ebed4_generated_ffef7112.png";
+const HERO_VIDEO = "https://media.base44.com/videos/public/69e5ef89828747441c931879/2eb82ceb5_Paint_splatter_splattering_effect_202605052017.mp4";
 const BLOBS = [
   { id: 0, color: '#FF007F', x: 15, y: 35, size: 200, duration: 8, delay: 0,   xAmp: 10, yAmp: 8 },
   { id: 1, color: '#00F3FF', x: 70, y: 40, size: 250, duration: 10, delay: 1.5, xAmp: 8,  yAmp: 10 },
@@ -14,59 +15,30 @@ const BLOBS = [
 export default function HeroSection() {
   const { lang } = useLang();
   const prefersReduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const videoRef = useRef(null);
+
+  const handleVideoEnded = () => {
+    // Freeze on last frame by pausing — currentTime already at end
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+  };
 
   return (
     <section className="relative h-screen w-full overflow-hidden bg-obsidian">
-      {/* Background Image — liquid paint splash animation */}
+      {/* Background Video — plays once then freezes on last frame */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Layer 1: the image itself — scales up like an explosion */}
-        <motion.div
-          className="absolute inset-0 will-change-transform"
-          initial={prefersReduced ? false : { scale: 0.55, opacity: 0 }}
-          animate={prefersReduced ? { scale: 1, opacity: 1 } : { scale: [0.55, 1.08, 0.98, 1.02, 1.0], opacity: [0, 1, 1, 1, 1] }}
-          transition={prefersReduced ? { duration: 0 } : { duration: 1.5, ease: [0.15, 0.85, 0.3, 1], times: [0, 0.38, 0.62, 0.82, 1] }}
-          style={{ transformOrigin: 'center center' }}
-        >
-          <img src={HERO_BG} alt="" className="w-full h-full object-cover opacity-55" loading="eager" />
-        </motion.div>
-
-        {/* Layer 2: radial color burst from center — simulates paint core expanding */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none will-change-transform"
-          initial={{ opacity: 0, scale: 0.3 }}
-          animate={{ opacity: [0, 0.6, 0.3, 0], scale: [0.3, 1.4, 1.1, 1.0] }}
-          transition={{ duration: 1.2, ease: [0.1, 0.7, 0.3, 1], times: [0, 0.35, 0.65, 1] }}
-          style={{
-            background: 'radial-gradient(ellipse 55% 45% at 50% 52%, #FF007F55 0%, #9D00FF44 30%, #00F3FF33 55%, transparent 75%)',
-            transformOrigin: 'center center',
-          }}
+        <video
+          ref={videoRef}
+          src={HERO_VIDEO}
+          className="w-full h-full object-cover opacity-70"
+          autoPlay
+          muted
+          playsInline
+          preload="auto"
+          onEnded={handleVideoEnded}
         />
-
-        {/* Layer 3: horizontal stretch — organic liquid tendril feel */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none will-change-transform"
-          initial={{ opacity: 0, scaleX: 0.2, scaleY: 0.8 }}
-          animate={{ opacity: [0, 0.4, 0.2, 0], scaleX: [0.2, 1.3, 1.0, 1.0], scaleY: [0.8, 1.05, 1.0, 1.0] }}
-          transition={{ duration: 1.1, ease: [0.05, 0.9, 0.3, 1], times: [0, 0.3, 0.7, 1] }}
-          style={{
-            background: 'radial-gradient(ellipse 70% 30% at 50% 52%, #39FF1433 0%, transparent 65%)',
-            transformOrigin: 'center center',
-          }}
-        />
-
-        {/* Layer 4: vertical stretch tendril */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none will-change-transform"
-          initial={{ opacity: 0, scaleX: 0.7, scaleY: 0.15 }}
-          animate={{ opacity: [0, 0.35, 0.15, 0], scaleX: [0.7, 1.05, 1.0, 1.0], scaleY: [0.15, 1.25, 1.0, 1.0] }}
-          transition={{ duration: 1.1, ease: [0.05, 0.9, 0.3, 1], times: [0, 0.32, 0.72, 1], delay: 0.04 }}
-          style={{
-            background: 'radial-gradient(ellipse 30% 70% at 50% 52%, #00F3FF2A 0%, transparent 65%)',
-            transformOrigin: 'center center',
-          }}
-        />
-
-        <div className="absolute inset-0 bg-gradient-to-b from-obsidian/50 via-obsidian/20 to-obsidian" />
+        <div className="absolute inset-0 bg-gradient-to-b from-obsidian/40 via-obsidian/10 to-obsidian" />
       </div>
 
       {/* Ambient Blobs */}
