@@ -31,14 +31,15 @@ export default function HeroSection() {
         <video
           ref={videoRef}
           src={HERO_VIDEO}
-          className="w-full h-full object-cover opacity-70"
+          className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto"
+          style={{ transform: 'translate(-50%, -50%)' }}
           autoPlay
           muted
           playsInline
           preload="auto"
           onEnded={handleVideoEnded}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-obsidian/40 via-obsidian/10 to-obsidian" />
+        <div className="absolute inset-0 bg-gradient-to-b from-obsidian/30 via-transparent to-obsidian" />
       </div>
 
       {/* Ambient Blobs */}
