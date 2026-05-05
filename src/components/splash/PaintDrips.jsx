@@ -21,7 +21,7 @@ export default function PaintDrips() {
             left: `${drip.left}%`,
             width: `${drip.width}px`,
             animation: `paintDrip ${drip.duration}s ease-in ${drip.delay}s infinite`,
-            opacity: 0.28,
+            opacity: 0.55,
           }}
         >
           {/* Thick paint body */}
@@ -65,8 +65,8 @@ export default function PaintDrips() {
       <style>{`
         @keyframes paintDrip {
           0%   { height: 0px;   opacity: 0; }
-          8%   { opacity: 0.22; }
-          75%  { height: 110px; opacity: 0.22; }
+          8%   { opacity: 0.50; }
+          75%  { height: 110px; opacity: 0.50; }
           100% { height: 120px; opacity: 0; }
         }
       `}</style>

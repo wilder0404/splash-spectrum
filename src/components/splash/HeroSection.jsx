@@ -16,9 +16,17 @@ export default function HeroSection() {
 
   return (
     <section className="relative h-screen w-full overflow-hidden bg-obsidian">
-      {/* Background Image */}
-      <div className="absolute inset-0">
-        <img src={HERO_BG} alt="" className="w-full h-full object-cover opacity-50" loading="eager" />
+      {/* Background Image — paint splash animation */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.img
+          src={HERO_BG}
+          alt=""
+          className="w-full h-full object-cover"
+          loading="eager"
+          initial={{ scale: 0, opacity: 0, rotate: -8 }}
+          animate={{ scale: [0, 1.18, 0.97, 1.05, 1], opacity: [0, 0.85, 0.7, 0.65, 0.55], rotate: [-8, 4, -2, 1, 0] }}
+          transition={{ duration: 1.2, ease: [0.2, 0.8, 0.3, 1], times: [0, 0.4, 0.65, 0.82, 1] }}
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-obsidian/50 via-obsidian/20 to-obsidian" />
       </div>
 
