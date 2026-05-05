@@ -99,25 +99,54 @@ export default function SplashScreen({ onDone }) {
               }
               transition={{ duration: 1.0, delay: 0.3, ease: [0.2, 0.9, 0.3, 1] }}
             >
-              {/* Subtle glow ring behind logo */}
+              {/* Outer expanding glow ring */}
               <motion.div
-                className="absolute inset-0 rounded-full"
-                style={{ margin: '-12px' }}
+                className="absolute rounded-full pointer-events-none"
+                style={{ inset: '-20px' }}
                 animate={phase === 'show' ? {
                   boxShadow: [
                     '0 0 0 0px rgba(255,0,127,0)',
-                    '0 0 0 8px rgba(255,0,127,0.15), 0 0 60px rgba(255,0,127,0.1)',
-                    '0 0 0 4px rgba(157,0,255,0.12), 0 0 40px rgba(157,0,255,0.08)',
-                    '0 0 0 6px rgba(255,0,127,0.15), 0 0 60px rgba(255,0,127,0.1)',
+                    '0 0 0 6px rgba(255,0,127,0.25), 0 0 80px rgba(255,0,127,0.2)',
+                    '0 0 0 2px rgba(157,0,255,0.2), 0 0 60px rgba(157,0,255,0.15)',
+                    '0 0 0 5px rgba(0,243,255,0.2), 0 0 80px rgba(0,243,255,0.12)',
+                    '0 0 0 6px rgba(255,0,127,0.25), 0 0 80px rgba(255,0,127,0.2)',
                   ]
                 } : {}}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              {/* Inner tight pulse ring */}
+              <motion.div
+                className="absolute inset-0 rounded-full pointer-events-none"
+                animate={phase === 'show' ? {
+                  boxShadow: [
+                    '0 0 20px rgba(255,0,127,0.4), 0 0 40px rgba(255,0,127,0.15)',
+                    '0 0 40px rgba(157,0,255,0.6), 0 0 80px rgba(157,0,255,0.25)',
+                    '0 0 30px rgba(0,243,255,0.5), 0 0 60px rgba(0,243,255,0.2)',
+                    '0 0 20px rgba(255,0,127,0.4), 0 0 40px rgba(255,0,127,0.15)',
+                  ]
+                } : {}}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              {/* Radial bloom behind logo */}
+              <motion.div
+                className="absolute rounded-full pointer-events-none"
+                style={{ inset: '-40px', filter: 'blur(30px)' }}
+                animate={phase === 'show' ? {
+                  background: [
+                    'radial-gradient(circle, rgba(255,0,127,0.3) 0%, transparent 70%)',
+                    'radial-gradient(circle, rgba(157,0,255,0.35) 0%, transparent 70%)',
+                    'radial-gradient(circle, rgba(0,243,255,0.25) 0%, transparent 70%)',
+                    'radial-gradient(circle, rgba(255,0,127,0.3) 0%, transparent 70%)',
+                  ],
+                  scale: [1, 1.3, 1.1, 1],
+                } : { scale: 0, opacity: 0 }}
                 transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
               />
               <img
                 src={LOGO_URL}
                 alt="Splash Spectrum"
                 className="w-20 h-20 md:w-24 md:h-24 rounded-full relative z-10"
-                style={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.08)' }}
+                style={{ boxShadow: '0 0 0 1.5px rgba(255,255,255,0.12)' }}
               />
             </motion.div>
 
