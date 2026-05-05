@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import SplashScreen from '../components/splash/SplashScreen';
 import Navbar from '../components/splash/Navbar';
 import HeroSection from '../components/splash/HeroSection';
-import PaintDrips from '../components/splash/PaintDrips';
 import ExperiencesSection from '../components/splash/ExperiencesSection';
 import VibeSelector from '../components/splash/VibeSelector';
 import PaintStatsSection from '../components/splash/PaintStatsSection';
@@ -27,7 +26,6 @@ export default function Home() {
       {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
       <Navbar />
       <HeroSection />
-      <PaintDrips />
       <ExperiencesSection />
       <ExperienceQuiz onBookWithExperience={handleQuizBook} />
       <VibeSelector />
