@@ -72,6 +72,10 @@ export default function BookingSection({ preSelectedExperience }) {
   const selectedExpObj = activeExperiences.find(e => (isAr ? e.title_ar : e.title_en) === form.experience);
   const subExps = selectedExpObj?.priceTable || [];
 
+  // Birthday pack only available for these experiences
+  const BIRTHDAY_ALLOWED_SLUGS = ['group-friends', 'open-paint-sessions', 'splash-phone-case'];
+  const showBirthdayPack = selectedExpObj && BIRTHDAY_ALLOWED_SLUGS.includes(selectedExpObj.slug);
+
   const isBigCanvas = form.subExperience && form.subExperience.toLowerCase().includes('big canvas');
 
   const getCanvasInfo = (people) => {
@@ -389,7 +393,7 @@ export default function BookingSection({ preSelectedExperience }) {
             })()}
 
             {/* Birthday Pack Add-on */}
-            {form.people && (
+            {form.people && showBirthdayPack && (
               <div
                 onClick={() => { setBirthdayPack(v => !v); setForm(f => ({ ...f, people: '' })); }}
                 className={`flex items-center gap-3 cursor-pointer rounded-2xl border p-4 transition-all ${
