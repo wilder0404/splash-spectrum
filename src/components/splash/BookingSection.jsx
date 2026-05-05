@@ -73,7 +73,7 @@ export default function BookingSection({ preSelectedExperience }) {
   const subExps = selectedExpObj?.priceTable || [];
 
   // Birthday pack only available for these experiences
-  const BIRTHDAY_ALLOWED_SLUGS = ['group-friends', 'open-paint-sessions', 'splash-phone-case'];
+  const BIRTHDAY_ALLOWED_SLUGS = ['Open-Paint-sessions', 'splash-phone-case', 'group-splash'];
   const showBirthdayPack = selectedExpObj && BIRTHDAY_ALLOWED_SLUGS.includes(selectedExpObj.slug);
 
   const isBigCanvas = form.subExperience && form.subExperience.toLowerCase().includes('big canvas');
