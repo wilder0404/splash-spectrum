@@ -13,9 +13,7 @@ const TikTokIcon = () => (
 );
 
 const SnapchatIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5.5 10.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5zM5 12c0-.83.67-1.5 1.5-1.5S8 11.17 8 12s-.67 1.5-1.5 1.5S5 12.83 5 11zm5.5 6c-1.1 0-2-.9-2-2h-1c0 1.66 1.34 3 3 3s3-1.34 3-3h-1c0 1.1-.9 2-2 2zm3-5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
-  </svg>
+  <img src="https://media.base44.com/images/public/69e5ef89828747441c931879/60fad0f39_image.png" alt="Snapchat" className="w-5 h-5" style={{ filter: 'invert(1) brightness(1.2)', objectFit: 'contain', padding: '2px' }} />
 );
 
 const SOCIAL_COLORS = {
