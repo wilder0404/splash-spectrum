@@ -88,12 +88,27 @@ export default function LocationSection() {
               </div>
             </div>
 
-            <a href="https://maps.app.goo.gl/k831NSf6TbGm4Ui46?g_st=ic" target="_blank" rel="noopener noreferrer"
-              className="rounded-2xl overflow-hidden border border-white/5 h-[250px] bg-white/[0.02] flex flex-col items-center justify-center gap-3 hover:border-neon-pink/30 transition-all group cursor-pointer">
-              <MapPin className="w-10 h-10 text-neon-pink group-hover:scale-110 transition-transform" />
-              <p className="font-heading font-bold text-white text-sm">{lang === 'ar' ? 'افتح في خرائط Google' : 'Open in Google Maps'}</p>
-              <p className="text-white/40 text-xs font-body">{lang === 'ar' ? 'انقر لعرض الموقع' : 'Click to view location'}</p>
-            </a>
+            <div className="rounded-2xl overflow-hidden border border-white/10 h-[250px] relative">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3625.4!2d46.6753!3d24.7136!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjTCsDQyJzQ5LjAiTiA0NsKwNDAnMzEuMSJF!5e0!3m2!1sen!2ssa!4v1620000000000!5m2!1sen!2ssa&q=Splash+Spectrum+Riyadh"
+                width="100%"
+                height="100%"
+                style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg)' }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Splash Spectrum Location"
+              />
+              <a
+                href="https://maps.app.goo.gl/k831NSf6TbGm4Ui46?g_st=ic"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute bottom-3 right-3 flex items-center gap-2 bg-obsidian/90 border border-neon-pink/40 text-neon-pink rounded-xl px-3 py-2 text-xs font-heading font-semibold hover:bg-neon-pink/10 transition-colors"
+              >
+                <MapPin className="w-3.5 h-3.5" />
+                {lang === 'ar' ? 'افتح في خرائط Google' : 'Open in Google Maps'}
+              </a>
+            </div>
           </motion.div>
 
           <motion.div
