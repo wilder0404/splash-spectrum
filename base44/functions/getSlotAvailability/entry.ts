@@ -8,14 +8,16 @@ function getActivityKey(subExperience, experienceSlug) {
   // Specific activity checks on subExperience first (most precise)
   if (sub.includes('spin')) return { key: 'spin', capacity: 4 };
   if (sub.includes('phone case') || sub.includes('phone')) return { key: 'phone_case', capacity: 12 };
-  if (sub.includes('pour') || sub.includes('figurine') || sub.includes('bear')) return { key: 'pour', capacity: 14 };
+  if (sub.includes('pour') || sub.includes('figurine') || sub.includes('bear')) return { key: 'pour', capacity: 12 };
+  if (sub.includes('group splash') || sub.includes('big canvas')) return { key: 'group_splash', capacity: 15 };
   if (sub.includes('splash')) return { key: 'splash', capacity: 30 };
 
   // Fall back to slug
   if (slug.includes('phone-case') || slug.includes('phone')) return { key: 'phone_case', capacity: 12 };
   if (slug.includes('spin')) return { key: 'spin', capacity: 4 };
-  if (slug.includes('figurine') || slug.includes('pour')) return { key: 'pour', capacity: 14 };
-  if (slug.includes('splash') || slug.includes('open-paint') || slug.includes('group-friends')) return { key: 'splash', capacity: 30 };
+  if (slug.includes('group-splash')) return { key: 'group_splash', capacity: 15 };
+  if (slug.includes('figurine') || slug.includes('pour')) return { key: 'pour', capacity: 12 };
+  if (slug.includes('splash') || slug.includes('open-paint')) return { key: 'splash', capacity: 30 };
 
   return { key: null, capacity: null };
 }
