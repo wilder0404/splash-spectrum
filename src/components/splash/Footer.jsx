@@ -13,7 +13,7 @@ const TikTokIcon = () => (
 );
 
 const SnapchatIcon = () => (
-  <img src="https://media.base44.com/images/public/69e5ef89828747441c931879/16fe4f09f_image.png" alt="Snapchat" className="w-5 h-5 invert brightness-110" style={{ filter: 'invert(1) brightness(1.1)' }} />
+  <img src="https://media.base44.com/images/public/69e5ef89828747441c931879/16fe4f09f_image.png" alt="Snapchat" className="w-5 h-5" style={{ filter: 'invert(1) brightness(1.1)', objectFit: 'contain', padding: '1px' }} />
 );
 
 const SOCIAL_COLORS = {
