@@ -2,42 +2,30 @@ import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const LOGO_URL = "https://media.base44.com/images/public/user_69d7790ceb26c9be09c03a17/0677e9ccc_image.png";
-const DRIP_VIDEO = "https://media.base44.com/videos/public/69e5ef89828747441c931879/d846e180a_WhatsAppVideo1447-11-18at204637.mp4";
 
-const RINGS = [
-  { color: '#FF007F', delay: 0.2,  size: 140 },
-  { color: '#9D00FF', delay: 0.5,  size: 140 },
-  { color: '#00F3FF', delay: 0.8,  size: 140 },
-  { color: '#39FF14', delay: 1.1,  size: 140 },
+// Ink bloom colors that expand and fade — cinematic feel
+const BLOOMS = [
+  { color: '#FF007F', x: 30, y: 60, size: 500, delay: 0,   duration: 4 },
+  { color: '#9D00FF', x: 70, y: 40, size: 600, delay: 0.4, duration: 5 },
+  { color: '#00F3FF', x: 50, y: 80, size: 400, delay: 0.8, duration: 4.5 },
 ];
 
-const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
-  id: i,
-  color: ['#FF007F', '#9D00FF', '#00F3FF', '#39FF14'][i % 4],
-  x: Math.random() * 100,
-  y: Math.random() * 100,
-  size: 4 + Math.random() * 8,
-  delay: Math.random() * 2,
-  duration: 2 + Math.random() * 2,
-}));
-
 export default function SplashScreen({ onDone }) {
-  const [phase, setPhase] = useState('logo'); // 'logo' | 'reveal' | 'exit'
+  const [phase, setPhase] = useState('start'); // start → show → exit
   const [visible, setVisible] = useState(true);
-  const videoRef = useRef(null);
   const dismissed = useRef(false);
 
   const dismiss = () => {
     if (dismissed.current) return;
     dismissed.current = true;
     setPhase('exit');
-    setTimeout(() => { setVisible(false); onDone?.(); }, 800);
+    setTimeout(() => { setVisible(false); onDone?.(); }, 900);
   };
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase('reveal'), 800);
-    const t2 = setTimeout(() => setPhase('exit'), 4500);
-    const t3 = setTimeout(() => { setVisible(false); onDone?.(); }, 5300);
+    const t1 = setTimeout(() => setPhase('show'), 300);
+    const t2 = setTimeout(() => setPhase('exit'), 4600);
+    const t3 = setTimeout(() => { setVisible(false); onDone?.(); }, 5500);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
 
@@ -48,184 +36,166 @@ export default function SplashScreen({ onDone }) {
           key="splash"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.8, ease: 'easeInOut' }}
+          transition={{ duration: 0.9, ease: 'easeInOut' }}
           onClick={dismiss}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-obsidian overflow-hidden cursor-pointer"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#030303] overflow-hidden cursor-pointer select-none"
         >
-          {/* === DRIP VIDEO — top-aligned, covers width === */}
-          <div className="absolute inset-x-0 top-0 pointer-events-none overflow-hidden" style={{ height: '60%' }}>
-            <motion.video
-              ref={videoRef}
-              src={DRIP_VIDEO}
-              autoPlay
-              muted
-              playsInline
-              preload="auto"
-              className="w-full h-full object-cover object-top"
-              style={{ mixBlendMode: 'screen' }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: phase === 'exit' ? 0 : 1 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-            />
-            {/* Fade out at the bottom so drip blends into obsidian */}
-            <div
-              className="absolute bottom-0 left-0 right-0 h-2/3 pointer-events-none"
-              style={{ background: 'linear-gradient(to bottom, transparent 0%, #050505 100%)' }}
-            />
-          </div>
 
-          {/* === ANIMATED PARTICLES floating around === */}
-          {phase !== 'logo' && PARTICLES.map((p) => (
-            <motion.div
-              key={p.id}
-              className="absolute rounded-full pointer-events-none"
-              style={{
-                left: `${p.x}%`,
-                top: `${p.y}%`,
-                width: p.size,
-                height: p.size,
-                background: p.color,
-                boxShadow: `0 0 ${p.size * 2}px ${p.color}`,
-              }}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{
-                opacity: [0, 0.8, 0.4, 0.8, 0],
-                scale: [0, 1, 0.8, 1.2, 0],
-                y: [0, -20, -10, -30, -50],
-              }}
-              transition={{
-                duration: p.duration,
-                delay: p.delay,
-                repeat: Infinity,
-                repeatDelay: 1,
-                ease: 'easeOut',
-              }}
-            />
-          ))}
-
-          {/* === NEON RING BURSTS === */}
-          {RINGS.map((ring, i) => (
+          {/* === INK BLOOMS — slow, elegant, barely visible === */}
+          {BLOOMS.map((bloom, i) => (
             <motion.div
               key={i}
-              className="absolute rounded-full border-2 pointer-events-none"
-              style={{ borderColor: ring.color, width: ring.size, height: ring.size }}
-              initial={{ scale: 0.4, opacity: 0.9 }}
-              animate={{ scale: [0.4, 10 + i * 3], opacity: [0.9, 0] }}
-              transition={{ duration: 2.2, delay: ring.delay, ease: [0.1, 0.6, 0.3, 1] }}
+              className="absolute rounded-full pointer-events-none"
+              style={{
+                left: `${bloom.x}%`,
+                top: `${bloom.y}%`,
+                transform: 'translate(-50%, -50%)',
+                width: bloom.size,
+                height: bloom.size,
+                background: `radial-gradient(circle, ${bloom.color}18 0%, ${bloom.color}08 40%, transparent 70%)`,
+                filter: 'blur(60px)',
+              }}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={phase === 'exit'
+                ? { scale: 0.5, opacity: 0 }
+                : { scale: [0, 1.2, 1.0], opacity: [0, 1, 0.85] }
+              }
+              transition={{ duration: bloom.duration, delay: bloom.delay, ease: [0.0, 0.6, 0.4, 1] }}
             />
           ))}
 
-          {/* === CENTER GLOW PULSE === */}
+          {/* === THIN HORIZONTAL LINE that sweeps across — elegant reveal === */}
           <motion.div
-            className="absolute rounded-full pointer-events-none"
+            className="absolute pointer-events-none"
             style={{
-              width: 300,
-              height: 300,
-              background: 'radial-gradient(circle, #FF007F44 0%, #9D00FF22 50%, transparent 70%)',
-              filter: 'blur(40px)',
+              top: '50%',
+              left: 0,
+              height: 1,
+              background: 'linear-gradient(90deg, transparent 0%, #FF007F 30%, #9D00FF 60%, #00F3FF 80%, transparent 100%)',
+              opacity: 0.4,
             }}
-            animate={phase === 'exit'
-              ? { scale: 0, opacity: 0 }
-              : { scale: [0.8, 1.3, 0.9, 1.2, 1.0], opacity: [0.4, 0.9, 0.5, 0.8, 0.6] }
+            initial={{ width: 0, x: '-100%' }}
+            animate={phase === 'start'
+              ? { width: 0 }
+              : phase === 'exit'
+                ? { width: '100%', opacity: 0 }
+                : { width: '100%' }
             }
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            transition={{ duration: 1.2, delay: 0.2, ease: [0.4, 0, 0.2, 1] }}
           />
 
-          {/* === LOGO + BRAND === */}
-          <motion.div
-            className="relative flex flex-col items-center gap-6 z-10"
-            initial={{ scale: 0.3, opacity: 0, y: 30 }}
-            animate={phase === 'exit'
-              ? { scale: 1.1, opacity: 0, y: -30 }
-              : { scale: [0.3, 1.08, 0.97, 1.0], opacity: 1, y: 0 }
-            }
-            transition={{ duration: 1.0, ease: [0.2, 0.9, 0.4, 1] }}
-          >
-            {/* Logo with pulsing neon ring */}
-            <div className="relative">
-              <motion.div
-                className="absolute -inset-3 rounded-full"
-                style={{ background: 'radial-gradient(circle, #FF007F44 0%, transparent 70%)' }}
-                animate={{ scale: [1, 1.4, 1], opacity: [0.6, 1, 0.6] }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-              />
+          {/* === MAIN CONTENT === */}
+          <div className="relative z-10 flex flex-col items-center">
+
+            {/* Logo — fades and scales in */}
+            <motion.div
+              className="relative mb-8"
+              initial={{ opacity: 0, scale: 0.7, filter: 'blur(12px)' }}
+              animate={phase === 'start'
+                ? { opacity: 0, scale: 0.7, filter: 'blur(12px)' }
+                : phase === 'exit'
+                  ? { opacity: 0, scale: 1.1, filter: 'blur(8px)' }
+                  : { opacity: 1, scale: 1, filter: 'blur(0px)' }
+              }
+              transition={{ duration: 1.0, delay: 0.3, ease: [0.2, 0.9, 0.3, 1] }}
+            >
+              {/* Subtle glow ring behind logo */}
               <motion.div
                 className="absolute inset-0 rounded-full"
-                animate={{ boxShadow: [
-                  '0 0 0 3px #FF007F, 0 0 50px #FF007F99, 0 0 100px #9D00FF44',
-                  '0 0 0 3px #9D00FF, 0 0 50px #9D00FF99, 0 0 100px #00F3FF44',
-                  '0 0 0 3px #00F3FF, 0 0 50px #00F3FF99, 0 0 100px #39FF1444',
-                  '0 0 0 3px #FF007F, 0 0 50px #FF007F99, 0 0 100px #9D00FF44',
-                ]}}
-                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                style={{ margin: '-12px' }}
+                animate={phase === 'show' ? {
+                  boxShadow: [
+                    '0 0 0 0px rgba(255,0,127,0)',
+                    '0 0 0 8px rgba(255,0,127,0.15), 0 0 60px rgba(255,0,127,0.1)',
+                    '0 0 0 4px rgba(157,0,255,0.12), 0 0 40px rgba(157,0,255,0.08)',
+                    '0 0 0 6px rgba(255,0,127,0.15), 0 0 60px rgba(255,0,127,0.1)',
+                  ]
+                } : {}}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
               />
-              <motion.img
+              <img
                 src={LOGO_URL}
                 alt="Splash Spectrum"
-                className="w-28 h-28 rounded-full relative z-10"
-                animate={{ rotate: [0, -3, 3, -2, 2, 0] }}
-                transition={{ duration: 3, repeat: Infinity, repeatDelay: 2, ease: 'easeInOut' }}
+                className="w-20 h-20 md:w-24 md:h-24 rounded-full relative z-10"
+                style={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.08)' }}
               />
-            </div>
+            </motion.div>
 
-            {/* Brand name with letter-by-letter reveal */}
+            {/* Brand name */}
             <motion.div
-              className="text-center"
-              initial={{ opacity: 0, y: 15 }}
-              animate={phase === 'logo' ? { opacity: 0, y: 15 } : { opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
+              className="text-center overflow-hidden"
+              initial={{ opacity: 0, y: 24 }}
+              animate={phase === 'start'
+                ? { opacity: 0, y: 24 }
+                : phase === 'exit'
+                  ? { opacity: 0, y: -16 }
+                  : { opacity: 1, y: 0 }
+              }
+              transition={{ duration: 0.9, delay: 0.6, ease: [0.2, 0.9, 0.3, 1] }}
             >
-              <motion.p
-                className="font-heading font-black text-3xl text-white tracking-[0.2em]"
-                animate={{ textShadow: [
-                  '0 0 0px transparent',
-                  '0 0 30px rgba(255,255,255,0.3)',
-                  '0 0 0px transparent',
-                ]}}
-                transition={{ duration: 2, repeat: Infinity, delay: 1.5 }}
-              >
+              <h1 className="font-heading font-black text-4xl md:text-5xl text-white tracking-[0.12em] mb-1">
                 SPLASH{' '}
-                <motion.span
+                <span
                   className="text-neon-pink"
-                  animate={{ textShadow: [
-                    '0 0 20px #FF007F',
-                    '0 0 40px #FF007F, 0 0 60px #9D00FF44',
-                    '0 0 20px #FF007F',
-                  ]}}
-                  transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                  style={{ textShadow: '0 0 30px rgba(255,0,127,0.5)' }}
                 >
                   SPECTRUM
-                </motion.span>
-              </motion.p>
+                </span>
+              </h1>
+
+              {/* Tagline — slightly delayed */}
               <motion.p
-                className="font-body text-white/50 text-xs tracking-[0.4em] mt-2 uppercase"
-                initial={{ opacity: 0, letterSpacing: '0.1em' }}
-                animate={phase === 'logo' ? { opacity: 0 } : { opacity: 1, letterSpacing: '0.4em' }}
-                transition={{ duration: 1, delay: 0.3 }}
+                className="font-body text-white/40 text-sm tracking-[0.35em] uppercase mt-2"
+                initial={{ opacity: 0 }}
+                animate={phase === 'show' ? { opacity: 1 } : { opacity: 0 }}
+                transition={{ duration: 0.8, delay: 1.1 }}
               >
                 Where color comes alive
               </motion.p>
 
-              {/* Neon underline that draws in */}
+              {/* Ultra-thin neon line under text */}
               <motion.div
-                className="mt-3 mx-auto rounded-full"
-                style={{ height: 2, background: 'linear-gradient(90deg, #FF007F, #9D00FF, #00F3FF)' }}
-                initial={{ width: 0, opacity: 0 }}
-                animate={phase === 'logo' ? { width: 0, opacity: 0 } : { width: '100%', opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
+                className="mx-auto mt-4 rounded-full"
+                style={{
+                  height: 1.5,
+                  background: 'linear-gradient(90deg, transparent, #FF007F, #9D00FF, #00F3FF, transparent)',
+                  opacity: 0.6,
+                }}
+                initial={{ width: 0 }}
+                animate={phase === 'show' ? { width: '70%' } : { width: 0 }}
+                transition={{ duration: 1.0, delay: 1.3, ease: [0.4, 0, 0.2, 1] }}
               />
             </motion.div>
-          </motion.div>
 
-          {/* === TAP HINT === */}
+            {/* Three dots — loading/breathing indicator */}
+            <motion.div
+              className="flex items-center gap-2 mt-10"
+              initial={{ opacity: 0 }}
+              animate={phase === 'show' ? { opacity: 1 } : { opacity: 0 }}
+              transition={{ duration: 0.5, delay: 1.8 }}
+            >
+              {['#FF007F', '#9D00FF', '#00F3FF'].map((color, i) => (
+                <motion.div
+                  key={i}
+                  className="rounded-full"
+                  style={{ width: 5, height: 5, background: color }}
+                  animate={{ scale: [1, 1.6, 1], opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2, ease: 'easeInOut' }}
+                />
+              ))}
+            </motion.div>
+          </div>
+
+          {/* === TAP HINT — bottom, very subtle === */}
           <motion.p
-            className="absolute bottom-10 font-body text-white/30 text-xs tracking-[0.3em] uppercase z-10"
+            className="absolute bottom-8 font-body text-white/20 text-[10px] tracking-[0.4em] uppercase z-10"
             initial={{ opacity: 0 }}
-            animate={phase === 'reveal' ? { opacity: [0, 0.7, 0.3, 0.7, 0.3] } : { opacity: 0 }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+            animate={phase === 'show' ? { opacity: [0, 0.8, 0.3, 0.8, 0.3] } : { opacity: 0 }}
+            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
           >
-            tap anywhere to enter
+            tap to enter
           </motion.p>
+
         </motion.div>
       )}
     </AnimatePresence>
