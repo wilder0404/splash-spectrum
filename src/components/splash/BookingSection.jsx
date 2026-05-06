@@ -420,7 +420,10 @@ export default function BookingSection({ preSelectedExperience }) {
                     {isAr ? 'إضافة باقة عيد الميلاد 🎂' : 'Add Birthday Pack 🎂'}
                   </p>
                   <p className="text-white/40 text-xs font-body">
-                    {isAr ? 'للمجموعات أقل من 20: احجز أونلاين. 20 فأكثر: عبر واتساب' : 'Under 20 people: book online. 20+ people: via WhatsApp'}
+                    {isAr ? 'رسوم الباقة 60 ريال للمجموعة الكاملة (وليس للشخص)' : 'SR60 for the whole group (not per person)'}
+                  </p>
+                  <p className="text-white/30 text-xs font-body mt-0.5">
+                    {isAr ? 'أقل من 20: احجز أونلاين. 20 فأكثر: واتساب' : 'Under 20: book online. 20+: WhatsApp'}
                   </p>
                 </div>
               </div>
