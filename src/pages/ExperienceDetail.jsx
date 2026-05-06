@@ -65,7 +65,7 @@ export default function ExperienceDetail() {
     setForm(f => ({ ...f, time: '', people: '' }));
     base44.functions.invoke('getSlotAvailability', {
       experienceSlug: exp.slug,
-      experienceTitle: exp.title_en,
+      experienceTitle: `${exp.title_en || ''} ${exp.title_ar || ''}`,
       date: form.date,
       subExperience: subExp,
     }).then(res => {
@@ -107,7 +107,7 @@ export default function ExperienceDetail() {
         // Refresh availability
         base44.functions.invoke('getSlotAvailability', {
           experienceSlug: exp.slug,
-          experienceTitle: exp.title_en,
+          experienceTitle: `${exp.title_en || ''} ${exp.title_ar || ''}`,
           date: form.date,
           subExperience: activeSubExp,
         }).then(r => setAvailability(r.data)).catch(() => {});
@@ -264,10 +264,10 @@ export default function ExperienceDetail() {
             {/* Pricing Table */}
             {priceTable.length > 0 && (
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                <h3 className="font-heading font-bold text-white text-xl mb-5 flex items-center gap-2 whitespace-nowrap">
+                <h3 className="font-heading font-bold text-white text-xl mb-5 flex items-center gap-2 flex-wrap">
                   <span style={{ color: exp.color }}>💰</span> 
                   {tr(lang, 'detail_prices')}
-                  {exp.slug === 'school-packages' && (
+                  {(exp.slug === 'school-packages' || exp.slug === 'kids' || exp.slug === 'school' || (exp.slug || '').includes('school') || (exp.slug || '').includes('kids')) && (
                     <span className="text-white/40 text-sm font-normal">{isAr ? '(قابل للنقاش)' : '(open for discussion)'}</span>
                   )}
                 </h3>

@@ -105,7 +105,7 @@ export default function BookingSection({ preSelectedExperience }) {
     setForm(f => ({ ...f, time: '', people: '' }));
     base44.functions.invoke('getSlotAvailability', {
       experienceSlug: selectedExpObj.slug,
-      experienceTitle: selectedExpObj.title_en,
+      experienceTitle: `${selectedExpObj.title_en || ''} ${selectedExpObj.title_ar || ''}`,
       date: form.date,
       subExperience: form.subExperience,
     }).then(res => {
@@ -164,7 +164,7 @@ export default function BookingSection({ preSelectedExperience }) {
     if (selectedExpObj?.slug && form.date) {
       base44.functions.invoke('getSlotAvailability', {
         experienceSlug: selectedExpObj.slug,
-        experienceTitle: selectedExpObj.title_en,
+        experienceTitle: `${selectedExpObj.title_en || ''} ${selectedExpObj.title_ar || ''}`,
         date: form.date,
         subExperience: form.subExperience,
       }).then(r => setAvailability(r.data)).catch(() => {});
@@ -242,7 +242,7 @@ export default function BookingSection({ preSelectedExperience }) {
             </div>
             <p className="text-white/40 text-xs font-body mb-6 max-w-sm mx-auto">
               {isAr 
-                ? 'للإلغاء أو التعديل، يمكنك الاتصال بنا أو مراسلتنا عبر واتساب.'
+                ? 'للإلغاء أو التعديل، يمكنك الاتصال بنا أو مراسلتنا عبر وات��اب.'
                 : 'To cancel or make changes, you can call us or WhatsApp us.'}
             </p>
             <button onClick={() => setSubmitted(false)} className="text-white/30 hover:text-white/60 text-sm font-body transition-colors">

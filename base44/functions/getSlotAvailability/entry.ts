@@ -1,46 +1,44 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 // Returns the activity key and max capacity for a given booking's subExperience/slug
-// IMPORTANT: Check slug FIRST (language-independent) before checking subExperience names
+// IMPORTANT: Check all inputs to ensure proper detection regardless of language
 function getActivityKey(subExperience, experienceSlug, experienceTitle = '') {
   const sub = (subExperience || '').toLowerCase();
   const slug = (experienceSlug || '').toLowerCase();
   const title = (experienceTitle || '').toLowerCase();
+  
+  // Combine all inputs for comprehensive checking
+  const allText = `${sub} ${slug} ${title}`.toLowerCase();
 
-  // SLUG-BASED DETECTION (check for various slug patterns)
-  // Spin - 4 seats (check multiple possible slug formats)
-  if (slug.includes('spin') || slug === 'spin' || slug.includes('spinning') || slug === 'spin-art') return { key: 'spin', capacity: 4 };
-  // Also check title for Spin (Arabic: سبين)
-  if (title.includes('spin') || title.includes('سبين')) return { key: 'spin', capacity: 4 };
+  // SPIN - 4 seats (highest priority check - check all inputs)
+  if (allText.includes('spin') || allText.includes('سبين') || allText.includes('spinning') || allText.includes('دوران')) {
+    return { key: 'spin', capacity: 4 };
+  }
   
-  // Phone Case - 12 seats
-  if (slug.includes('phone-case') || slug.includes('phone') || slug.includes('splash-phone')) return { key: 'phone_case', capacity: 12 };
+  // Phone Case - 12 seats (English + Arabic keywords)
+  if (allText.includes('phone') || allText.includes('كفر') || allText.includes('جوال') || allText.includes('هاتف')) {
+    return { key: 'phone_case', capacity: 12 };
+  }
   
-  // Group Splash/Big Canvas - 15 seats
-  if (slug.includes('group-splash') || slug.includes('group-friends') || slug.includes('group')) return { key: 'group_splash', capacity: 15 };
+  // Pouring/Figurines - 12 seats (English + Arabic keywords)
+  if (allText.includes('pour') || allText.includes('figurine') || allText.includes('bear') || allText.includes('custom-art') || allText.includes('صب') || allText.includes('مجسم') || allText.includes('دب')) {
+    return { key: 'pour', capacity: 12 };
+  }
   
-  // Pouring/Figurines - 12 seats
-  if (slug.includes('figurine') || slug.includes('pour') || slug.includes('custom-art')) return { key: 'pour', capacity: 12 };
+  // Group Splash/Big Canvas - 15 seats (English + Arabic keywords)
+  if (allText.includes('group') || allText.includes('big canvas') || allText.includes('كبير') || allText.includes('مجموعة') || allText.includes('جماعي')) {
+    return { key: 'group_splash', capacity: 15 };
+  }
   
   // Open Paint Sessions - 30 seats
-  if (slug.includes('open-paint') || slug.includes('open_paint') || slug.includes('open-session')) return { key: 'splash', capacity: 30 };
+  if (allText.includes('open-paint') || allText.includes('open_paint') || allText.includes('open-session') || allText.includes('open paint')) {
+    return { key: 'splash', capacity: 30 };
+  }
 
-  // SUBEXPERIENCE-BASED DETECTION (for experiences with multiple options)
-  // Spin keywords (English + Arabic)
-  if (sub.includes('spin') || sub.includes('سبين') || sub.includes('دوران')) return { key: 'spin', capacity: 4 };
-  
-  // Phone Case keywords (English + Arabic)
-  if (sub.includes('phone case') || sub.includes('phone') || sub.includes('كفر') || sub.includes('جوال') || sub.includes('هاتف')) return { key: 'phone_case', capacity: 12 };
-  
-  // Pouring/Figurines keywords (English + Arabic)
-  if (sub.includes('pour') || sub.includes('figurine') || sub.includes('bear') || sub.includes('صب') || sub.includes('مجسم') || sub.includes('دب')) return { key: 'pour', capacity: 12 };
-  
-  // Group Splash/Big Canvas keywords (English + Arabic)
-  if (sub.includes('group splash') || sub.includes('big canvas') || sub.includes('كبير') || sub.includes('مجموعة') || sub.includes('جماعي')) return { key: 'group_splash', capacity: 15 };
-
-  // Generic splash check last
-  if (sub.includes('splash') || sub.includes('سبلاش') || sub.includes('رش')) return { key: 'splash', capacity: 30 };
-  if (slug.includes('splash')) return { key: 'splash', capacity: 30 };
+  // Generic splash check last (default for splash experiences)
+  if (allText.includes('splash') || allText.includes('سبلاش') || allText.includes('رش')) {
+    return { key: 'splash', capacity: 30 };
+  }
 
   return { key: null, capacity: null };
 }
