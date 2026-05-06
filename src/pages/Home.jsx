@@ -14,6 +14,7 @@ import FloatingBookButton from '../components/splash/FloatingBookButton';
 import Footer from '../components/splash/Footer';
 import ExperienceQuiz from '../components/splash/ExperienceQuiz';
 import PaintDrips from '../components/splash/PaintDrips';
+
 export default function Home() {
   const [quizResult, setQuizResult] = useState(null);
   const [splashDone, setSplashDone] = useState(false);
