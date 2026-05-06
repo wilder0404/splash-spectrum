@@ -157,7 +157,24 @@ export default function ExperienceDetail() {
   const duration = isAr ? exp.duration_ar : exp.duration_en;
   const groupSize = isAr ? exp.groupSize_ar : exp.groupSize_en;
   const price = isAr ? exp.price_ar : exp.price_en;
-  const includes = isAr ? (exp.includes_ar || []) : (exp.includes_en || []);
+  // Override includes for Group Splash with correct content
+  const groupSplashIncludes_en = [
+    'Giant canvas (per group)',
+    '8 neon or normal colors and 2 brushes for each big canvas',
+    'Apron & protective cover-up',
+    'Shoe covers',
+    'Take-home group artwork'
+  ];
+  const groupSplashIncludes_ar = [
+    'كانفاس كبير (للمجموعة)',
+    '8 ألوان نيون أو عادية وفرشتين لكل كانفاس كبير',
+    'مريول وغطاء حماية',
+    'أغطية أحذية',
+    'العمل الفني الجماعي للمنزل'
+  ];
+  const includes = isGroupSplash 
+    ? (isAr ? groupSplashIncludes_ar : groupSplashIncludes_en)
+    : (isAr ? (exp.includes_ar || []) : (exp.includes_en || []));
   const rules = isAr ? (exp.rules_ar || []) : (exp.rules_en || []);
   const vibes = exp.vibes || [];
   const gallery = exp.gallery || [];
