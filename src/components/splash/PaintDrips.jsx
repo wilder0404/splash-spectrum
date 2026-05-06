@@ -1,138 +1,116 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
 // Paint drip configurations - thick drips like real paint flowing from top
-const generateDrips = () => [
-  // Dense arrangement of thick paint drips - all starting together
-  { id: 1, left: 2, width: 35, color: '#FF007F', duration: 4.5, height: 75 },
-  { id: 2, left: 6, width: 28, color: '#9D00FF', duration: 5.2, height: 85 },
-  { id: 3, left: 11, width: 42, color: '#00F3FF', duration: 4.8, height: 90 },
-  { id: 4, left: 17, width: 32, color: '#39FF14', duration: 5.5, height: 70 },
-  { id: 5, left: 22, width: 38, color: '#FF007F', duration: 4.2, height: 95 },
-  { id: 6, left: 28, width: 45, color: '#9D00FF', duration: 5.8, height: 80 },
-  { id: 7, left: 34, width: 30, color: '#00F3FF', duration: 4.4, height: 88 },
-  { id: 8, left: 40, width: 50, color: '#39FF14', duration: 5.0, height: 92 },
-  { id: 9, left: 47, width: 36, color: '#FF007F', duration: 5.3, height: 78 },
-  { id: 10, left: 53, width: 42, color: '#9D00FF', duration: 4.6, height: 86 },
-  { id: 11, left: 59, width: 32, color: '#00F3FF', duration: 5.1, height: 72 },
-  { id: 12, left: 65, width: 48, color: '#39FF14', duration: 4.9, height: 94 },
-  { id: 13, left: 71, width: 35, color: '#FF007F', duration: 5.4, height: 82 },
-  { id: 14, left: 77, width: 40, color: '#9D00FF', duration: 4.3, height: 76 },
-  { id: 15, left: 83, width: 38, color: '#00F3FF', duration: 5.6, height: 89 },
-  { id: 16, left: 89, width: 45, color: '#39FF14', duration: 4.7, height: 84 },
-  { id: 17, left: 95, width: 30, color: '#FF007F', duration: 5.2, height: 68 },
+const dripsConfig = [
+  { id: 1, left: 2, width: 22, color: '#FF007F', delay: 0, maxHeight: 75 },
+  { id: 2, left: 7, width: 18, color: '#9D00FF', delay: 0.1, maxHeight: 85 },
+  { id: 3, left: 12, width: 26, color: '#00F3FF', delay: 0.05, maxHeight: 90 },
+  { id: 4, left: 18, width: 20, color: '#39FF14', delay: 0.15, maxHeight: 70 },
+  { id: 5, left: 24, width: 24, color: '#FF007F', delay: 0.08, maxHeight: 95 },
+  { id: 6, left: 30, width: 28, color: '#9D00FF', delay: 0.12, maxHeight: 80 },
+  { id: 7, left: 36, width: 19, color: '#00F3FF', delay: 0.02, maxHeight: 88 },
+  { id: 8, left: 42, width: 30, color: '#39FF14', delay: 0.18, maxHeight: 92 },
+  { id: 9, left: 48, width: 22, color: '#FF007F', delay: 0.06, maxHeight: 78 },
+  { id: 10, left: 54, width: 25, color: '#9D00FF', delay: 0.14, maxHeight: 86 },
+  { id: 11, left: 60, width: 20, color: '#00F3FF', delay: 0.03, maxHeight: 72 },
+  { id: 12, left: 66, width: 28, color: '#39FF14', delay: 0.1, maxHeight: 94 },
+  { id: 13, left: 72, width: 21, color: '#FF007F', delay: 0.16, maxHeight: 82 },
+  { id: 14, left: 78, width: 24, color: '#9D00FF', delay: 0.04, maxHeight: 76 },
+  { id: 15, left: 84, width: 23, color: '#00F3FF', delay: 0.11, maxHeight: 89 },
+  { id: 16, left: 90, width: 27, color: '#39FF14', delay: 0.07, maxHeight: 84 },
+  { id: 17, left: 96, width: 18, color: '#FF007F', delay: 0.13, maxHeight: 68 },
 ];
 
-// Generate thick paint drip SVG path with bulbous bottom
-const generateThickDripPath = (width) => {
-  const centerX = width / 2;
-  const bulbRadius = width * 0.5;
-  
-  return `
-    M 0 0
-    L ${width} 0
-    L ${width} 0
-    C ${width} 60, ${width * 0.85} 75, ${width * 0.8} 85
-    C ${width * 0.75} 92, ${centerX + bulbRadius} 94, ${centerX + bulbRadius} 96
-    A ${bulbRadius} ${bulbRadius} 0 1 1 ${centerX - bulbRadius} 96
-    C ${centerX - bulbRadius} 94, ${width * 0.25} 92, ${width * 0.2} 85
-    C ${width * 0.15} 75, 0 60, 0 0
-    Z
-  `;
-};
-
-// Individual drip component
+// Individual drip component with real dripping animation
 const PaintDrip = ({ drip }) => {
+  const [hasStarted, setHasStarted] = useState(false);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => setHasStarted(true), drip.delay * 1000);
+    return () => clearTimeout(timer);
+  }, [drip.delay]);
+
+  const bulbSize = drip.width * 1.4;
+  
   return (
-    <motion.div
+    <div
       className="absolute top-0 pointer-events-none"
       style={{
         left: `${drip.left}%`,
         width: `${drip.width}px`,
-        height: `${drip.height}vh`,
         zIndex: 0,
       }}
     >
-      <svg
-        width="100%"
-        height="100%"
-        viewBox={`0 0 ${drip.width} 100`}
-        preserveAspectRatio="none"
-        style={{ 
-          overflow: 'visible',
+      {/* Paint pool at top - the source */}
+      <div
+        style={{
+          position: 'absolute',
+          top: -10,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: drip.width * 2,
+          height: 20,
+          background: drip.color,
+          borderRadius: '0 0 50% 50%',
+          opacity: 0.12,
+          filter: `blur(2px)`,
         }}
-      >
-        <defs>
-          {/* Glossy paint gradient */}
-          <linearGradient id={`paint-grad-${drip.id}`} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor={drip.color} stopOpacity="0.08" />
-            <stop offset="30%" stopColor={drip.color} stopOpacity="0.15" />
-            <stop offset="50%" stopColor={drip.color} stopOpacity="0.12" />
-            <stop offset="70%" stopColor={drip.color} stopOpacity="0.15" />
-            <stop offset="100%" stopColor={drip.color} stopOpacity="0.08" />
-          </linearGradient>
-          
-          {/* Highlight for wet paint look */}
-          <linearGradient id={`highlight-${drip.id}`} x1="0.3" y1="0" x2="0.7" y2="0">
-            <stop offset="0%" stopColor="white" stopOpacity="0" />
-            <stop offset="50%" stopColor="white" stopOpacity="0.08" />
-            <stop offset="100%" stopColor="white" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        
-        {/* Main paint drip body */}
-        <motion.path
-          d={generateThickDripPath(drip.width)}
-          fill={`url(#paint-grad-${drip.id})`}
-          initial={{ 
-            scaleY: 0,
-          }}
-          animate={{ 
-            scaleY: 1,
-          }}
-          transition={{
-            duration: drip.duration,
-            ease: [0.22, 0.03, 0.26, 1], // Slow drip easing
-          }}
+      />
+      
+      {/* The dripping paint stream */}
+      {hasStarted && (
+        <motion.div
           style={{
-            transformOrigin: 'top',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            background: `linear-gradient(to right, ${drip.color}10, ${drip.color}20, ${drip.color}15, ${drip.color}20, ${drip.color}10)`,
+            borderRadius: '0 0 4px 4px',
+          }}
+          initial={{ height: 0 }}
+          animate={{ height: `${drip.maxHeight}vh` }}
+          transition={{
+            duration: 3 + Math.random() * 2,
+            ease: [0.25, 0.1, 0.25, 1],
           }}
         />
-        
-        {/* Highlight stripe for glossy effect */}
-        <motion.path
-          d={generateThickDripPath(drip.width)}
-          fill={`url(#highlight-${drip.id})`}
-          initial={{ 
-            scaleY: 0,
-          }}
-          animate={{ 
-            scaleY: 1,
-          }}
-          transition={{
-            duration: drip.duration,
-            ease: [0.22, 0.03, 0.26, 1],
-          }}
+      )}
+      
+      {/* The bulbous drip tip that moves down */}
+      {hasStarted && (
+        <motion.div
           style={{
-            transformOrigin: 'top',
+            position: 'absolute',
+            left: '50%',
+            width: bulbSize,
+            height: bulbSize * 1.5,
+            marginLeft: -bulbSize / 2,
+            background: `radial-gradient(ellipse at 30% 30%, ${drip.color}30, ${drip.color}18 50%, ${drip.color}10 100%)`,
+            borderRadius: '45% 45% 50% 50%',
+            filter: 'blur(1px)',
+          }}
+          initial={{ top: 0 }}
+          animate={{ top: `${drip.maxHeight}vh` }}
+          transition={{
+            duration: 3 + Math.random() * 2,
+            ease: [0.25, 0.1, 0.25, 1],
           }}
         />
-      </svg>
-    </motion.div>
+      )}
+    </div>
   );
 };
 
 export default function PaintDrips() {
-  const drips = useMemo(() => generateDrips(), []);
-  
   return (
     <div 
       className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden"
       style={{ zIndex: 1 }}
       aria-hidden="true"
     >
-      {/* All drips render and animate together */}
-      {drips.map((drip) => (
+      {dripsConfig.map((drip) => (
         <PaintDrip key={drip.id} drip={drip} />
       ))}
     </div>
