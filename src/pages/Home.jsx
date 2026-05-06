@@ -27,20 +27,23 @@ export default function Home() {
       {/* Background paint drips - subtle effect behind all content */}
       <PaintDrips />
       
-      {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
-      <Navbar />
-      <HeroSection />
-      <ExperiencesSection />
-      <ExperienceQuiz onBookWithExperience={handleQuizBook} />
-      <VibeSelector />
-      <PaintStatsSection />
-      <GallerySection />
-      <WhySection />
-      <ReactionsSection />
-      <BookingSection preSelectedExperience={quizResult} />
-      <LocationSection />
-      <Footer />
-      <FloatingBookButton />
+      {/* Main content wrapper with higher z-index */}
+      <div className="relative" style={{ zIndex: 10 }}>
+        {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
+        <Navbar />
+        <HeroSection />
+        <ExperiencesSection />
+        <ExperienceQuiz onBookWithExperience={handleQuizBook} />
+        <VibeSelector />
+        <PaintStatsSection />
+        <GallerySection />
+        <WhySection />
+        <ReactionsSection />
+        <BookingSection preSelectedExperience={quizResult} />
+        <LocationSection />
+        <Footer />
+        <FloatingBookButton />
+      </div>
     </div>
   );
 }

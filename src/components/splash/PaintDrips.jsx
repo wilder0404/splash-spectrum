@@ -103,8 +103,8 @@ const PaintDrip = ({ drip, index }) => {
 export default function PaintDrips() {
   return (
     <div 
-      className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden"
-      style={{ zIndex: 0 }}
+      className="absolute inset-0 w-full pointer-events-none overflow-hidden"
+      style={{ zIndex: 1, minHeight: '100vh' }}
       aria-hidden="true"
     >
       {dripsConfig.map((drip, index) => (
