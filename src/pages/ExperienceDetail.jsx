@@ -446,7 +446,9 @@ export default function ExperienceDetail() {
                           <SelectContent className="bg-obsidian border-white/10">
                             {(() => {
                               const remaining = form.time ? getSlotRemaining(form.time) : null;
-                              const max = remaining !== null ? Math.min(remaining, 10) : 10;
+                              // Use capacity-based max: if there's a capacity, respect it; otherwise default to 10
+                              const capacityMax = availability?.maxCapacity || 10;
+                              const max = remaining !== null ? Math.min(remaining, capacityMax) : capacityMax;
                               if (max <= 0) return (
                                 <SelectItem value="none" disabled className="text-red-400">
                                   {isAr ? 'لا توجد مقاعد' : 'No seats available'}

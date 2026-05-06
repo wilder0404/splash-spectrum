@@ -355,8 +355,10 @@ export default function BookingSection({ preSelectedExperience }) {
                 <SelectContent className="bg-obsidian border-white/10">
                   {(() => {
                     const remaining = form.time ? getSlotRemaining(form.time) : null;
+                    // Use capacity-based max: if there's a capacity, respect it; otherwise use default
+                    const capacityMax = availability?.maxCapacity || 10;
                     // When birthday pack is on, allow up to 19 online + "20+" for WhatsApp
-                    const onlineMax = birthdayPack ? 19 : 10;
+                    const onlineMax = birthdayPack ? 19 : capacityMax;
                     const max = remaining !== null ? Math.min(remaining, onlineMax) : onlineMax;
                     const options = Array.from({ length: max }, (_, i) => i + 1);
                     if (options.length === 0) return (
