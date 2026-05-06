@@ -13,6 +13,7 @@ import LocationSection from '../components/splash/LocationSection';
 import FloatingBookButton from '../components/splash/FloatingBookButton';
 import Footer from '../components/splash/Footer';
 import ExperienceQuiz from '../components/splash/ExperienceQuiz';
+import PaintDrips from '../components/splash/PaintDrips';
 export default function Home() {
   const [quizResult, setQuizResult] = useState(null);
   const [splashDone, setSplashDone] = useState(false);
@@ -22,21 +23,27 @@ export default function Home() {
   };
 
   return (
-    <div className="bg-obsidian min-h-screen overflow-x-hidden">
-      {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
-      <Navbar />
-      <HeroSection />
-      <ExperiencesSection />
-      <ExperienceQuiz onBookWithExperience={handleQuizBook} />
-      <VibeSelector />
-      <PaintStatsSection />
-      <GallerySection />
-      <WhySection />
-      <ReactionsSection />
-      <BookingSection preSelectedExperience={quizResult} />
-      <LocationSection />
-      <Footer />
-      <FloatingBookButton />
+    <div className="bg-obsidian min-h-screen overflow-x-hidden relative">
+      {/* Background paint drips effect */}
+      <PaintDrips />
+      
+      {/* Main content */}
+      <div className="relative" style={{ zIndex: 2 }}>
+        {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
+        <Navbar />
+        <HeroSection />
+        <ExperiencesSection />
+        <ExperienceQuiz onBookWithExperience={handleQuizBook} />
+        <VibeSelector />
+        <PaintStatsSection />
+        <GallerySection />
+        <WhySection />
+        <ReactionsSection />
+        <BookingSection preSelectedExperience={quizResult} />
+        <LocationSection />
+        <Footer />
+        <FloatingBookButton />
+      </div>
     </div>
   );
 }
