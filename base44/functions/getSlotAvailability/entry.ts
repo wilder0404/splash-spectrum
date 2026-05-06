@@ -48,11 +48,14 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const { experienceSlug, experienceTitle, date, subExperience } = await req.json();
 
+    console.log('[getSlotAvailability] Input:', JSON.stringify({ experienceSlug, experienceTitle, date, subExperience }));
+
     if (!date) {
       return Response.json({ error: 'Missing date' }, { status: 400 });
     }
 
     const { key: activityKey, capacity: maxCapacity } = getActivityKey(subExperience, experienceSlug, experienceTitle);
+    console.log('[getSlotAvailability] Detected activity:', JSON.stringify({ activityKey, maxCapacity }));
 
     if (activityKey === null) {
       // No capacity constraint for this activity

@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SplashScreen from '../components/splash/SplashScreen';
 import Navbar from '../components/splash/Navbar';
 import HeroSection from '../components/splash/HeroSection';
 import ExperiencesSection from '../components/splash/ExperiencesSection';
-import VibeSelector from '../components/splash/VibeSelector';
 import PaintStatsSection from '../components/splash/PaintStatsSection';
 import GallerySection from '../components/splash/GallerySection';
 import WhySection from '../components/splash/WhySection';
@@ -17,7 +16,19 @@ import PaintDrips from '../components/splash/PaintDrips';
 
 export default function Home() {
   const [quizResult, setQuizResult] = useState(null);
-  const [splashDone, setSplashDone] = useState(false);
+  // Check sessionStorage to only show splash screen once per session
+  const [splashDone, setSplashDone] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('splashShown') === 'true';
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (splashDone) {
+      sessionStorage.setItem('splashShown', 'true');
+    }
+  }, [splashDone]);
 
   const handleQuizBook = (result) => {
     setQuizResult(result);
@@ -35,7 +46,6 @@ export default function Home() {
         <HeroSection />
         <ExperiencesSection />
         <ExperienceQuiz onBookWithExperience={handleQuizBook} />
-        <VibeSelector />
         <PaintStatsSection />
         <GallerySection />
         <WhySection />
