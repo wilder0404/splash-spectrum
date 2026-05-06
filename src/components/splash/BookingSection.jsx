@@ -393,7 +393,7 @@ export default function BookingSection({ preSelectedExperience }) {
             })()}
 
             {/* Birthday Pack Add-on */}
-            {form.people && showBirthdayPack && (
+            {showBirthdayPack && (
               <div
                 onClick={() => { setBirthdayPack(v => !v); setForm(f => ({ ...f, people: '' })); }}
                 className={`flex items-center gap-3 cursor-pointer rounded-2xl border p-4 transition-all ${

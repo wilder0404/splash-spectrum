@@ -1,10 +1,11 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { useLang } from '@/lib/LanguageContext';
 import { tr } from '@/lib/translations.js';
 
+const HERO_IMAGE = "https://media.base44.com/images/public/69e5ef89828747441c931879/0db2aa4d6_image.png";
 const HERO_VIDEO = "https://media.base44.com/videos/public/69e5ef89828747441c931879/2eb82ceb5_Paint_splatter_splattering_effect_202605052017.mp4";
 const BLOBS = [
   { id: 0, color: '#FF007F', x: 15, y: 35, size: 200, duration: 8, delay: 0,   xAmp: 10, yAmp: 8 },
@@ -14,33 +15,49 @@ const BLOBS = [
 
 export default function HeroSection() {
   const { lang } = useLang();
-  const prefersReduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const videoRef = useRef(null);
-
-  const handleVideoEnded = () => {
-    // Freeze on last frame by pausing — currentTime already at end
-    if (videoRef.current) {
-      videoRef.current.pause();
-    }
-  };
-
   return (
     <section className="relative h-screen w-full overflow-hidden bg-obsidian">
-      {/* Background Video — plays once then freezes on last frame */}
+      {/* Background Image */}
       <div className="absolute inset-0 overflow-hidden">
-        <video
-          ref={videoRef}
-          src={HERO_VIDEO}
-          className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto"
+        <img
+          src={HERO_IMAGE}
+          alt="Paint Splash"
+          className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto object-cover"
           style={{ transform: 'translate(-50%, -50%)' }}
-          autoPlay
-          muted
-          playsInline
-          preload="auto"
-          onEnded={handleVideoEnded}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-obsidian/30 via-transparent to-obsidian" />
+        <div className="absolute inset-0 bg-gradient-to-b from-obsidian/40 via-obsidian/20 to-obsidian" />
       </div>
+
+      {/* Paint Drips at top */}
+      <div className="absolute top-0 left-0 right-0 flex justify-around pointer-events-none z-10">
+        {[
+          { color: '#FF007F', left: '8%', width: 8, height: 80, delay: 0 },
+          { color: '#39FF14', left: '22%', width: 6, height: 60, delay: 0.3 },
+          { color: '#9D00FF', left: '40%', width: 10, height: 100, delay: 0.1 },
+          { color: '#00F3FF', left: '58%', width: 7, height: 70, delay: 0.5 },
+          { color: '#FF007F', left: '75%', width: 9, height: 90, delay: 0.2 },
+          { color: '#39FF14', left: '90%', width: 6, height: 55, delay: 0.4 },
+        ].map((drip, i) => (
+          <div
+            key={i}
+            className="absolute top-0 rounded-b-full"
+            style={{
+              left: drip.left,
+              width: drip.width,
+              height: drip.height,
+              background: `linear-gradient(to bottom, ${drip.color}, ${drip.color}88)`,
+              boxShadow: `0 0 12px ${drip.color}66`,
+              animation: `drip-fall 2s ease-out ${drip.delay}s both`,
+            }}
+          />
+        ))}
+      </div>
+      <style>{`
+        @keyframes drip-fall {
+          from { transform: scaleY(0); transform-origin: top; opacity: 0; }
+          to { transform: scaleY(1); transform-origin: top; opacity: 1; }
+        }
+      `}</style>
 
       {/* Ambient Blobs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 1 }}>
