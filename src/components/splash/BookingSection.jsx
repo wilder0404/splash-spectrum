@@ -73,7 +73,7 @@ export default function BookingSection({ preSelectedExperience }) {
   const subExps = selectedExpObj?.priceTable || [];
 
   // Birthday pack only available for these experiences
-  const BIRTHDAY_ALLOWED_SLUGS = ['Open-Paint-sessions', 'splash-phone-case', 'group-splash'];
+  const BIRTHDAY_ALLOWED_SLUGS = ['Open-Paint-sessions', 'splash-phone-case', 'group-splash', 'custom-art-figurines'];
   const showBirthdayPack = selectedExpObj && BIRTHDAY_ALLOWED_SLUGS.includes(selectedExpObj.slug);
 
   const isBigCanvas = form.subExperience && form.subExperience.toLowerCase().includes('big canvas');
@@ -231,13 +231,18 @@ export default function BookingSection({ preSelectedExperience }) {
               <p className="text-electric-cyan font-heading font-bold text-sm mb-2">{tr(lang, 'booking_arrive_title')}</p>
               <p className="text-white/60 text-sm font-body leading-relaxed">{tr(lang, 'booking_arrive_body')}</p>
             </div>
-            <div className="bg-neon-pink/5 border border-neon-pink/10 rounded-2xl p-4 text-left max-w-sm mx-auto mb-8">
+            <div className="bg-neon-pink/5 border border-neon-pink/10 rounded-2xl p-4 text-left max-w-sm mx-auto mb-6">
               <p className="text-white/50 text-xs font-body space-y-1">
                 <span className="block">📅 {form.date} — {form.time}</span>
                 <span className="block">👥 {form.people} {isAr ? 'أشخاص' : 'people'}</span>
                 <span className="block">👤 {form.name} · {form.email}</span>
               </p>
             </div>
+            <p className="text-white/40 text-xs font-body mb-6 max-w-sm mx-auto">
+              {isAr 
+                ? 'للإلغاء أو التعديل، يمكنك الاتصال بنا أو مراسلتنا عبر واتساب.'
+                : 'To cancel or make changes, you can call us or WhatsApp us.'}
+            </p>
             <button onClick={() => setSubmitted(false)} className="text-white/30 hover:text-white/60 text-sm font-body transition-colors">
               {tr(lang, 'booking_another')}
             </button>

@@ -247,6 +247,11 @@ export default function ExperienceDetail() {
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
                 <h3 className="font-heading font-bold text-white text-xl mb-5 flex items-center gap-2">
                   <span style={{ color: exp.color }}>💰</span> {tr(lang, 'detail_prices')}
+                  {exp.slug === 'school-packages' && (
+                    <span className="text-white/40 text-sm font-normal ml-1">
+                      {isAr ? '(قابل للنقاش)' : '(open for discussion)'}
+                    </span>
+                  )}
                 </h3>
                 <div className="rounded-2xl overflow-hidden border border-white/8" style={{ background: `linear-gradient(135deg, ${exp.color}06, rgba(255,255,255,0.02))` }}>
                   {priceTable.map((row, i) => (
@@ -344,6 +349,15 @@ export default function ExperienceDetail() {
                       {tr(lang, 'detail_whatsapp_btn')}
                     </button>
                     <p className="text-white/20 text-xs mt-4 font-body">+966 55 456 3447</p>
+                    
+                    {/* Cancellation info for special events */}
+                    <div className="mt-6 p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+                      <p className="text-white/40 text-xs font-body leading-relaxed">
+                        {isAr 
+                          ? 'بعد تأكيد الحجز، يمكنك الاتصال بنا أو مراسلتنا عبر واتساب للإلغاء أو التعديل.'
+                          : 'After your reservation is booked, you can call us or WhatsApp us to cancel or make changes.'}
+                      </p>
+                    </div>
                   </motion.div>
                 ) : submitted ? (
                   <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-6">
@@ -355,6 +369,11 @@ export default function ExperienceDetail() {
                       <p className="text-white/75 text-sm font-body">👥 {form.people} {isAr ? 'أشخاص' : 'people'}</p>
                       <p className="text-white/75 text-sm font-body">👤 {form.name}</p>
                     </div>
+                    <p className="text-white/40 text-xs font-body mb-4">
+                      {isAr 
+                        ? 'للإلغاء أو التعديل، يمكنك الاتصال بنا أو مراسلتنا عبر واتساب.'
+                        : 'To cancel or make changes, you can call us or WhatsApp us.'}
+                    </p>
                     <Link to="/" className="text-white/30 hover:text-white text-sm font-body transition-colors">{tr(lang, 'detail_back')}</Link>
                   </motion.div>
                 ) : (
