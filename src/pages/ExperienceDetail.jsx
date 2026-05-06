@@ -65,6 +65,7 @@ export default function ExperienceDetail() {
     setForm(f => ({ ...f, time: '', people: '' }));
     base44.functions.invoke('getSlotAvailability', {
       experienceSlug: exp.slug,
+      experienceTitle: exp.title_en,
       date: form.date,
       subExperience: subExp,
     }).then(res => {
@@ -106,6 +107,7 @@ export default function ExperienceDetail() {
         // Refresh availability
         base44.functions.invoke('getSlotAvailability', {
           experienceSlug: exp.slug,
+          experienceTitle: exp.title_en,
           date: form.date,
           subExperience: activeSubExp,
         }).then(r => setAvailability(r.data)).catch(() => {});

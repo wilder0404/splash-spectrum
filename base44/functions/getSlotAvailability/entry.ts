@@ -2,25 +2,28 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 // Returns the activity key and max capacity for a given booking's subExperience/slug
 // IMPORTANT: Check slug FIRST (language-independent) before checking subExperience names
-function getActivityKey(subExperience, experienceSlug) {
+function getActivityKey(subExperience, experienceSlug, experienceTitle = '') {
   const sub = (subExperience || '').toLowerCase();
   const slug = (experienceSlug || '').toLowerCase();
+  const title = (experienceTitle || '').toLowerCase();
 
-  // SLUG-BASED DETECTION FIRST (works for both English and Arabic since slugs are always English)
-  // Spin - 4 seats
-  if (slug.includes('spin')) return { key: 'spin', capacity: 4 };
+  // SLUG-BASED DETECTION (check for various slug patterns)
+  // Spin - 4 seats (check multiple possible slug formats)
+  if (slug.includes('spin') || slug === 'spin' || slug.includes('spinning') || slug === 'spin-art') return { key: 'spin', capacity: 4 };
+  // Also check title for Spin (Arabic: سبين)
+  if (title.includes('spin') || title.includes('سبين')) return { key: 'spin', capacity: 4 };
   
   // Phone Case - 12 seats
   if (slug.includes('phone-case') || slug.includes('phone') || slug.includes('splash-phone')) return { key: 'phone_case', capacity: 12 };
   
   // Group Splash/Big Canvas - 15 seats
-  if (slug.includes('group-splash') || slug.includes('group-friends')) return { key: 'group_splash', capacity: 15 };
+  if (slug.includes('group-splash') || slug.includes('group-friends') || slug.includes('group')) return { key: 'group_splash', capacity: 15 };
   
   // Pouring/Figurines - 12 seats
   if (slug.includes('figurine') || slug.includes('pour') || slug.includes('custom-art')) return { key: 'pour', capacity: 12 };
   
   // Open Paint Sessions - 30 seats
-  if (slug.includes('open-paint') || slug.includes('open_paint')) return { key: 'splash', capacity: 30 };
+  if (slug.includes('open-paint') || slug.includes('open_paint') || slug.includes('open-session')) return { key: 'splash', capacity: 30 };
 
   // SUBEXPERIENCE-BASED DETECTION (for experiences with multiple options)
   // Spin keywords (English + Arabic)
@@ -45,13 +48,13 @@ function getActivityKey(subExperience, experienceSlug) {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { experienceSlug, date, subExperience } = await req.json();
+    const { experienceSlug, experienceTitle, date, subExperience } = await req.json();
 
     if (!date) {
       return Response.json({ error: 'Missing date' }, { status: 400 });
     }
 
-    const { key: activityKey, capacity: maxCapacity } = getActivityKey(subExperience, experienceSlug);
+    const { key: activityKey, capacity: maxCapacity } = getActivityKey(subExperience, experienceSlug, experienceTitle);
 
     if (activityKey === null) {
       // No capacity constraint for this activity

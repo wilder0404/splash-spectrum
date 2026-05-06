@@ -105,6 +105,7 @@ export default function BookingSection({ preSelectedExperience }) {
     setForm(f => ({ ...f, time: '', people: '' }));
     base44.functions.invoke('getSlotAvailability', {
       experienceSlug: selectedExpObj.slug,
+      experienceTitle: selectedExpObj.title_en,
       date: form.date,
       subExperience: form.subExperience,
     }).then(res => {
@@ -160,12 +161,13 @@ export default function BookingSection({ preSelectedExperience }) {
       if (res.data?.error === 'not_enough_seats') {
         setBookingError(res.data.message);
         // Refresh availability after conflict
-        if (selectedExpObj?.slug && form.date) {
-          base44.functions.invoke('getSlotAvailability', {
-            experienceSlug: selectedExpObj.slug,
-            date: form.date,
-            subExperience: form.subExperience,
-          }).then(r => setAvailability(r.data)).catch(() => {});
+    if (selectedExpObj?.slug && form.date) {
+      base44.functions.invoke('getSlotAvailability', {
+        experienceSlug: selectedExpObj.slug,
+        experienceTitle: selectedExpObj.title_en,
+        date: form.date,
+        subExperience: form.subExperience,
+      }).then(r => setAvailability(r.data)).catch(() => {});
         }
         return;
       }
