@@ -33,7 +33,7 @@ export default function ExperienceDetail() {
   const [bookingError, setBookingError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isGroupSplash = exp && (exp.slug || '') === 'group-friends';
+  const isGroupSplash = exp && ((exp.slug || '') === 'group-friends' || (exp.slug || '') === 'group-splash');
   const priceTable = exp?.priceTable || [];
   const hasSubExperiences = priceTable.length > 1;
 
@@ -262,12 +262,11 @@ export default function ExperienceDetail() {
             {/* Pricing Table */}
             {priceTable.length > 0 && (
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                <h3 className="font-heading font-bold text-white text-xl mb-5 flex items-center gap-2">
-                  <span style={{ color: exp.color }}>💰</span> {tr(lang, 'detail_prices')}
+                <h3 className="font-heading font-bold text-white text-xl mb-5 flex items-center gap-2 whitespace-nowrap">
+                  <span style={{ color: exp.color }}>💰</span> 
+                  {tr(lang, 'detail_prices')}
                   {exp.slug === 'school-packages' && (
-                    <span className="text-white/40 text-sm font-normal ml-1">
-                      {isAr ? '(قابل للنقاش)' : '(open for discussion)'}
-                    </span>
+                    <span className="text-white/40 text-sm font-normal">{isAr ? '(قابل للنقاش)' : '(open for discussion)'}</span>
                   )}
                 </h3>
                 <div className="rounded-2xl overflow-hidden border border-white/8" style={{ background: `linear-gradient(135deg, ${exp.color}06, rgba(255,255,255,0.02))` }}>
