@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
-import { db } from '../lib/supabase';
 import { useLang } from '@/lib/LanguageContext';
+import { base44 } from '@/api/base44Client';
 import { 
   ArrowLeft, Calendar, Clock, Users, Search, Loader2, 
   CheckCircle, XCircle, AlertCircle, Trash2, Eye, Edit2, Plus,
@@ -46,14 +46,18 @@ export default function AdminPanelPage() {
 
   const loadData = async () => {
     setLoading(true);
-    const [bookingsRes, experiencesRes, reviewsRes] = await Promise.all([
-      db.getAllBookings(),
-      db.getExperiences(),
-      db.getAllReviews()
-    ]);
-    setBookings(bookingsRes.data || []);
-    setExperiences(experiencesRes.data || []);
-    setReviews(reviewsRes.data || []);
+    try {
+      const [bookingsData, experiencesData, reviewsData] = await Promise.all([
+        base44.entities.Booking.list('-created_date', 200),
+        base44.entities.Experience.list('sort_order', 100),
+        base44.entities.Review.list('-created_date', 100)
+      ]);
+      setBookings(bookingsData || []);
+      setExperiences(experiencesData || []);
+      setReviews(reviewsData || []);
+    } catch (err) {
+      console.error('[v0] Error loading admin data:', err);
+    }
     setLoading(false);
   };
 
@@ -64,33 +68,33 @@ export default function AdminPanelPage() {
   };
 
   const handleStatusChange = async (bookingId, newStatus) => {
-    await db.updateBooking(bookingId, { status: newStatus });
+    await base44.entities.Booking.update(bookingId, { status: newStatus });
     await loadData();
     setSelectedBooking(null);
   };
 
   const handleDeleteBooking = async (bookingId) => {
     if (window.confirm(isAr ? 'هل أنت متأكد من حذف هذا الحجز؟' : 'Are you sure you want to delete this booking?')) {
-      await db.deleteBooking(bookingId);
+      await base44.entities.Booking.delete(bookingId);
       await loadData();
       setSelectedBooking(null);
     }
   };
 
   const handleApproveReview = async (reviewId) => {
-    await db.approveReview(reviewId);
+    await base44.entities.Review.update(reviewId, { isApproved: true });
     await loadData();
   };
 
   const handleDeleteReview = async (reviewId) => {
     if (window.confirm(isAr ? 'هل أنت متأكد من حذف هذا التقييم؟' : 'Are you sure you want to delete this review?')) {
-      await db.deleteReview(reviewId);
+      await base44.entities.Review.delete(reviewId);
       await loadData();
     }
   };
 
   const handleSaveExperience = async (exp) => {
-    await db.updateExperience(exp.id, exp);
+    await base44.entities.Experience.update(exp.id, exp);
     await loadData();
     setEditingExperience(null);
   };

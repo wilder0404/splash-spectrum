@@ -13,8 +13,8 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { lang, setLang, isAr } = useLang();
   const { user, isAdmin: contextIsAdmin, signOut } = useAuth();
-  // Always show admin button for admin email
-  const isAdmin = contextIsAdmin || user?.email === 'splash.spectrum10000@gmail.com';
+  // Only show admin button when logged in AND is admin email
+  const isAdmin = user && (contextIsAdmin || user?.email === 'splash.spectrum10000@gmail.com');
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -62,7 +62,7 @@ export default function Navbar() {
               <>
                 {isAdmin && (
                   <Link
-                    to="/admin"
+                    to="/admin-panel"
                     className="px-4 py-2 border border-uv-purple/50 text-uv-purple hover:bg-uv-purple/10 rounded-full text-xs font-heading font-semibold transition-all"
                   >
                     {isAr ? 'لوحة التحكم' : 'Admin'}
@@ -130,7 +130,7 @@ export default function Navbar() {
                 <>
                   {isAdmin && (
                     <Link
-                      to="/admin"
+                      to="/admin-panel"
                       onClick={() => setMobileOpen(false)}
                       className="block w-full px-6 py-3 border border-uv-purple/50 text-uv-purple font-heading font-semibold rounded-full text-base text-center"
                     >
