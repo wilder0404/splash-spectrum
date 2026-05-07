@@ -33,12 +33,12 @@ export default function AccountPage() {
   };
 
   const handleSignOut = () => {
-    // Direct supabase signout + force clear all auth state
-    supabase.auth.signOut().finally(() => {
-      localStorage.clear();
-      sessionStorage.clear();
-      window.location.href = '/';
-    });
+    // Clear all auth state immediately and redirect
+    localStorage.clear();
+    sessionStorage.clear();
+    // Fire and forget - don't wait for supabase
+    supabase.auth.signOut().catch(() => {});
+    window.location.href = '/';
   };
 
   const getStatusColor = (status) => {
