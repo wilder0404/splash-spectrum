@@ -36,6 +36,11 @@ export default function ExperienceDetail() {
   const isGroupSplash = exp && ((exp.slug || '') === 'group-friends' || (exp.slug || '') === 'group-splash');
   const priceTable = exp?.priceTable || [];
   const hasSubExperiences = priceTable.length > 1;
+  
+  // Special Events should be WhatsApp-only
+  const isSpecialEvents = exp?.slug?.toLowerCase().includes('special') || 
+                          exp?.title_en?.toLowerCase().includes('special event');
+  const isWhatsAppOnly = exp?.whatsappOnly || isSpecialEvents;
 
   const getCanvasInfo = (people) => {
     const n = parseInt(people) || 0;
@@ -351,7 +356,7 @@ export default function ExperienceDetail() {
               <div className="h-1" style={{ background: `linear-gradient(90deg, ${exp.color}, ${exp.color}44)` }} />
 
               <div className="p-6 md:p-8">
-                {exp.whatsappOnly ? (
+                {isWhatsAppOnly ? (
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-4">
                     <div className="w-20 h-20 rounded-2xl mx-auto mb-5 flex items-center justify-center text-4xl"
                       style={{ background: `${exp.color}15`, border: `1px solid ${exp.color}30` }}>
@@ -536,7 +541,7 @@ export default function ExperienceDetail() {
               </div>
             </div>
 
-            {!exp.whatsappOnly && (
+            {!isWhatsAppOnly && (
               <div className="mt-4">
                 <button onClick={handleWhatsApp}
                   className="w-full h-12 rounded-xl font-heading font-semibold text-sm text-white/80 flex items-center justify-center gap-2 border border-white/10 bg-white/[0.02] hover:bg-neon-green/10 hover:border-neon-green/30 hover:text-white transition-all">

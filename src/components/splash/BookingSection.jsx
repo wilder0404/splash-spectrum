@@ -90,8 +90,13 @@ export default function BookingSection({ preSelectedExperience }) {
   const peopleCount = parseInt(form.people) || 0;
   const birthdayWhatsAppOnly = birthdayPack && (form.people === '20+' || peopleCount >= 20);
 
+  // Special Events, Birthday, Graduation are WhatsApp-only
+  const isSpecialEventsExp = selectedExpObj?.slug?.toLowerCase().includes('special') || 
+                              form.experience?.toLowerCase().includes('special') ||
+                              form.experience?.includes('مناسبات');
+  
   // If birthday pack is selected and group < 20, allow online booking even for whatsappOnly experiences
-  const isWhatsAppOnly = (selectedExpObj?.whatsappOnly || false) && !(birthdayPack && !birthdayWhatsAppOnly);
+  const isWhatsAppOnly = (selectedExpObj?.whatsappOnly || isSpecialEventsExp) && !(birthdayPack && !birthdayWhatsAppOnly);
 
   // Fetch availability whenever experience + date + subExperience change
   const shouldFetchAvailability = selectedExpObj?.slug && form.date && (subExps.length === 0 || form.subExperience);
@@ -242,7 +247,7 @@ export default function BookingSection({ preSelectedExperience }) {
             </div>
             <p className="text-white/40 text-xs font-body mb-6 max-w-sm mx-auto">
               {isAr 
-                ? 'للإلغاء أو التعديل، يمكنك الاتصال بنا أو مراسلتنا عبر واتساب.'
+                ? 'للإلغاء أو التعديل، يمكنك الاتصال بنا أو مراسلتنا ع��ر واتساب.'
                 : 'To cancel or make changes, you can call us or WhatsApp us.'}
             </p>
             <button onClick={() => setSubmitted(false)} className="text-white/30 hover:text-white/60 text-sm font-body transition-colors">
