@@ -34,7 +34,7 @@ export default function AccountPage() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/');
+    window.location.href = '/';
   };
 
   const getStatusColor = (status) => {
