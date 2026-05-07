@@ -3,9 +3,8 @@ import { motion } from 'framer-motion';
 import { useLang } from '@/lib/LanguageContext';
 import { tr } from '@/lib/translations.js';
 import { useQuery } from '@tanstack/react-query';
-import { db } from '@/lib/supabase';
-import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import AddReviewModal from './AddReviewModal';
 
 const floatingEmojis = ['❤️', '✨', '🔥', '🎨', '💜', '💚', '💗', '🌟'];
@@ -31,29 +30,17 @@ const seedReviewsAr = [
 
 export default function ReactionsSection() {
   const { lang, isAr } = useLang();
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [reviewAdded, setReviewAdded] = useState(false);
 
   const { data: dbReviews = [], refetch } = useQuery({
     queryKey: ['reviews-public'],
-    queryFn: async () => {
-      const { data } = await db.getApprovedReviews();
-      return data || [];
-    },
+    queryFn: () => base44.entities.Review.filter({ isApproved: true }, '-created_date', 50),
   });
 
-  // Transform DB reviews to match display format
-  const transformedReviews = dbReviews.map(r => ({
-    text: r.comment,
-    name: r.name,
-    emoji: '🎨',
-    color: '#FF007F'
-  }));
-
   // Show DB reviews if available, else show seed data
-  const reviews = transformedReviews.length > 0 ? transformedReviews : (isAr ? seedReviewsAr : seedReviews);
+  const reviews = dbReviews.length > 0 ? dbReviews : (isAr ? seedReviewsAr : seedReviews);
 
   return (
     <section className="py-20 md:py-32 px-4 bg-obsidian relative overflow-hidden">
@@ -87,7 +74,7 @@ export default function ReactionsSection() {
               whileHover={{ scale: 1.05, rotate: i % 2 === 0 ? 1 : -1 }}
               className="relative bg-white/[0.04] backdrop-blur-sm border border-white/5 rounded-2xl p-6 text-center">
               <span className="text-3xl mb-3 block">{reaction.emoji}</span>
-              <p className="font-body text-white/80 text-sm leading-relaxed mb-3">&quot;{reaction.text}&quot;</p>
+              <p className="font-body text-white/80 text-sm leading-relaxed mb-3">"{reaction.text}"</p>
               <div className="flex items-center justify-center gap-2">
                 <div className="w-4 h-0.5 rounded-full" style={{ backgroundColor: reaction.color }} />
                 <span className="font-heading font-semibold text-xs" style={{ color: reaction.color }}>{reaction.name}</span>
@@ -99,7 +86,7 @@ export default function ReactionsSection() {
 
         {/* CTA to add review */}
         <div className="text-center">
-          {user ? (
+          {isAuthenticated ? (
             reviewAdded ? (
               <p className="text-neon-green font-heading font-semibold text-sm">
                 {isAr ? '🎉 شكراً! سيتم مراجعة تقييمك قريباً' : '🎉 Thanks! Your review will be live once approved'}
@@ -116,7 +103,7 @@ export default function ReactionsSection() {
           ) : (
             <motion.button
               whileHover={{ scale: 1.05 }}
-              onClick={() => navigate('/auth?mode=login')}
+              onClick={() => base44.auth.redirectToLogin(window.location.href)}
               className="px-8 py-3 rounded-full font-heading font-bold text-white/50 border border-white/10 hover:border-neon-pink/30 hover:text-white text-sm transition-all"
             >
               {isAr ? '🔑 سجّل دخول لإضافة تقييم' : '🔑 Log in to leave a review'}
@@ -129,7 +116,7 @@ export default function ReactionsSection() {
         <AddReviewModal
           onClose={() => setShowModal(false)}
           onSuccess={() => { setReviewAdded(true); refetch(); }}
-          userName={user?.user_metadata?.full_name}
+          userName={user?.full_name}
         />
       )}
     </section>

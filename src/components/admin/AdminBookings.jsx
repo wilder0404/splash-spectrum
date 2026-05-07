@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { db } from '@/lib/supabase';
+import { base44 } from '@/api/base44Client';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
@@ -17,21 +17,16 @@ export default function AdminBookings() {
 
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ['admin-bookings'],
-    queryFn: async () => {
-      const { data } = await db.getAllBookings();
-      return data || [];
-    },
+    queryFn: () => base44.entities.Booking.list('-created_date', 200),
   });
 
   const updateStatus = useMutation({
-    mutationFn: async ({ id, status }) => {
-      await db.updateBooking(id, { status });
-    },
+    mutationFn: ({ id, status }) => base44.entities.Booking.update(id, { status }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-bookings'] }),
   });
 
   const filtered = bookings.filter(b =>
-    [b.customer_name, b.customer_email, b.customer_phone, b.experience_name, b.sub_experience].some(v =>
+    [b.name, b.email, b.phone, b.experienceName, b.subExperience].some(v =>
       v?.toLowerCase().includes(search.toLowerCase())
     )
   );
@@ -99,23 +94,23 @@ export default function AdminBookings() {
               filtered.map((booking, idx) => (
                 <tr key={booking.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                   <td className="px-4 py-3 text-white/30">{idx + 1}</td>
-                  <td className="px-4 py-3 text-white font-semibold whitespace-nowrap">{booking.experience_name || booking.experience_slug || '—'}</td>
-                  <td className="px-4 py-3 text-white/70 whitespace-nowrap">{booking.sub_experience || '—'}</td>
+                  <td className="px-4 py-3 text-white font-semibold whitespace-nowrap">{booking.experienceName || booking.experienceSlug || '—'}</td>
+                  <td className="px-4 py-3 text-white/70 whitespace-nowrap">{booking.subExperience || '—'}</td>
                   <td className="px-4 py-3 text-white/70 whitespace-nowrap">
-                    {booking.booking_date ? (
+                    {booking.date ? (
                       <span>
-                        {booking.booking_date}{' '}
+                        {booking.date}{' '}
                         <span className="text-white/40 text-xs">
-                          ({new Date(booking.booking_date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long' })})
+                          ({new Date(booking.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long' })})
                         </span>
                       </span>
                     ) : '—'}
                   </td>
-                  <td className="px-4 py-3 text-white/70 whitespace-nowrap">{booking.booking_time || '—'}</td>
-                  <td className="px-4 py-3 text-white/70 text-center">{booking.num_people || '—'}</td>
-                  <td className="px-4 py-3 text-white whitespace-nowrap">{booking.customer_name || '—'}</td>
-                  <td className="px-4 py-3 text-white/70 whitespace-nowrap">{booking.customer_phone || '—'}</td>
-                  <td className="px-4 py-3 text-white/70 whitespace-nowrap">{booking.customer_email || '—'}</td>
+                  <td className="px-4 py-3 text-white/70 whitespace-nowrap">{booking.time || '—'}</td>
+                  <td className="px-4 py-3 text-white/70 text-center">{booking.people || '—'}</td>
+                  <td className="px-4 py-3 text-white whitespace-nowrap">{booking.name || '—'}</td>
+                  <td className="px-4 py-3 text-white/70 whitespace-nowrap">{booking.phone || '—'}</td>
+                  <td className="px-4 py-3 text-white/70 whitespace-nowrap">{booking.email || '—'}</td>
                   <td className="px-4 py-3 whitespace-nowrap">
                     <Select
                       value={booking.status || 'confirmed'}

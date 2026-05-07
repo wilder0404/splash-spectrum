@@ -1,36 +1,29 @@
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { db } from '@/lib/supabase';
+import { base44 } from '@/api/base44Client';
 import { CheckCircle, Trash2, Eye, EyeOff } from 'lucide-react';
 
 export default function AdminReviews() {
   const qc = useQueryClient();
   const { data: reviews = [], isLoading } = useQuery({
     queryKey: ['admin-reviews'],
-    queryFn: async () => {
-      const { data } = await db.getAllReviews();
-      return data || [];
-    },
+    queryFn: () => base44.entities.Review.list('-created_date', 100),
   });
 
   const toggleApprove = useMutation({
-    mutationFn: async ({ id, is_approved }) => {
-      await db.approveReview(id);
-    },
+    mutationFn: ({ id, isApproved }) => base44.entities.Review.update(id, { isApproved }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-reviews'] }),
   });
 
   const deleteReview = useMutation({
-    mutationFn: async (id) => {
-      await db.deleteReview(id);
-    },
+    mutationFn: (id) => base44.entities.Review.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-reviews'] }),
   });
 
   if (isLoading) return <div className="text-white/50 text-center py-20">Loading reviews...</div>;
 
-  const approved = reviews.filter(r => r.is_approved);
-  const pending = reviews.filter(r => !r.is_approved);
+  const approved = reviews.filter(r => r.isApproved);
+  const pending = reviews.filter(r => !r.isApproved);
 
   return (
     <div className="pb-10 space-y-6">
@@ -74,23 +67,23 @@ export default function AdminReviews() {
 
 function ReviewRow({ review, onToggle, onDelete }) {
   return (
-    <div className={`bg-white/[0.03] border rounded-2xl p-4 flex gap-4 items-start ${review.is_approved ? 'border-neon-green/20' : 'border-white/8'}`}>
-      <span className="text-2xl shrink-0">{'⭐'.repeat(review.rating || 5)}</span>
+    <div className={`bg-white/[0.03] border rounded-2xl p-4 flex gap-4 items-start ${review.isApproved ? 'border-neon-green/20' : 'border-white/8'}`}>
+      <span className="text-2xl shrink-0">{review.emoji || '💬'}</span>
       <div className="flex-1 min-w-0">
-        <p className="text-white/80 text-sm font-body leading-relaxed mb-1">&quot;{review.comment}&quot;</p>
+        <p className="text-white/80 text-sm font-body leading-relaxed mb-1">"{review.text}"</p>
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-heading font-semibold text-xs text-neon-pink">{review.name}</span>
-          <span className="text-white/20 text-xs">{new Date(review.created_at).toLocaleDateString()}</span>
-          {review.is_approved && <span className="text-neon-green text-xs font-heading">✓ Live</span>}
+          <span className="font-heading font-semibold text-xs" style={{ color: review.color || '#FF007F' }}>{review.name}</span>
+          <span className="text-white/20 text-xs">{new Date(review.created_date).toLocaleDateString()}</span>
+          {review.isApproved && <span className="text-neon-green text-xs font-heading">✓ Live</span>}
         </div>
       </div>
       <div className="flex gap-2 shrink-0">
         <button
-          onClick={() => onToggle.mutate({ id: review.id, is_approved: !review.is_approved })}
+          onClick={() => onToggle.mutate({ id: review.id, isApproved: !review.isApproved })}
           className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center"
-          title={review.is_approved ? 'Unapprove' : 'Approve'}
+          title={review.isApproved ? 'Unapprove' : 'Approve'}
         >
-          {review.is_approved
+          {review.isApproved
             ? <EyeOff className="w-4 h-4 text-white/30" />
             : <CheckCircle className="w-4 h-4 text-neon-green" />}
         </button>
