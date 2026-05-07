@@ -134,8 +134,8 @@ export default function WhySection() {
               </div>
               <p className="font-body text-white/50 text-base leading-relaxed mb-5">
                 {isAr
-                  ? 'مجتمع حيث الفن ليس حكراً على المحترفين. كل شخص فنان. كل تجربة تخلق ذكرى، وكل لوحة تحكي قصة فريدة.'
-                  : 'A world where art belongs to everyone. Every person is an artist. Every moment creates a memory that lasts forever.'}
+                  ? 'مجتمع حيث الفن ليس حكراً على المحترفين. كل شخص فنان. كل تجربة تخلق ذكرى، وكل لوحة تحكي قصة فريدة. نفخر بأن نكون جزءاً من رؤية المملكة العربية السعودية 2030 لتعزيز الإبداع والثقافة.'
+                  : 'A world where art belongs to everyone. Every person is an artist. Every moment creates a memory that lasts forever. We are proud to be part of Saudi Arabia\'s Vision 2030, fostering creativity and cultural expression across the Kingdom.'}
               </p>
               <ul className="space-y-2 text-sm font-body text-white/40">
                 <li className="flex items-center gap-2">
@@ -149,6 +149,10 @@ export default function WhySection() {
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#FF007F' }} />
                   {isAr ? 'ذكريات لا تُنسى' : 'Unforgettable moments'}
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#FF007F' }} />
+                  {isAr ? 'دعم رؤية 2030 🇸🇦' : 'Supporting Vision 2030 🇸🇦'}
                 </li>
               </ul>
             </div>

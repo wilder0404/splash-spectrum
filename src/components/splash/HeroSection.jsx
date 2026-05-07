@@ -28,36 +28,7 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-b from-obsidian/40 via-obsidian/20 to-obsidian" />
       </div>
 
-      {/* Paint Drips at top */}
-      <div className="absolute top-0 left-0 right-0 flex justify-around pointer-events-none z-10">
-        {[
-          { color: '#FF007F', left: '8%', width: 8, height: 80, delay: 0 },
-          { color: '#39FF14', left: '22%', width: 6, height: 60, delay: 0.3 },
-          { color: '#9D00FF', left: '40%', width: 10, height: 100, delay: 0.1 },
-          { color: '#00F3FF', left: '58%', width: 7, height: 70, delay: 0.5 },
-          { color: '#FF007F', left: '75%', width: 9, height: 90, delay: 0.2 },
-          { color: '#39FF14', left: '90%', width: 6, height: 55, delay: 0.4 },
-        ].map((drip, i) => (
-          <div
-            key={i}
-            className="absolute top-0 rounded-b-full"
-            style={{
-              left: drip.left,
-              width: drip.width,
-              height: drip.height,
-              background: `linear-gradient(to bottom, ${drip.color}, ${drip.color}88)`,
-              boxShadow: `0 0 12px ${drip.color}66`,
-              animation: `drip-fall 2s ease-out ${drip.delay}s both`,
-            }}
-          />
-        ))}
-      </div>
-      <style>{`
-        @keyframes drip-fall {
-          from { transform: scaleY(0); transform-origin: top; opacity: 0; }
-          to { transform: scaleY(1); transform-origin: top; opacity: 1; }
-        }
-      `}</style>
+
 
       {/* Ambient Blobs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 1 }}>

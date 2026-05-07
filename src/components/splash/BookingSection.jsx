@@ -10,6 +10,7 @@ import { tr } from '@/lib/translations.js';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/AuthContext';
+import { db } from '@/lib/supabase';
 
 const WHATSAPP_NUMBER = '966554563447';
 
@@ -73,7 +74,7 @@ export default function BookingSection({ preSelectedExperience }) {
   const subExps = selectedExpObj?.priceTable || [];
 
   // Birthday pack only available for these experiences
-  const BIRTHDAY_ALLOWED_SLUGS = ['Open-Paint-sessions', 'splash-phone-case', 'group-splash'];
+  const BIRTHDAY_ALLOWED_SLUGS = ['Open-Paint-sessions', 'splash-phone-case', 'group-splash', 'custom-art-figurines'];
   const showBirthdayPack = selectedExpObj && BIRTHDAY_ALLOWED_SLUGS.includes(selectedExpObj.slug);
 
   const isBigCanvas = form.subExperience && form.subExperience.toLowerCase().includes('big canvas');
@@ -90,8 +91,13 @@ export default function BookingSection({ preSelectedExperience }) {
   const peopleCount = parseInt(form.people) || 0;
   const birthdayWhatsAppOnly = birthdayPack && (form.people === '20+' || peopleCount >= 20);
 
+  // Special Events, Birthday, Graduation are WhatsApp-only
+  const isSpecialEventsExp = selectedExpObj?.slug?.toLowerCase().includes('special') || 
+                              form.experience?.toLowerCase().includes('special') ||
+                              form.experience?.includes('مناسبات');
+  
   // If birthday pack is selected and group < 20, allow online booking even for whatsappOnly experiences
-  const isWhatsAppOnly = (selectedExpObj?.whatsappOnly || false) && !(birthdayPack && !birthdayWhatsAppOnly);
+  const isWhatsAppOnly = (selectedExpObj?.whatsappOnly || isSpecialEventsExp) && !(birthdayPack && !birthdayWhatsAppOnly);
 
   // Fetch availability whenever experience + date + subExperience change
   const shouldFetchAvailability = selectedExpObj?.slug && form.date && (subExps.length === 0 || form.subExperience);
@@ -103,13 +109,13 @@ export default function BookingSection({ preSelectedExperience }) {
     }
     setLoadingAvailability(true);
     setForm(f => ({ ...f, time: '', people: '' }));
-    base44.functions.invoke('getSlotAvailability', {
-      experienceSlug: selectedExpObj.slug,
-      date: form.date,
-      subExperience: form.subExperience,
-    }).then(res => {
-      setAvailability(res.data);
-    }).catch(() => {
+    // Use Supabase for availability check
+    const expSlug = `${selectedExpObj?.slug || ''} ${form.experience || ''} ${form.subExperience || ''}`;
+    db.getSlotAvailability(expSlug, form.date, form.subExperience).then(res => {
+      console.log('[v0] Slot availability from Supabase:', res);
+      setAvailability(res);
+    }).catch((err) => {
+      console.error('[v0] Error getting availability:', err);
       setAvailability(null);
     }).finally(() => {
       setLoadingAvailability(false);
@@ -118,8 +124,15 @@ export default function BookingSection({ preSelectedExperience }) {
 
   const getSlotRemaining = (slot) => {
     if (!availability || availability.maxCapacity === null) return null;
+    // Frontend override for Spin capacity (4 seats) - check slug, title, and form.experience
+    const isSpinExp = selectedExpObj?.slug?.toLowerCase().includes('spin') || 
+                      selectedExpObj?.title_en?.toLowerCase().includes('spin') ||
+                      selectedExpObj?.title_ar?.includes('سبين') ||
+                      form.experience?.includes('سبين') ||
+                      form.experience?.toLowerCase().includes('spin');
+    const maxCap = isSpinExp ? 4 : availability.maxCapacity;
     const booked = availability.bookedPerSlot?.[slot] || 0;
-    return Math.max(0, availability.maxCapacity - booked);
+    return Math.max(0, maxCap - booked);
   };
 
   const handleExperienceChange = (v) => {
@@ -159,13 +172,11 @@ export default function BookingSection({ preSelectedExperience }) {
 
       if (res.data?.error === 'not_enough_seats') {
         setBookingError(res.data.message);
-        // Refresh availability after conflict
+        // Refresh availability after conflict using Supabase
         if (selectedExpObj?.slug && form.date) {
-          base44.functions.invoke('getSlotAvailability', {
-            experienceSlug: selectedExpObj.slug,
-            date: form.date,
-            subExperience: form.subExperience,
-          }).then(r => setAvailability(r.data)).catch(() => {});
+          const expSlug = `${selectedExpObj?.slug || ''} ${form.experience || ''} ${form.subExperience || ''}`;
+          db.getSlotAvailability(expSlug, form.date, form.subExperience)
+            .then(r => setAvailability(r)).catch(() => {});
         }
         return;
       }
@@ -175,6 +186,23 @@ export default function BookingSection({ preSelectedExperience }) {
         setBookingError('Something went wrong. Please try again.');
         return;
       }
+
+      // Also save to Supabase for admin panel
+      try {
+        await db.createBooking({
+          experience_slug: selectedExpObj?.slug || form.experience,
+          experience_name: form.experience,
+          sub_experience: birthdayPack ? `${form.subExperience ? form.subExperience + ' + ' : ''}Birthday Pack` : form.subExperience,
+          booking_date: form.date,
+          booking_time: form.time,
+          num_people: parseInt(form.people) || 1,
+          customer_name: form.name,
+          customer_email: form.email,
+          customer_phone: form.phone,
+          user_id: user?.id || null,
+          status: 'confirmed',
+        });
+      } catch {}
 
       // Send confirmation email
       try {
@@ -231,13 +259,18 @@ export default function BookingSection({ preSelectedExperience }) {
               <p className="text-electric-cyan font-heading font-bold text-sm mb-2">{tr(lang, 'booking_arrive_title')}</p>
               <p className="text-white/60 text-sm font-body leading-relaxed">{tr(lang, 'booking_arrive_body')}</p>
             </div>
-            <div className="bg-neon-pink/5 border border-neon-pink/10 rounded-2xl p-4 text-left max-w-sm mx-auto mb-8">
+            <div className="bg-neon-pink/5 border border-neon-pink/10 rounded-2xl p-4 text-left max-w-sm mx-auto mb-6">
               <p className="text-white/50 text-xs font-body space-y-1">
                 <span className="block">📅 {form.date} — {form.time}</span>
                 <span className="block">👥 {form.people} {isAr ? 'أشخاص' : 'people'}</span>
                 <span className="block">👤 {form.name} · {form.email}</span>
               </p>
             </div>
+            <p className="text-white/40 text-xs font-body mb-6 max-w-sm mx-auto">
+              {isAr 
+                ? 'للإلغاء أو التعديل، يمكنك الاتصال بنا أو مراسلتنا ع��ر واتساب.'
+                : 'To cancel or make changes, you can call us or WhatsApp us.'}
+            </p>
             <button onClick={() => setSubmitted(false)} className="text-white/30 hover:text-white/60 text-sm font-body transition-colors">
               {tr(lang, 'booking_another')}
             </button>
@@ -300,7 +333,7 @@ export default function BookingSection({ preSelectedExperience }) {
                   <Calendar className="w-4 h-4 text-uv-purple shrink-0" /> {tr(lang, 'booking_date')}
                 </Label>
                 <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value, time: '', people: '' })}
-                  className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full" />
+                  className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:brightness-100" />
               </div>
               <div className="space-y-2">
                 <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
@@ -350,8 +383,14 @@ export default function BookingSection({ preSelectedExperience }) {
                 <SelectContent className="bg-obsidian border-white/10">
                   {(() => {
                     const remaining = form.time ? getSlotRemaining(form.time) : null;
+                    // Check if Spin experience (4 people max)
+                    const isSpinExp = selectedExpObj?.slug?.toLowerCase().includes('spin') || 
+                                      form.experience?.toLowerCase().includes('spin') ||
+                                      form.experience?.includes('سبين');
+                    // Use capacity-based max: Spin=4, otherwise use backend capacity or default
+                    const capacityMax = isSpinExp ? 4 : (availability?.maxCapacity || 30);
                     // When birthday pack is on, allow up to 19 online + "20+" for WhatsApp
-                    const onlineMax = birthdayPack ? 19 : 10;
+                    const onlineMax = birthdayPack ? 19 : capacityMax;
                     const max = remaining !== null ? Math.min(remaining, onlineMax) : onlineMax;
                     const options = Array.from({ length: max }, (_, i) => i + 1);
                     if (options.length === 0) return (
@@ -413,7 +452,10 @@ export default function BookingSection({ preSelectedExperience }) {
                     {isAr ? 'إضافة باقة عيد الميلاد 🎂' : 'Add Birthday Pack 🎂'}
                   </p>
                   <p className="text-white/40 text-xs font-body">
-                    {isAr ? 'للمجموعات أقل من 20: احجز أونلاين. 20 فأكثر: عبر واتساب' : 'Under 20 people: book online. 20+ people: via WhatsApp'}
+                    {isAr ? 'رسوم الباقة 60 ريال للمجموعة الكاملة (وليس للشخص)' : 'SR60 for the whole group (not per person)'}
+                  </p>
+                  <p className="text-white/30 text-xs font-body mt-0.5">
+                    {isAr ? 'أقل من 20: احجز أونلاين. 20 ف��كثر: واتساب' : 'Under 20: book online. 20+: WhatsApp'}
                   </p>
                 </div>
               </div>

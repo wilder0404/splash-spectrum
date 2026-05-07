@@ -33,9 +33,14 @@ export default function ExperienceDetail() {
   const [bookingError, setBookingError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isGroupSplash = exp && (exp.slug || '') === 'group-friends';
+  const isGroupSplash = exp && ((exp.slug || '') === 'group-friends' || (exp.slug || '') === 'group-splash');
   const priceTable = exp?.priceTable || [];
   const hasSubExperiences = priceTable.length > 1;
+  
+  // Special Events should be WhatsApp-only
+  const isSpecialEvents = exp?.slug?.toLowerCase().includes('special') || 
+                          exp?.title_en?.toLowerCase().includes('special event');
+  const isWhatsAppOnly = exp?.whatsappOnly || isSpecialEvents;
 
   const getCanvasInfo = (people) => {
     const n = parseInt(people) || 0;
@@ -63,12 +68,9 @@ export default function ExperienceDetail() {
 
     setLoadingAvailability(true);
     setForm(f => ({ ...f, time: '', people: '' }));
-    base44.functions.invoke('getSlotAvailability', {
-      experienceSlug: exp.slug,
-      date: form.date,
-      subExperience: subExp,
-    }).then(res => {
-      setAvailability(res.data);
+    const expSlug = `${exp.slug} ${exp.title_en} ${subExp || ''}`;
+    db.getSlotAvailability(expSlug, form.date, subExp).then(res => {
+      setAvailability(res);
     }).catch(() => {
       setAvailability(null);
     }).finally(() => {
@@ -78,8 +80,13 @@ export default function ExperienceDetail() {
 
   const getSlotRemaining = (slot) => {
     if (!availability || availability.maxCapacity === null) return null;
+    // Frontend override for Spin capacity (4 seats)
+    const isSpinExp = exp?.slug?.toLowerCase().includes('spin') || 
+                      exp?.title_en?.toLowerCase().includes('spin') ||
+                      exp?.title_ar?.includes('سبين');
+    const maxCap = isSpinExp ? 4 : availability.maxCapacity;
     const booked = availability.bookedPerSlot?.[slot] || 0;
-    return Math.max(0, availability.maxCapacity - booked);
+    return Math.max(0, maxCap - booked);
   };
 
   const handleSubmit = async (e) => {
@@ -87,37 +94,42 @@ export default function ExperienceDetail() {
     setBookingError('');
     setIsSubmitting(true);
     try {
-      const res = await base44.functions.invoke('createBookingWithCapacityCheck', {
-        experienceSlug: slug,
-        experienceName: isAr ? exp.title_ar : exp.title_en,
-        subExperience: activeSubExp,
-        date: form.date,
-        time: form.time,
-        people: form.people,
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        userId: '',
+      // Check availability from Supabase
+      const expSlug = `${exp.slug} ${exp.title_en} ${activeSubExp || ''}`;
+      const availRes = await db.getSlotAvailability(expSlug, form.date, activeSubExp);
+      const booked = availRes?.bookedPerSlot?.[form.time] || 0;
+      const maxCap = availRes?.maxCapacity || 30;
+      const requestedPeople = parseInt(form.people) || 1;
+
+      if (booked + requestedPeople > maxCap) {
+        const remaining = maxCap - booked;
+        setBookingError(isAr 
+          ? `عذراً، لا تتوفر مقاعد كافية. المتاح: ${remaining}` 
+          : `Sorry, not enough seats available. Remaining: ${remaining}`);
+        setAvailability(availRes);
+        return;
+      }
+
+      // Create booking in Supabase
+      const { data: booking, error } = await db.createBooking({
+        experience_slug: slug,
+        experience_name: isAr ? exp.title_ar : exp.title_en,
+        sub_experience: activeSubExp,
+        booking_date: form.date,
+        booking_time: form.time,
+        num_people: requestedPeople,
+        customer_name: form.name,
+        customer_email: form.email,
+        customer_phone: form.phone,
+        user_id: null,
         status: 'confirmed',
       });
 
-      if (res.data?.error === 'not_enough_seats') {
-        setBookingError(res.data.message);
-        // Refresh availability
-        base44.functions.invoke('getSlotAvailability', {
-          experienceSlug: exp.slug,
-          date: form.date,
-          subExperience: activeSubExp,
-        }).then(r => setAvailability(r.data)).catch(() => {});
+      if (error || !booking) {
+        setBookingError(isAr ? 'حدث خطأ. يرجى المحاولة مرة أخرى.' : 'Something went wrong. Please try again.');
         return;
       }
 
-      if (!res.data?.booking) {
-        setBookingError('Something went wrong. Please try again.');
-        return;
-      }
-
-      try { await base44.functions.invoke('sendBookingConfirmation', { bookingId: res.data.booking.id }); } catch {}
       setSubmitted(true);
     } finally {
       setIsSubmitting(false);
@@ -157,7 +169,24 @@ export default function ExperienceDetail() {
   const duration = isAr ? exp.duration_ar : exp.duration_en;
   const groupSize = isAr ? exp.groupSize_ar : exp.groupSize_en;
   const price = isAr ? exp.price_ar : exp.price_en;
-  const includes = isAr ? (exp.includes_ar || []) : (exp.includes_en || []);
+  // Override includes for Group Splash with correct content
+  const groupSplashIncludes_en = [
+    'Giant canvas (per group)',
+    '8 neon or normal colors and 2 brushes for each big canvas',
+    'Apron & protective cover-up',
+    'Shoe covers',
+    'Take-home group artwork'
+  ];
+  const groupSplashIncludes_ar = [
+    'كانفاس كبير (للمجموعة)',
+    '8 ألوان نيون أو عادية وفرشتين لكل كانفاس كبير',
+    'مريول وغطاء حماية',
+    'أغطية أحذية',
+    'العمل الفني الجماعي للمنزل'
+  ];
+  const includes = isGroupSplash 
+    ? (isAr ? groupSplashIncludes_ar : groupSplashIncludes_en)
+    : (isAr ? (exp.includes_ar || []) : (exp.includes_en || []));
   const rules = isAr ? (exp.rules_ar || []) : (exp.rules_en || []);
   const vibes = exp.vibes || [];
   const gallery = exp.gallery || [];
@@ -245,8 +274,12 @@ export default function ExperienceDetail() {
             {/* Pricing Table */}
             {priceTable.length > 0 && (
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                <h3 className="font-heading font-bold text-white text-xl mb-5 flex items-center gap-2">
-                  <span style={{ color: exp.color }}>💰</span> {tr(lang, 'detail_prices')}
+                <h3 className="font-heading font-bold text-white text-xl mb-5 flex items-center gap-2 whitespace-nowrap">
+                  <span style={{ color: exp.color }}>💰</span> 
+                  {tr(lang, 'detail_prices')}
+                  {(exp.slug === 'school-packages' || exp.slug === 'kids' || exp.title_en?.toLowerCase().includes('school')) && (
+                    <span className="text-white/40 text-sm font-normal ml-2">{isAr ? '(قابل للنقاش)' : '(open for discussion)'}</span>
+                  )}
                 </h3>
                 <div className="rounded-2xl overflow-hidden border border-white/8" style={{ background: `linear-gradient(135deg, ${exp.color}06, rgba(255,255,255,0.02))` }}>
                   {priceTable.map((row, i) => (
@@ -328,7 +361,7 @@ export default function ExperienceDetail() {
               <div className="h-1" style={{ background: `linear-gradient(90deg, ${exp.color}, ${exp.color}44)` }} />
 
               <div className="p-6 md:p-8">
-                {exp.whatsappOnly ? (
+                {isWhatsAppOnly ? (
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-4">
                     <div className="w-20 h-20 rounded-2xl mx-auto mb-5 flex items-center justify-center text-4xl"
                       style={{ background: `${exp.color}15`, border: `1px solid ${exp.color}30` }}>
@@ -344,6 +377,15 @@ export default function ExperienceDetail() {
                       {tr(lang, 'detail_whatsapp_btn')}
                     </button>
                     <p className="text-white/20 text-xs mt-4 font-body">+966 55 456 3447</p>
+                    
+                    {/* Cancellation info for special events */}
+                    <div className="mt-6 p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+                      <p className="text-white/40 text-xs font-body leading-relaxed">
+                        {isAr 
+                          ? 'بعد تأكيد الحجز، يمكنك الاتصال بنا أو مراسلتنا عبر واتساب للإلغاء أو التعديل.'
+                          : 'After your reservation is booked, you can call us or WhatsApp us to cancel or make changes.'}
+                      </p>
+                    </div>
                   </motion.div>
                 ) : submitted ? (
                   <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-6">
@@ -355,6 +397,11 @@ export default function ExperienceDetail() {
                       <p className="text-white/75 text-sm font-body">👥 {form.people} {isAr ? 'أشخاص' : 'people'}</p>
                       <p className="text-white/75 text-sm font-body">👤 {form.name}</p>
                     </div>
+                    <p className="text-white/40 text-xs font-body mb-4">
+                      {isAr 
+                        ? 'للإلغاء أو التعديل، يمكنك الاتصال بنا أو مراسلتنا عبر واتساب.'
+                        : 'To cancel or make changes, you can call us or WhatsApp us.'}
+                    </p>
                     <Link to="/" className="text-white/30 hover:text-white text-sm font-body transition-colors">{tr(lang, 'detail_back')}</Link>
                   </motion.div>
                 ) : (
@@ -427,7 +474,9 @@ export default function ExperienceDetail() {
                           <SelectContent className="bg-obsidian border-white/10">
                             {(() => {
                               const remaining = form.time ? getSlotRemaining(form.time) : null;
-                              const max = remaining !== null ? Math.min(remaining, 10) : 10;
+                              // Use capacity-based max: if there's a capacity, respect it; otherwise default to 10
+                              const capacityMax = availability?.maxCapacity || 10;
+                              const max = remaining !== null ? Math.min(remaining, capacityMax) : capacityMax;
                               if (max <= 0) return (
                                 <SelectItem value="none" disabled className="text-red-400">
                                   {isAr ? 'لا توجد مقاعد' : 'No seats available'}
@@ -497,7 +546,7 @@ export default function ExperienceDetail() {
               </div>
             </div>
 
-            {!exp.whatsappOnly && (
+            {!isWhatsAppOnly && (
               <div className="mt-4">
                 <button onClick={handleWhatsApp}
                   className="w-full h-12 rounded-xl font-heading font-semibold text-sm text-white/80 flex items-center justify-center gap-2 border border-white/10 bg-white/[0.02] hover:bg-neon-green/10 hover:border-neon-green/30 hover:text-white transition-all">
