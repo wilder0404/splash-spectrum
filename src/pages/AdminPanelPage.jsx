@@ -47,21 +47,29 @@ export default function AdminPanelPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [bookingsRes, experiencesRes, reviewsRes] = await Promise.all([
-        db.getAllBookings(),
-        db.getExperiences(),
-        db.getAllReviews()
+      // Load data with timeout to prevent infinite loading
+      const timeout = (ms) => new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout')), ms)
+      );
+      
+      const [bookingsRes, experiencesRes, reviewsRes] = await Promise.race([
+        Promise.all([
+          db.getAllBookings().catch(() => ({ data: [] })),
+          db.getExperiences().catch(() => ({ data: [] })),
+          db.getAllReviews().catch(() => ({ data: [] }))
+        ]),
+        timeout(8000).then(() => [{ data: [] }, { data: [] }, { data: [] }])
       ]);
-      console.log('[v0] Admin data loaded:', { 
-        bookings: bookingsRes.data?.length || 0, 
-        experiences: experiencesRes.data?.length || 0, 
-        reviews: reviewsRes.data?.length || 0 
-      });
-      setBookings(bookingsRes.data || []);
-      setExperiences(experiencesRes.data || []);
-      setReviews(reviewsRes.data || []);
+      
+      setBookings(bookingsRes?.data || []);
+      setExperiences(experiencesRes?.data || []);
+      setReviews(reviewsRes?.data || []);
     } catch (err) {
       console.error('[v0] Error loading admin data:', err);
+      // Set empty arrays on error to prevent infinite loading
+      setBookings([]);
+      setExperiences([]);
+      setReviews([]);
     }
     setLoading(false);
   };
@@ -339,8 +347,8 @@ export default function AdminPanelPage() {
                   <div className="space-y-3">
                     {experiences.map((exp) => (
                       <div key={exp.id} className="bg-white/[0.03] border border-white/10 rounded-xl p-4 flex items-center gap-4">
-                        {exp.image_url && (
-                          <img src={exp.image_url} alt="" className="w-16 h-16 rounded-lg object-cover" />
+                        {exp.image && (
+                          <img src={exp.image} alt="" className="w-16 h-16 rounded-lg object-cover" />
                         )}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
@@ -504,11 +512,11 @@ function ExperienceEditor({ experience, onSave, onCancel, isAr }) {
               <div className="flex gap-2">
                 <div 
                   className="w-10 h-10 rounded-lg border border-white/10" 
-                  style={{ backgroundColor: form.accent_color || '#FF007F' }}
+                  style={{ backgroundColor: form.color || '#FF007F' }}
                 />
                 <input
-                  value={form.accent_color || '#FF007F'}
-                  onChange={(e) => handleChange('accent_color', e.target.value)}
+                  value={form.color || '#FF007F'}
+                  onChange={(e) => handleChange('color', e.target.value)}
                   className="flex-1 h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
                 />
               </div>
@@ -528,12 +536,12 @@ function ExperienceEditor({ experience, onSave, onCancel, isAr }) {
           <div className="mt-4">
             <label className="text-white/50 text-xs mb-1 block">Experience Image URL</label>
             <div className="flex gap-3 items-center">
-              {form.image_url && (
-                <img src={form.image_url} alt="" className="w-16 h-16 rounded-lg object-cover" />
+              {form.image && (
+                <img src={form.image} alt="" className="w-16 h-16 rounded-lg object-cover" />
               )}
               <input
-                value={form.image_url || ''}
-                onChange={(e) => handleChange('image_url', e.target.value)}
+                value={form.image || ''}
+                onChange={(e) => handleChange('image', e.target.value)}
                 placeholder="https://example.com/image.jpg"
                 className="flex-1 h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
               />

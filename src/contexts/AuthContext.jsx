@@ -10,17 +10,27 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
+    // Get initial session with timeout to prevent infinite loading
     const initAuth = async () => {
+      const timeoutId = setTimeout(() => {
+        setLoading(false);
+      }, 3000); // Force stop loading after 3 seconds
+      
       try {
         const { session } = await auth.getSession();
         if (session?.user) {
           setUser(session.user);
+          // Check admin by email first for immediate access
+          const adminEmail = 'splash.spectrum10000@gmail.com';
+          if (session.user.email === adminEmail) {
+            setIsAdmin(true);
+          }
           await loadUserProfile(session.user.id, session.user.email);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
       } finally {
+        clearTimeout(timeoutId);
         setLoading(false);
       }
     };
