@@ -10,6 +10,7 @@ import { tr } from '@/lib/translations.js';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/AuthContext';
+import { db } from '@/lib/supabase';
 
 const WHATSAPP_NUMBER = '966554563447';
 
@@ -124,8 +125,15 @@ export default function BookingSection({ preSelectedExperience }) {
 
   const getSlotRemaining = (slot) => {
     if (!availability || availability.maxCapacity === null) return null;
+    // Frontend override for Spin capacity (4 seats) - check slug, title, and form.experience
+    const isSpinExp = selectedExpObj?.slug?.toLowerCase().includes('spin') || 
+                      selectedExpObj?.title_en?.toLowerCase().includes('spin') ||
+                      selectedExpObj?.title_ar?.includes('سبين') ||
+                      form.experience?.includes('سبين') ||
+                      form.experience?.toLowerCase().includes('spin');
+    const maxCap = isSpinExp ? 4 : availability.maxCapacity;
     const booked = availability.bookedPerSlot?.[slot] || 0;
-    return Math.max(0, availability.maxCapacity - booked);
+    return Math.max(0, maxCap - booked);
   };
 
   const handleExperienceChange = (v) => {
@@ -182,6 +190,23 @@ export default function BookingSection({ preSelectedExperience }) {
         setBookingError('Something went wrong. Please try again.');
         return;
       }
+
+      // Also save to Supabase for admin panel
+      try {
+        await db.createBooking({
+          experience_slug: selectedExpObj?.slug || form.experience,
+          experience_name: form.experience,
+          sub_experience: birthdayPack ? `${form.subExperience ? form.subExperience + ' + ' : ''}Birthday Pack` : form.subExperience,
+          booking_date: form.date,
+          booking_time: form.time,
+          num_people: parseInt(form.people) || 1,
+          customer_name: form.name,
+          customer_email: form.email,
+          customer_phone: form.phone,
+          user_id: user?.id || null,
+          status: 'confirmed',
+        });
+      } catch {}
 
       // Send confirmation email
       try {
@@ -434,7 +459,7 @@ export default function BookingSection({ preSelectedExperience }) {
                     {isAr ? 'رسوم الباقة 60 ريال للمجموعة الكاملة (وليس للشخص)' : 'SR60 for the whole group (not per person)'}
                   </p>
                   <p className="text-white/30 text-xs font-body mt-0.5">
-                    {isAr ? 'أقل من 20: احجز أونلاين. 20 فأكثر: واتساب' : 'Under 20: book online. 20+: WhatsApp'}
+                    {isAr ? 'أقل من 20: احجز أونلاين. 20 ف��كثر: واتساب' : 'Under 20: book online. 20+: WhatsApp'}
                   </p>
                 </div>
               </div>
