@@ -1,21 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Try multiple env var names for compatibility
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 
-                    import.meta.env.NEXT_PUBLIC_SUPABASE_URL ||
-                    import.meta.env.SUPABASE_URL;
-                    
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 
-                        import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-                        import.meta.env.SUPABASE_ANON_KEY;
+// Get Supabase credentials from environment
+// In Vite, VITE_* vars are exposed. We also try NEXT_PUBLIC_* for Vercel deployments.
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+console.log('[v0] Supabase init - URL exists:', !!supabaseUrl, 'Key exists:', !!supabaseAnonKey);
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('[v0] Supabase credentials not found. URL:', !!supabaseUrl, 'Key:', !!supabaseAnonKey);
+  console.error('[v0] Supabase credentials missing! Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY env vars.');
 }
 
 export const supabase = createClient(
-  supabaseUrl || '',
-  supabaseAnonKey || ''
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key'
 );
 
 // Auth helper functions
@@ -84,8 +82,13 @@ export const db = {
     const { data, error } = await supabase
       .from('experiences')
       .select('*')
-      .eq('is_active', true)
       .order('sort_order', { ascending: true });
+    
+    if (error) {
+      console.error('[v0] Error fetching experiences:', error);
+    } else {
+      console.log('[v0] Fetched experiences:', data?.length || 0);
+    }
     return { data, error };
   },
 

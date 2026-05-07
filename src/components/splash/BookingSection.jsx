@@ -377,7 +377,7 @@ export default function BookingSection({ preSelectedExperience }) {
                 className="bg-uv-purple/10 border border-uv-purple/30 rounded-xl p-4 flex items-center gap-3">
                 <span className="text-2xl">{getCanvasInfo(form.people)?.emoji}</span>
                 <span className="text-white text-sm font-heading">
-                  {isAr ? 'ستحصلون على: ' : "You'll get: "}<span className="text-uv-purple">{getCanvasInfo(form.people)?.label}</span>
+                  {isAr ? 'ستحصلون على: ' : 'You will get: '}<span className="text-uv-purple">{getCanvasInfo(form.people)?.label}</span>
                 </span>
               </motion.div>
             )}
