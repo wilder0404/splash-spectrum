@@ -12,7 +12,9 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { lang, setLang, isAr } = useLang();
-  const { user, isAdmin, signOut } = useAuth();
+  const { user, isAdmin: contextIsAdmin, signOut } = useAuth();
+  // Always show admin button for admin email
+  const isAdmin = contextIsAdmin || user?.email === 'splash.spectrum10000@gmail.com';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
