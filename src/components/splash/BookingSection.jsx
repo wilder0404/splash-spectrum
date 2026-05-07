@@ -110,7 +110,7 @@ export default function BookingSection({ preSelectedExperience }) {
     setForm(f => ({ ...f, time: '', people: '' }));
     base44.functions.invoke('getSlotAvailability', {
       experienceSlug: selectedExpObj.slug,
-      experienceTitle: selectedExpObj.title_en,
+      experienceTitle: `${selectedExpObj.title_en || ''} ${selectedExpObj.title_ar || ''}`,
       date: form.date,
       subExperience: form.subExperience,
     }).then(res => {
@@ -169,7 +169,7 @@ export default function BookingSection({ preSelectedExperience }) {
     if (selectedExpObj?.slug && form.date) {
       base44.functions.invoke('getSlotAvailability', {
         experienceSlug: selectedExpObj.slug,
-        experienceTitle: selectedExpObj.title_en,
+        experienceTitle: `${selectedExpObj.title_en || ''} ${selectedExpObj.title_ar || ''}`,
         date: form.date,
         subExperience: form.subExperience,
       }).then(r => setAvailability(r.data)).catch(() => {});
