@@ -272,8 +272,8 @@ export default function ExperienceDetail() {
                 <h3 className="font-heading font-bold text-white text-xl mb-5 flex items-center gap-2 whitespace-nowrap">
                   <span style={{ color: exp.color }}>💰</span> 
                   {tr(lang, 'detail_prices')}
-                  {exp.slug === 'school-packages' && (
-                    <span className="text-white/40 text-sm font-normal">{isAr ? '(قابل للنقاش)' : '(open for discussion)'}</span>
+                  {(exp.slug === 'school-packages' || exp.slug === 'kids' || exp.title_en?.toLowerCase().includes('school')) && (
+                    <span className="text-white/40 text-sm font-normal ml-2">{isAr ? '(قابل للنقاش)' : '(open for discussion)'}</span>
                   )}
                 </h3>
                 <div className="rounded-2xl overflow-hidden border border-white/8" style={{ background: `linear-gradient(135deg, ${exp.color}06, rgba(255,255,255,0.02))` }}>
