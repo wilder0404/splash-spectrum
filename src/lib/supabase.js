@@ -258,20 +258,29 @@ export const db = {
     const timeSlots = settings?.time_slots || ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'];
     
     // Determine max capacity based on experience type
-    // Splash = 20, Spin = 4, Pouring = 14
+    // Splash = 20, Spin = 4, Pouring/Figurines = 14, Group Splash = 15, Phone Case = 12
     const slug = (experienceSlug || '').toLowerCase();
     const sub = (subExperience || '').toLowerCase();
     const combined = `${slug} ${sub}`;
     
     let maxCapacity = 20; // Default: Splash = 20 seats
+    let expType = 'splash';
+    
     if (combined.includes('spin') || combined.includes('سبين')) {
       maxCapacity = 4; // Spin = 4 seats
-    } else if (combined.includes('pour') || combined.includes('صب') || combined.includes('pouring')) {
-      maxCapacity = 14; // Pouring = 14 seats
+      expType = 'spin';
+    } else if (combined.includes('phone') || combined.includes('case') || combined.includes('كفر') || combined.includes('جوال')) {
+      maxCapacity = 12; // Phone Case = 12 seats
+      expType = 'phone';
+    } else if (combined.includes('group') || combined.includes('جماعي') || combined.includes('مجموعة') || combined.includes('shared') || combined.includes('canvas')) {
+      maxCapacity = 15; // Group Splash = 15 seats
+      expType = 'group';
+    } else if (combined.includes('pour') || combined.includes('صب') || combined.includes('pouring') || combined.includes('figurine') || combined.includes('مجسم') || combined.includes('custom art')) {
+      maxCapacity = 14; // Pouring/Figurines = 14 seats
+      expType = 'pour';
     }
     
-    // Get bookings for this date and experience
-    // Match bookings by checking if the experience_slug or experience_name contains relevant keywords
+    // Get bookings for this date
     const { data: allBookings } = await supabase
       .from('bookings')
       .select('experience_slug, experience_name, sub_experience, booking_time, num_people')
@@ -281,15 +290,23 @@ export const db = {
     // Filter bookings to match the experience type
     const matchingBookings = (allBookings || []).filter(b => {
       const bookingExp = `${b.experience_slug || ''} ${b.experience_name || ''} ${b.sub_experience || ''}`.toLowerCase();
+      
       // Match based on activity type
-      if (combined.includes('spin') || combined.includes('سبين')) {
+      if (expType === 'spin') {
         return bookingExp.includes('spin') || bookingExp.includes('سبين');
-      } else if (combined.includes('pour') || combined.includes('صب') || combined.includes('pouring')) {
-        return bookingExp.includes('pour') || bookingExp.includes('صب');
+      } else if (expType === 'phone') {
+        return bookingExp.includes('phone') || bookingExp.includes('case') || bookingExp.includes('كفر') || bookingExp.includes('جوال');
+      } else if (expType === 'group') {
+        return bookingExp.includes('group') || bookingExp.includes('جماعي') || bookingExp.includes('مجموعة') || bookingExp.includes('shared') || bookingExp.includes('canvas');
+      } else if (expType === 'pour') {
+        return bookingExp.includes('pour') || bookingExp.includes('صب') || bookingExp.includes('figurine') || bookingExp.includes('مجسم') || bookingExp.includes('custom art');
       } else {
-        // Splash - match splash or general bookings
-        return bookingExp.includes('splash') || bookingExp.includes('سبلاش') || 
-               (!bookingExp.includes('spin') && !bookingExp.includes('سبين') && !bookingExp.includes('pour') && !bookingExp.includes('صب'));
+        // Default Splash - match general splash bookings (not spin, phone, group, or pour)
+        const isOther = bookingExp.includes('spin') || bookingExp.includes('سبين') ||
+                       bookingExp.includes('phone') || bookingExp.includes('case') || bookingExp.includes('كفر') ||
+                       bookingExp.includes('group') || bookingExp.includes('جماعي') || bookingExp.includes('shared') ||
+                       bookingExp.includes('pour') || bookingExp.includes('صب') || bookingExp.includes('figurine');
+        return !isOther;
       }
     });
     

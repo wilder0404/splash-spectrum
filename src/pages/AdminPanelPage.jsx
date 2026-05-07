@@ -714,7 +714,7 @@ function BookingFormSettings({ isAr }) {
       <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4">
         <h3 className="font-heading font-bold text-white mb-4">Capacity Settings</h3>
         <p className="text-white/50 text-sm mb-4">Default capacity per experience type</p>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div>
             <label className="text-white/50 text-xs mb-1 block">Splash (default)</label>
             <input type="number" defaultValue={20} disabled className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-white text-sm opacity-60" />
@@ -724,11 +724,19 @@ function BookingFormSettings({ isAr }) {
             <input type="number" defaultValue={4} disabled className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-white text-sm opacity-60" />
           </div>
           <div>
-            <label className="text-white/50 text-xs mb-1 block">Pouring</label>
+            <label className="text-white/50 text-xs mb-1 block">Phone Case</label>
+            <input type="number" defaultValue={12} disabled className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-white text-sm opacity-60" />
+          </div>
+          <div>
+            <label className="text-white/50 text-xs mb-1 block">Group Splash</label>
+            <input type="number" defaultValue={15} disabled className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-white text-sm opacity-60" />
+          </div>
+          <div>
+            <label className="text-white/50 text-xs mb-1 block">Pouring/Figurines</label>
             <input type="number" defaultValue={14} disabled className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-white text-sm opacity-60" />
           </div>
         </div>
-        <p className="text-white/30 text-xs mt-2">Capacity is auto-calculated based on experience type. Contact support to change.</p>
+        <p className="text-white/30 text-xs mt-2">Capacity per hour slot for each experience type.</p>
       </div>
     </div>
   );
