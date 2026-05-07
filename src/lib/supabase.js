@@ -1,20 +1,23 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Get Supabase credentials from environment
-// In Vite, VITE_* vars are exposed. We also try NEXT_PUBLIC_* for Vercel deployments.
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Try multiple env var patterns for compatibility
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 
+                    import.meta.env.NEXT_PUBLIC_SUPABASE_URL ||
+                    'https://ujmbpfawpquyiabptdqw.supabase.co';
 
-console.log('[v0] Supabase init - URL exists:', !!supabaseUrl, 'Key exists:', !!supabaseAnonKey);
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 
+                        import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+                        '';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('[v0] Supabase credentials missing! Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY env vars.');
-}
+console.log('[v0] Supabase init - URL:', supabaseUrl?.substring(0, 30) + '...', 'Key exists:', !!supabaseAnonKey);
 
-export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
-);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+  }
+});
 
 // Auth helper functions
 export const auth = {

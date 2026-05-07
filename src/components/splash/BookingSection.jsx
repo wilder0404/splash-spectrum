@@ -109,14 +109,13 @@ export default function BookingSection({ preSelectedExperience }) {
     }
     setLoadingAvailability(true);
     setForm(f => ({ ...f, time: '', people: '' }));
-    base44.functions.invoke('getSlotAvailability', {
-      experienceSlug: selectedExpObj.slug,
-      experienceTitle: `${selectedExpObj.title_en || ''} ${selectedExpObj.title_ar || ''} ${form.experience || ''}`,
-      date: form.date,
-      subExperience: form.subExperience,
-    }).then(res => {
-      setAvailability(res.data);
-    }).catch(() => {
+    // Use Supabase for availability check
+    const expSlug = `${selectedExpObj?.slug || ''} ${form.experience || ''} ${form.subExperience || ''}`;
+    db.getSlotAvailability(expSlug, form.date, form.subExperience).then(res => {
+      console.log('[v0] Slot availability from Supabase:', res);
+      setAvailability(res);
+    }).catch((err) => {
+      console.error('[v0] Error getting availability:', err);
       setAvailability(null);
     }).finally(() => {
       setLoadingAvailability(false);
@@ -173,14 +172,11 @@ export default function BookingSection({ preSelectedExperience }) {
 
       if (res.data?.error === 'not_enough_seats') {
         setBookingError(res.data.message);
-        // Refresh availability after conflict
-    if (selectedExpObj?.slug && form.date) {
-      base44.functions.invoke('getSlotAvailability', {
-        experienceSlug: selectedExpObj.slug,
-        experienceTitle: `${selectedExpObj.title_en || ''} ${selectedExpObj.title_ar || ''} ${form.experience || ''}`,
-        date: form.date,
-        subExperience: form.subExperience,
-      }).then(r => setAvailability(r.data)).catch(() => {});
+        // Refresh availability after conflict using Supabase
+        if (selectedExpObj?.slug && form.date) {
+          const expSlug = `${selectedExpObj?.slug || ''} ${form.experience || ''} ${form.subExperience || ''}`;
+          db.getSlotAvailability(expSlug, form.date, form.subExperience)
+            .then(r => setAvailability(r)).catch(() => {});
         }
         return;
       }
