@@ -62,7 +62,7 @@ export default function Navbar() {
               <>
                 {isAdmin && (
                   <Link
-                    to="/admin-panel"
+                    to="/admin"
                     className="px-4 py-2 border border-uv-purple/50 text-uv-purple hover:bg-uv-purple/10 rounded-full text-xs font-heading font-semibold transition-all"
                   >
                     {isAr ? 'لوحة التحكم' : 'Admin'}
@@ -130,7 +130,7 @@ export default function Navbar() {
                 <>
                   {isAdmin && (
                     <Link
-                      to="/admin-panel"
+                      to="/admin"
                       onClick={() => setMobileOpen(false)}
                       className="block w-full px-6 py-3 border border-uv-purple/50 text-uv-purple font-heading font-semibold rounded-full text-base text-center"
                     >

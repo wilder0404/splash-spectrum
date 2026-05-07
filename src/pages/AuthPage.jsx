@@ -38,10 +38,10 @@ export default function AuthPage() {
         if (error) {
           setError(isAr ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة' : 'Invalid email or password');
         } else {
-          // Redirect admin to admin panel, others to home
+          // Redirect admin to admin page, others to home
           const adminEmail = 'splash.spectrum10000@gmail.com';
           if (form.email.toLowerCase() === adminEmail) {
-            navigate('/admin-panel');
+            navigate('/admin');
           } else {
             navigate('/');
           }
