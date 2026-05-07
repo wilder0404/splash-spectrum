@@ -307,7 +307,7 @@ export default function BookingSection({ preSelectedExperience }) {
                   <Calendar className="w-4 h-4 text-uv-purple shrink-0" /> {tr(lang, 'booking_date')}
                 </Label>
                 <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value, time: '', people: '' })}
-                  className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full" />
+                  className="bg-white/5 border-white/10 text-white h-12 rounded-xl w-full [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:brightness-100" />
               </div>
               <div className="space-y-2">
                 <Label className="text-white/70 font-heading text-sm flex items-center gap-2">
@@ -357,8 +357,12 @@ export default function BookingSection({ preSelectedExperience }) {
                 <SelectContent className="bg-obsidian border-white/10">
                   {(() => {
                     const remaining = form.time ? getSlotRemaining(form.time) : null;
-                    // Use capacity-based max: if there's a capacity, respect it; otherwise use default
-                    const capacityMax = availability?.maxCapacity || 10;
+                    // Check if Spin experience (4 people max)
+                    const isSpinExp = selectedExpObj?.slug?.toLowerCase().includes('spin') || 
+                                      form.experience?.toLowerCase().includes('spin') ||
+                                      form.experience?.includes('سبين');
+                    // Use capacity-based max: Spin=4, otherwise use backend capacity or default
+                    const capacityMax = isSpinExp ? 4 : (availability?.maxCapacity || 30);
                     // When birthday pack is on, allow up to 19 online + "20+" for WhatsApp
                     const onlineMax = birthdayPack ? 19 : capacityMax;
                     const max = remaining !== null ? Math.min(remaining, onlineMax) : onlineMax;
