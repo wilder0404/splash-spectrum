@@ -11,7 +11,9 @@ function getActivityKey(subExperience, experienceSlug, experienceTitle = '') {
   const allText = `${sub} ${slug} ${title}`.toLowerCase();
 
   // SPIN - 4 seats (highest priority check - check all inputs)
-  if (allText.includes('spin') || allText.includes('سبين') || allText.includes('spinning') || allText.includes('دوران')) {
+  // Check for various spin-related keywords in English and Arabic
+  const spinKeywords = ['spin', 'سبين', 'spinning', 'دوران', 'spin-art', 'spinart', 'سبين آرت', 'سبين ارت'];
+  if (spinKeywords.some(kw => allText.includes(kw))) {
     return { key: 'spin', capacity: 4 };
   }
   

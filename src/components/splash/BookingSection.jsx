@@ -9,13 +9,14 @@ import { useLang } from '@/lib/LanguageContext';
 import { tr } from '@/lib/translations.js';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '@/lib/AuthContext';
+import { useAuth as useSupabaseAuth } from '@/contexts/AuthContext';
+import { db } from '@/lib/supabase';
 
 const WHATSAPP_NUMBER = '966554563447';
 
 export default function BookingSection({ preSelectedExperience }) {
   const { lang, isAr } = useLang();
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useSupabaseAuth();
   const [form, setForm] = useState({ experience: '', subExperience: '', date: '', time: '', people: '', name: '', email: '', phone: '' });
   const [birthdayPack, setBirthdayPack] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -26,13 +27,14 @@ export default function BookingSection({ preSelectedExperience }) {
   const [availability, setAvailability] = useState(null);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
 
-  // Auto-fill from logged in user
+  // Auto-fill from logged in user (Supabase auth)
   useEffect(() => {
     if (user) {
       setForm(f => ({
         ...f,
-        name: f.name || user.full_name || '',
+        name: f.name || user.user_metadata?.full_name || '',
         email: f.email || user.email || '',
+        phone: f.phone || user.user_metadata?.phone || '',
       }));
     }
   }, [user]);
@@ -176,6 +178,26 @@ export default function BookingSection({ preSelectedExperience }) {
       if (!booking) {
         setBookingError('Something went wrong. Please try again.');
         return;
+      }
+
+      // Also save to Supabase for user booking history
+      try {
+        await db.createBooking({
+          user_id: user?.id || null,
+          experience_slug: selectedExpObj?.slug || form.experience,
+          experience_name: form.experience,
+          sub_experience: birthdayPack ? `${form.subExperience ? form.subExperience + ' + ' : ''}Birthday Pack` : form.subExperience,
+          booking_date: form.date,
+          booking_time: form.time,
+          num_people: parseInt(form.people) || 1,
+          customer_name: form.name,
+          customer_email: form.email,
+          customer_phone: form.phone,
+          birthday_pack: birthdayPack,
+          status: 'confirmed'
+        });
+      } catch (supabaseErr) {
+        console.error('Failed to save to Supabase:', supabaseErr);
       }
 
       // Send confirmation email

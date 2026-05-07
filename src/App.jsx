@@ -9,6 +9,10 @@ import { LanguageProvider } from '@/lib/LanguageContext';
 import Home from './pages/Home';
 import ExperienceDetail from './pages/ExperienceDetail';
 import AdminDashboard from './pages/AdminDashboard';
+import AuthPage from './pages/AuthPage';
+import AccountPage from './pages/AccountPage';
+import AdminPanelPage from './pages/AdminPanelPage';
+import { AuthProvider as SupabaseAuthProvider } from './contexts/AuthContext';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -39,6 +43,9 @@ const AuthenticatedApp = () => {
       <Route path="/" element={<Home />} />
       <Route path="/experience" element={<ExperienceDetail />} />
       <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/auth" element={<AuthPage />} />
+      <Route path="/account" element={<AccountPage />} />
+      <Route path="/admin-panel" element={<AdminPanelPage />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
@@ -50,12 +57,14 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <QueryClientProvider client={queryClientInstance}>
-          <Router>
-            <AuthenticatedApp />
-          </Router>
-          <Toaster />
-        </QueryClientProvider>
+        <SupabaseAuthProvider>
+          <QueryClientProvider client={queryClientInstance}>
+            <Router>
+              <AuthenticatedApp />
+            </Router>
+            <Toaster />
+          </QueryClientProvider>
+        </SupabaseAuthProvider>
       </AuthProvider>
     </LanguageProvider>
   )
