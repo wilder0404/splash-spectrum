@@ -33,7 +33,14 @@ export default function AccountPage() {
   };
 
   const handleSignOut = async () => {
-    await signOut();
+    try {
+      await signOut();
+    } catch (e) {
+      console.error('[v0] Sign out error:', e);
+    }
+    // Force clear any cached auth state
+    localStorage.removeItem('sb-ujmbpfawpquyiabptdqw-auth-token');
+    sessionStorage.clear();
     window.location.href = '/';
   };
 
