@@ -4,17 +4,20 @@ import ExperienceCard from './ExperienceCard';
 import { useLang } from '@/lib/LanguageContext';
 import { tr } from '@/lib/translations.js';
 import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/lib/supabase';
 
 export default function ExperiencesSection() {
   const { lang, isAr } = useLang();
 
   const { data: experiences = [], isLoading } = useQuery({
     queryKey: ['experiences'],
-    queryFn: () => base44.entities.Experience.list('sortOrder', 100),
+    queryFn: async () => {
+      const { data } = await db.getExperiences();
+      return data || [];
+    },
   });
 
-  const activeExperiences = experiences.filter(e => e.isActive);
+  const activeExperiences = experiences.filter(e => e.is_active !== false);
 
   return (
     <section id="experiences" className="py-20 md:py-32 px-4 bg-obsidian relative overflow-hidden">

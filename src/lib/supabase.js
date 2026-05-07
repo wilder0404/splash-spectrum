@@ -4,7 +4,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase credentials not found. Auth features will be disabled.');
+  console.warn('Supabase credentials not found. Some features may be disabled.');
 }
 
 export const supabase = createClient(
@@ -14,7 +14,6 @@ export const supabase = createClient(
 
 // Auth helper functions
 export const auth = {
-  // Sign up with email and password
   async signUp({ email, password, fullName, phone }) {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -30,7 +29,6 @@ export const auth = {
     return { data, error };
   },
 
-  // Sign in with email and password
   async signIn({ email, password }) {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -39,30 +37,25 @@ export const auth = {
     return { data, error };
   },
 
-  // Sign out
   async signOut() {
     const { error } = await supabase.auth.signOut();
     return { error };
   },
 
-  // Get current user
   async getUser() {
     const { data: { user }, error } = await supabase.auth.getUser();
     return { user, error };
   },
 
-  // Get current session
   async getSession() {
     const { data: { session }, error } = await supabase.auth.getSession();
     return { session, error };
   },
 
-  // Listen to auth state changes
   onAuthStateChange(callback) {
     return supabase.auth.onAuthStateChange(callback);
   },
 
-  // Reset password
   async resetPassword(email) {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`
@@ -70,7 +63,6 @@ export const auth = {
     return { data, error };
   },
 
-  // Update password
   async updatePassword(newPassword) {
     const { data, error } = await supabase.auth.updateUser({
       password: newPassword
@@ -81,7 +73,56 @@ export const auth = {
 
 // Database helper functions
 export const db = {
-  // Users
+  // ============ EXPERIENCES ============
+  async getExperiences() {
+    const { data, error } = await supabase
+      .from('experiences')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+    return { data, error };
+  },
+
+  async getExperienceBySlug(slug) {
+    const { data, error } = await supabase
+      .from('experiences')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+    return { data, error };
+  },
+
+  async updateExperience(id, updates) {
+    const { data, error } = await supabase
+      .from('experiences')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    return { data, error };
+  },
+
+  // ============ BOOKING SETTINGS ============
+  async getBookingSettings() {
+    const { data, error } = await supabase
+      .from('booking_settings')
+      .select('*')
+      .limit(1)
+      .single();
+    return { data, error };
+  },
+
+  async updateBookingSettings(id, updates) {
+    const { data, error } = await supabase
+      .from('booking_settings')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    return { data, error };
+  },
+
+  // ============ USERS ============
   async getUserProfile(userId) {
     const { data, error } = await supabase
       .from('users')
@@ -102,6 +143,7 @@ export const db = {
   },
 
   async isAdmin(userId) {
+    if (!userId) return { isAdmin: false, error: null };
     const { data, error } = await supabase
       .from('users')
       .select('role')
@@ -110,7 +152,15 @@ export const db = {
     return { isAdmin: data?.role === 'admin', error };
   },
 
-  // Bookings
+  async getAllUsers() {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .order('created_at', { ascending: false });
+    return { data, error };
+  },
+
+  // ============ BOOKINGS ============
   async createBooking(booking) {
     const { data, error } = await supabase
       .from('bookings')
@@ -129,11 +179,23 @@ export const db = {
     return { data, error };
   },
 
-  async getAllBookings() {
-    const { data, error } = await supabase
+  async getAllBookings(filters = {}) {
+    let query = supabase
       .from('bookings')
       .select('*')
-      .order('booking_date', { ascending: false });
+      .order('created_at', { ascending: false });
+    
+    if (filters.status && filters.status !== 'all') {
+      query = query.eq('status', filters.status);
+    }
+    if (filters.date) {
+      query = query.eq('booking_date', filters.date);
+    }
+    if (filters.experience) {
+      query = query.eq('experience_slug', filters.experience);
+    }
+    
+    const { data, error } = await query;
     return { data, error };
   },
 
@@ -142,6 +204,7 @@ export const db = {
       .from('bookings')
       .select('*')
       .eq('booking_date', date)
+      .neq('status', 'cancelled')
       .order('booking_time', { ascending: true });
     return { data, error };
   },
@@ -178,23 +241,98 @@ export const db = {
     return { error };
   },
 
-  // Get slot availability (count bookings per time slot)
-  async getSlotAvailability(experienceSlug, date) {
-    const { data, error } = await supabase
+  // ============ SLOT AVAILABILITY ============
+  async getSlotAvailability(experienceSlug, date, subExperience = null) {
+    // Get booking settings for time slots
+    const { data: settings } = await this.getBookingSettings();
+    const timeSlots = settings?.time_slots || ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'];
+    
+    // Determine max capacity based on experience type
+    const slug = (experienceSlug || '').toLowerCase();
+    const sub = (subExperience || '').toLowerCase();
+    const combined = `${slug} ${sub}`;
+    
+    let maxCapacity = 30;
+    if (combined.includes('spin') || combined.includes('سبين')) {
+      maxCapacity = 4;
+    } else if (combined.includes('phone') || combined.includes('pour') || combined.includes('كفر') || combined.includes('صب')) {
+      maxCapacity = 12;
+    } else if (combined.includes('group') || combined.includes('جماعي')) {
+      maxCapacity = 15;
+    }
+    
+    // Get bookings for this date
+    const { data: bookings } = await supabase
       .from('bookings')
       .select('booking_time, num_people')
-      .eq('experience_slug', experienceSlug)
       .eq('booking_date', date)
       .neq('status', 'cancelled');
     
-    if (error) return { bookedPerSlot: {}, error };
-    
+    // Calculate booked count per slot
     const bookedPerSlot = {};
-    data?.forEach(booking => {
+    bookings?.forEach(booking => {
       bookedPerSlot[booking.booking_time] = (bookedPerSlot[booking.booking_time] || 0) + booking.num_people;
     });
     
-    return { bookedPerSlot, error: null };
+    // Build availability response
+    const slots = timeSlots.map(slot => ({
+      time: slot,
+      booked: bookedPerSlot[slot] || 0,
+      max: maxCapacity,
+      available: maxCapacity - (bookedPerSlot[slot] || 0)
+    }));
+    
+    return { 
+      slots, 
+      maxCapacity, 
+      bookedPerSlot,
+      error: null 
+    };
+  },
+
+  // ============ REVIEWS ============
+  async getApprovedReviews() {
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('*')
+      .eq('is_approved', true)
+      .order('created_at', { ascending: false });
+    return { data, error };
+  },
+
+  async getAllReviews() {
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('*')
+      .order('created_at', { ascending: false });
+    return { data, error };
+  },
+
+  async createReview(review) {
+    const { data, error } = await supabase
+      .from('reviews')
+      .insert(review)
+      .select()
+      .single();
+    return { data, error };
+  },
+
+  async approveReview(reviewId) {
+    const { data, error } = await supabase
+      .from('reviews')
+      .update({ is_approved: true })
+      .eq('id', reviewId)
+      .select()
+      .single();
+    return { data, error };
+  },
+
+  async deleteReview(reviewId) {
+    const { error } = await supabase
+      .from('reviews')
+      .delete()
+      .eq('id', reviewId);
+    return { error };
   }
 };
 

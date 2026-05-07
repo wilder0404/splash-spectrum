@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/lib/supabase';
 import { useMutation } from '@tanstack/react-query';
 import { useLang } from '@/lib/LanguageContext';
-import { Input } from '@/components/ui/input';
 
 const COLORS = ['#FF007F', '#9D00FF', '#39FF14', '#00F3FF'];
 const EMOJIS = ['🎨', '🔥', '🤩', '😭', '✨', '🎉', '💜', '👌'];
@@ -14,16 +13,18 @@ export default function AddReviewModal({ onClose, onSuccess, userName }) {
   const [text, setText] = useState('');
   const [emoji, setEmoji] = useState('🎨');
   const [color, setColor] = useState('#FF007F');
+  const [rating, setRating] = useState(5);
 
   const submit = useMutation({
-    mutationFn: () => base44.entities.Review.create({
-      text,
-      name: userName || (isAr ? 'مجهول' : 'Anonymous'),
-      emoji,
-      color,
-      isApproved: false,
-      lang,
-    }),
+    mutationFn: async () => {
+      const { error } = await db.createReview({
+        name: userName || (isAr ? 'مجهول' : 'Anonymous'),
+        comment: text,
+        rating: rating,
+        is_approved: false,
+      });
+      if (error) throw error;
+    },
     onSuccess: () => {
       onSuccess?.();
       onClose();
@@ -43,6 +44,19 @@ export default function AddReviewModal({ onClose, onSuccess, userName }) {
               {isAr ? '✍️ شاركنا تجربتك' : '✍️ Share Your Experience'}
             </h3>
             <button onClick={onClose} className="text-white/40 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+          </div>
+
+          {/* Rating */}
+          <div>
+            <p className="text-white/40 text-xs font-heading mb-2">{isAr ? 'التقييم' : 'Rating'}</p>
+            <div className="flex gap-2">
+              {[1, 2, 3, 4, 5].map(r => (
+                <button key={r} onClick={() => setRating(r)}
+                  className={`text-2xl transition-all ${rating >= r ? 'opacity-100' : 'opacity-30'}`}>
+                  ⭐
+                </button>
+              ))}
+            </div>
           </div>
 
           <textarea

@@ -1,26 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Clock, Users, Star, CheckCircle, MessageCircle, Shield, Camera, AlertCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLang } from '@/lib/LanguageContext';
 import { tr } from '@/lib/translations.js';
 import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 const WHATSAPP_NUMBER = '966554563447';
 const timeSlots = ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'];
 
 export default function ExperienceDetail() {
   const { lang, isAr } = useLang();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const urlParams = new URLSearchParams(window.location.search);
-  const slug = urlParams.get('id') || 'open-paint-sessions';
+  const slug = urlParams.get('id') || 'splash';
 
   const { data: experiences = [], isLoading } = useQuery({
     queryKey: ['experiences'],
-    queryFn: () => base44.entities.Experience.list('sortOrder', 100),
+    queryFn: async () => {
+      const { data } = await db.getExperiences();
+      return data || [];
+    },
   });
 
   const exp = experiences.length > 0 ? (experiences.find(e => e.slug === slug) || null) : null;
@@ -34,7 +40,7 @@ export default function ExperienceDetail() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isGroupSplash = exp && ((exp.slug || '') === 'group-friends' || (exp.slug || '') === 'group-splash');
-  const priceTable = exp?.priceTable || [];
+  const priceTable = exp?.price_table || [];
   const hasSubExperiences = priceTable.length > 1;
 
   const getCanvasInfo = (people) => {
@@ -57,24 +63,22 @@ export default function ExperienceDetail() {
   // Fetch availability whenever date or subExperience changes
   useEffect(() => {
     if (!exp || !form.date) { setAvailability(null); return; }
-    // Need subExperience resolved before fetching
     const subExp = hasSubExperiences ? form.subExperience : activeSubExp;
     if (hasSubExperiences && !subExp) { setAvailability(null); return; }
 
     setLoadingAvailability(true);
     setForm(f => ({ ...f, time: '', people: '' }));
-    base44.functions.invoke('getSlotAvailability', {
-      experienceSlug: exp.slug,
-      experienceTitle: `${exp.title_en || ''} ${exp.title_ar || ''}`,
-      date: form.date,
-      subExperience: subExp,
-    }).then(res => {
-      setAvailability(res.data);
-    }).catch(() => {
-      setAvailability(null);
-    }).finally(() => {
-      setLoadingAvailability(false);
-    });
+    
+    db.getSlotAvailability(exp.slug, form.date, subExp)
+      .then(result => {
+        setAvailability(result);
+      })
+      .catch(() => {
+        setAvailability(null);
+      })
+      .finally(() => {
+        setLoadingAvailability(false);
+      });
   }, [exp?.slug, form.date, form.subExperience]);
 
   const getSlotRemaining = (slot) => {
@@ -88,38 +92,42 @@ export default function ExperienceDetail() {
     setBookingError('');
     setIsSubmitting(true);
     try {
-      const res = await base44.functions.invoke('createBookingWithCapacityCheck', {
-        experienceSlug: slug,
-        experienceName: isAr ? exp.title_ar : exp.title_en,
-        subExperience: activeSubExp,
-        date: form.date,
-        time: form.time,
-        people: form.people,
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        userId: '',
+      // Check availability first
+      const { bookedPerSlot, maxCapacity } = await db.getSlotAvailability(exp.slug, form.date, activeSubExp);
+      const currentBooked = bookedPerSlot?.[form.time] || 0;
+      const requestedSeats = parseInt(form.people) || 1;
+      
+      if (maxCapacity && currentBooked + requestedSeats > maxCapacity) {
+        const remaining = maxCapacity - currentBooked;
+        setBookingError(
+          isAr 
+            ? `عذراً، المقاعد المتاحة فقط ${remaining}. يرجى تقليل عدد الأشخاص أو اختيار وقت آخر.`
+            : `Sorry, only ${remaining} seat(s) available. Please reduce group size or pick another time.`
+        );
+        db.getSlotAvailability(exp.slug, form.date, activeSubExp).then(r => setAvailability(r));
+        return;
+      }
+
+      // Create booking in Supabase
+      const { data: booking, error } = await db.createBooking({
+        user_id: user?.id || null,
+        experience_slug: slug,
+        experience_name: isAr ? exp.title_ar : exp.title_en,
+        sub_experience: activeSubExp,
+        booking_date: form.date,
+        booking_time: form.time,
+        num_people: requestedSeats,
+        customer_name: form.name,
+        customer_email: form.email,
+        customer_phone: form.phone,
         status: 'confirmed',
       });
 
-      if (res.data?.error === 'not_enough_seats') {
-        setBookingError(res.data.message);
-        // Refresh availability
-        base44.functions.invoke('getSlotAvailability', {
-          experienceSlug: exp.slug,
-          experienceTitle: `${exp.title_en || ''} ${exp.title_ar || ''}`,
-          date: form.date,
-          subExperience: activeSubExp,
-        }).then(r => setAvailability(r.data)).catch(() => {});
+      if (error) {
+        setBookingError(isAr ? 'حدث خطأ. يرجى المحاولة مرة أخرى.' : 'Something went wrong. Please try again.');
         return;
       }
 
-      if (!res.data?.booking) {
-        setBookingError('Something went wrong. Please try again.');
-        return;
-      }
-
-      try { await base44.functions.invoke('sendBookingConfirmation', { bookingId: res.data.booking.id }); } catch {}
       setSubmitted(true);
     } finally {
       setIsSubmitting(false);
@@ -351,7 +359,7 @@ export default function ExperienceDetail() {
               <div className="h-1" style={{ background: `linear-gradient(90deg, ${exp.color}, ${exp.color}44)` }} />
 
               <div className="p-6 md:p-8">
-                {exp.whatsappOnly ? (
+                {exp.whatsapp_only ? (
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-4">
                     <div className="w-20 h-20 rounded-2xl mx-auto mb-5 flex items-center justify-center text-4xl"
                       style={{ background: `${exp.color}15`, border: `1px solid ${exp.color}30` }}>
@@ -536,7 +544,7 @@ export default function ExperienceDetail() {
               </div>
             </div>
 
-            {!exp.whatsappOnly && (
+            {!exp.whatsapp_only && (
               <div className="mt-4">
                 <button onClick={handleWhatsApp}
                   className="w-full h-12 rounded-xl font-heading font-semibold text-sm text-white/80 flex items-center justify-center gap-2 border border-white/10 bg-white/[0.02] hover:bg-neon-green/10 hover:border-neon-green/30 hover:text-white transition-all">
