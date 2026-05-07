@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
-import { db } from '../lib/supabase';
+import { db, supabase } from '../lib/supabase';
 import { useLang } from '@/lib/LanguageContext';
 import { ArrowLeft, User, Calendar, Clock, Users, LogOut, Settings, Loader2, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
@@ -32,16 +32,13 @@ export default function AccountPage() {
     setLoading(false);
   };
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (e) {
-      console.error('[v0] Sign out error:', e);
-    }
-    // Force clear any cached auth state
-    localStorage.removeItem('sb-ujmbpfawpquyiabptdqw-auth-token');
-    sessionStorage.clear();
-    window.location.href = '/';
+  const handleSignOut = () => {
+    // Direct supabase signout + force clear all auth state
+    supabase.auth.signOut().finally(() => {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '/';
+    });
   };
 
   const getStatusColor = (status) => {
