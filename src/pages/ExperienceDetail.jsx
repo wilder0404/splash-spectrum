@@ -68,13 +68,9 @@ export default function ExperienceDetail() {
 
     setLoadingAvailability(true);
     setForm(f => ({ ...f, time: '', people: '' }));
-    base44.functions.invoke('getSlotAvailability', {
-      experienceSlug: exp.slug,
-      experienceTitle: exp.title_en,
-      date: form.date,
-      subExperience: subExp,
-    }).then(res => {
-      setAvailability(res.data);
+    const expSlug = `${exp.slug} ${exp.title_en} ${subExp || ''}`;
+    db.getSlotAvailability(expSlug, form.date, subExp).then(res => {
+      setAvailability(res);
     }).catch(() => {
       setAvailability(null);
     }).finally(() => {
@@ -84,8 +80,13 @@ export default function ExperienceDetail() {
 
   const getSlotRemaining = (slot) => {
     if (!availability || availability.maxCapacity === null) return null;
+    // Frontend override for Spin capacity (4 seats)
+    const isSpinExp = exp?.slug?.toLowerCase().includes('spin') || 
+                      exp?.title_en?.toLowerCase().includes('spin') ||
+                      exp?.title_ar?.includes('سبين');
+    const maxCap = isSpinExp ? 4 : availability.maxCapacity;
     const booked = availability.bookedPerSlot?.[slot] || 0;
-    return Math.max(0, availability.maxCapacity - booked);
+    return Math.max(0, maxCap - booked);
   };
 
   const handleSubmit = async (e) => {
@@ -93,38 +94,42 @@ export default function ExperienceDetail() {
     setBookingError('');
     setIsSubmitting(true);
     try {
-      const res = await base44.functions.invoke('createBookingWithCapacityCheck', {
-        experienceSlug: slug,
-        experienceName: isAr ? exp.title_ar : exp.title_en,
-        subExperience: activeSubExp,
-        date: form.date,
-        time: form.time,
-        people: form.people,
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        userId: '',
+      // Check availability from Supabase
+      const expSlug = `${exp.slug} ${exp.title_en} ${activeSubExp || ''}`;
+      const availRes = await db.getSlotAvailability(expSlug, form.date, activeSubExp);
+      const booked = availRes?.bookedPerSlot?.[form.time] || 0;
+      const maxCap = availRes?.maxCapacity || 30;
+      const requestedPeople = parseInt(form.people) || 1;
+
+      if (booked + requestedPeople > maxCap) {
+        const remaining = maxCap - booked;
+        setBookingError(isAr 
+          ? `عذراً، لا تتوفر مقاعد كافية. المتاح: ${remaining}` 
+          : `Sorry, not enough seats available. Remaining: ${remaining}`);
+        setAvailability(availRes);
+        return;
+      }
+
+      // Create booking in Supabase
+      const { data: booking, error } = await db.createBooking({
+        experience_slug: slug,
+        experience_name: isAr ? exp.title_ar : exp.title_en,
+        sub_experience: activeSubExp,
+        booking_date: form.date,
+        booking_time: form.time,
+        num_people: requestedPeople,
+        customer_name: form.name,
+        customer_email: form.email,
+        customer_phone: form.phone,
+        user_id: null,
         status: 'confirmed',
       });
 
-      if (res.data?.error === 'not_enough_seats') {
-        setBookingError(res.data.message);
-        // Refresh availability
-        base44.functions.invoke('getSlotAvailability', {
-          experienceSlug: exp.slug,
-          experienceTitle: exp.title_en,
-          date: form.date,
-          subExperience: activeSubExp,
-        }).then(r => setAvailability(r.data)).catch(() => {});
+      if (error || !booking) {
+        setBookingError(isAr ? 'حدث خطأ. يرجى المحاولة مرة أخرى.' : 'Something went wrong. Please try again.');
         return;
       }
 
-      if (!res.data?.booking) {
-        setBookingError('Something went wrong. Please try again.');
-        return;
-      }
-
-      try { await base44.functions.invoke('sendBookingConfirmation', { bookingId: res.data.booking.id }); } catch {}
       setSubmitted(true);
     } finally {
       setIsSubmitting(false);
