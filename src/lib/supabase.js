@@ -1,16 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Get Supabase credentials from environment
-// Try multiple env var patterns for compatibility
+// Supabase credentials - hardcoded fallbacks for v0 environment
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 
                     import.meta.env.NEXT_PUBLIC_SUPABASE_URL ||
                     'https://ujmbpfawpquyiabptdqw.supabase.co';
 
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 
                         import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-                        '';
-
-console.log('[v0] Supabase init - URL:', supabaseUrl?.substring(0, 30) + '...', 'Key exists:', !!supabaseAnonKey);
+                        import.meta.env.SUPABASE_ANON_KEY ||
+                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqbWJwZmF3cHF1eWlhYnB0ZHF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4NjYzMTMsImV4cCI6MjA2MTQ0MjMxM30.toH9czMjkSpcEF9rMCNpXJlDfKx8q2y7GprLxpGcblc';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
@@ -260,29 +258,44 @@ export const db = {
     const timeSlots = settings?.time_slots || ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'];
     
     // Determine max capacity based on experience type
+    // Splash = 20, Spin = 4, Pouring = 14
     const slug = (experienceSlug || '').toLowerCase();
     const sub = (subExperience || '').toLowerCase();
     const combined = `${slug} ${sub}`;
     
-    let maxCapacity = 30;
+    let maxCapacity = 20; // Default: Splash = 20 seats
     if (combined.includes('spin') || combined.includes('سبين')) {
-      maxCapacity = 4;
-    } else if (combined.includes('phone') || combined.includes('pour') || combined.includes('كفر') || combined.includes('صب')) {
-      maxCapacity = 12;
-    } else if (combined.includes('group') || combined.includes('جماعي')) {
-      maxCapacity = 15;
+      maxCapacity = 4; // Spin = 4 seats
+    } else if (combined.includes('pour') || combined.includes('صب') || combined.includes('pouring')) {
+      maxCapacity = 14; // Pouring = 14 seats
     }
     
-    // Get bookings for this date
-    const { data: bookings } = await supabase
+    // Get bookings for this date and experience
+    // Match bookings by checking if the experience_slug or experience_name contains relevant keywords
+    const { data: allBookings } = await supabase
       .from('bookings')
-      .select('booking_time, num_people')
+      .select('experience_slug, experience_name, sub_experience, booking_time, num_people')
       .eq('booking_date', date)
       .neq('status', 'cancelled');
     
+    // Filter bookings to match the experience type
+    const matchingBookings = (allBookings || []).filter(b => {
+      const bookingExp = `${b.experience_slug || ''} ${b.experience_name || ''} ${b.sub_experience || ''}`.toLowerCase();
+      // Match based on activity type
+      if (combined.includes('spin') || combined.includes('سبين')) {
+        return bookingExp.includes('spin') || bookingExp.includes('سبين');
+      } else if (combined.includes('pour') || combined.includes('صب') || combined.includes('pouring')) {
+        return bookingExp.includes('pour') || bookingExp.includes('صب');
+      } else {
+        // Splash - match splash or general bookings
+        return bookingExp.includes('splash') || bookingExp.includes('سبلاش') || 
+               (!bookingExp.includes('spin') && !bookingExp.includes('سبين') && !bookingExp.includes('pour') && !bookingExp.includes('صب'));
+      }
+    });
+    
     // Calculate booked count per slot
     const bookedPerSlot = {};
-    bookings?.forEach(booking => {
+    matchingBookings.forEach(booking => {
       bookedPerSlot[booking.booking_time] = (bookedPerSlot[booking.booking_time] || 0) + booking.num_people;
     });
     

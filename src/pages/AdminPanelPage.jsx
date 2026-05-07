@@ -523,6 +523,23 @@ function ExperienceEditor({ experience, onSave, onCancel, isAr }) {
               />
             </div>
           </div>
+          
+          {/* Image Upload */}
+          <div className="mt-4">
+            <label className="text-white/50 text-xs mb-1 block">Experience Image URL</label>
+            <div className="flex gap-3 items-center">
+              {form.image_url && (
+                <img src={form.image_url} alt="" className="w-16 h-16 rounded-lg object-cover" />
+              )}
+              <input
+                value={form.image_url || ''}
+                onChange={(e) => handleChange('image_url', e.target.value)}
+                placeholder="https://example.com/image.jpg"
+                className="flex-1 h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
+              />
+            </div>
+            <p className="text-white/30 text-xs mt-1">Paste an image URL or upload to a hosting service</p>
+          </div>
           <div className="flex items-center gap-6 mt-4">
             <label className="flex items-center gap-2 text-white/70 text-sm">
               <input
@@ -697,24 +714,21 @@ function BookingFormSettings({ isAr }) {
       <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4">
         <h3 className="font-heading font-bold text-white mb-4">Capacity Settings</h3>
         <p className="text-white/50 text-sm mb-4">Default capacity per experience type</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div>
             <label className="text-white/50 text-xs mb-1 block">Splash (default)</label>
-            <input type="number" defaultValue={30} className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-white text-sm" />
+            <input type="number" defaultValue={20} disabled className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-white text-sm opacity-60" />
           </div>
           <div>
             <label className="text-white/50 text-xs mb-1 block">Spin</label>
-            <input type="number" defaultValue={4} className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-white text-sm" />
+            <input type="number" defaultValue={4} disabled className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-white text-sm opacity-60" />
           </div>
           <div>
-            <label className="text-white/50 text-xs mb-1 block">Pour / Phone Case</label>
-            <input type="number" defaultValue={12} className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-white text-sm" />
-          </div>
-          <div>
-            <label className="text-white/50 text-xs mb-1 block">Group</label>
-            <input type="number" defaultValue={15} className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-white text-sm" />
+            <label className="text-white/50 text-xs mb-1 block">Pouring</label>
+            <input type="number" defaultValue={14} disabled className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-white text-sm opacity-60" />
           </div>
         </div>
+        <p className="text-white/30 text-xs mt-2">Capacity is auto-calculated based on experience type. Contact support to change.</p>
       </div>
     </div>
   );
