@@ -599,6 +599,55 @@ function ExperienceEditor({ experience, onSave, onCancel, isAr }) {
                 className="w-full bg-obsidian border border-white/10 rounded-lg px-3 py-2 text-white text-sm"
               />
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-white/50 text-xs mb-1 block">Duration</label>
+                <input
+                  value={form.duration_en || ''}
+                  onChange={(e) => handleChange('duration_en', e.target.value)}
+                  placeholder="e.g. 60-90 minutes"
+                  className="w-full h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-white/50 text-xs mb-1 block">Group Size</label>
+                <input
+                  value={form.group_size_en || ''}
+                  onChange={(e) => handleChange('group_size_en', e.target.value)}
+                  placeholder="e.g. 1-4 people"
+                  className="w-full h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">Price</label>
+              <input
+                value={form.price_en || ''}
+                onChange={(e) => handleChange('price_en', e.target.value)}
+                placeholder="e.g. Starting from 150 SAR"
+                className="w-full h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">What&apos;s Included</label>
+              <textarea
+                value={form.includes_en || ''}
+                onChange={(e) => handleChange('includes_en', e.target.value)}
+                rows={3}
+                placeholder="List items separated by newlines"
+                className="w-full bg-obsidian border border-white/10 rounded-lg px-3 py-2 text-white text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">Rules / Notes</label>
+              <textarea
+                value={form.rules_en || ''}
+                onChange={(e) => handleChange('rules_en', e.target.value)}
+                rows={3}
+                placeholder="List rules separated by newlines"
+                className="w-full bg-obsidian border border-white/10 rounded-lg px-3 py-2 text-white text-sm"
+              />
+            </div>
           </div>
         </div>
 
@@ -631,7 +680,88 @@ function ExperienceEditor({ experience, onSave, onCancel, isAr }) {
                 className="w-full bg-obsidian border border-white/10 rounded-lg px-3 py-2 text-white text-sm"
               />
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-white/50 text-xs mb-1 block">المدة</label>
+                <input
+                  value={form.duration_ar || ''}
+                  onChange={(e) => handleChange('duration_ar', e.target.value)}
+                  placeholder="مثال: 60-90 دقيقة"
+                  className="w-full h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-white/50 text-xs mb-1 block">حجم المجموعة</label>
+                <input
+                  value={form.group_size_ar || ''}
+                  onChange={(e) => handleChange('group_size_ar', e.target.value)}
+                  placeholder="مثال: 1-4 أشخاص"
+                  className="w-full h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">السعر</label>
+              <input
+                value={form.price_ar || ''}
+                onChange={(e) => handleChange('price_ar', e.target.value)}
+                placeholder="مثال: يبدأ من 150 ريال"
+                className="w-full h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">ماذا يتضمن</label>
+              <textarea
+                value={form.includes_ar || ''}
+                onChange={(e) => handleChange('includes_ar', e.target.value)}
+                rows={3}
+                placeholder="قائمة العناصر مفصولة بأسطر جديدة"
+                className="w-full bg-obsidian border border-white/10 rounded-lg px-3 py-2 text-white text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">القواعد / ملاحظات</label>
+              <textarea
+                value={form.rules_ar || ''}
+                onChange={(e) => handleChange('rules_ar', e.target.value)}
+                rows={3}
+                placeholder="قائمة القواعد مفصولة بأسطر جديدة"
+                className="w-full bg-obsidian border border-white/10 rounded-lg px-3 py-2 text-white text-sm"
+              />
+            </div>
           </div>
+        </div>
+
+        {/* Gallery */}
+        <div className="bg-white/5 rounded-xl p-4">
+          <h3 className="font-heading font-bold text-white mb-4">GALLERY</h3>
+          <p className="text-white/50 text-sm mb-4">Add image URLs separated by commas</p>
+          <textarea
+            value={Array.isArray(form.gallery) ? form.gallery.join(', ') : (form.gallery || '')}
+            onChange={(e) => handleChange('gallery', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+            rows={3}
+            placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
+            className="w-full bg-obsidian border border-white/10 rounded-lg px-3 py-2 text-white text-sm"
+          />
+          {Array.isArray(form.gallery) && form.gallery.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {form.gallery.map((url, idx) => (
+                <img key={idx} src={url} alt="" className="w-16 h-16 rounded-lg object-cover" />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Vibes */}
+        <div className="bg-white/5 rounded-xl p-4">
+          <h3 className="font-heading font-bold text-white mb-4">VIBES / TAGS</h3>
+          <p className="text-white/50 text-sm mb-4">Add vibe tags separated by commas (e.g. Creative, Fun, Relaxing)</p>
+          <input
+            value={Array.isArray(form.vibes) ? form.vibes.join(', ') : (form.vibes || '')}
+            onChange={(e) => handleChange('vibes', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+            placeholder="Creative, Fun, Relaxing, Artistic"
+            className="w-full h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
+          />
         </div>
       </div>
     </div>
@@ -650,11 +780,20 @@ function BookingFormSettings({ isAr }) {
 
   const loadSettings = async () => {
     setLoading(true);
-    const { data } = await db.getBookingSettings();
-    setSettings(data || {
-      time_slots: ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'],
-      closed_dates: []
-    });
+    try {
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject('timeout'), 3000));
+      const { data } = await Promise.race([db.getBookingSettings(), timeoutPromise]);
+      setSettings(data || {
+        time_slots: ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'],
+        closed_dates: []
+      });
+    } catch {
+      // Use defaults on error/timeout
+      setSettings({
+        time_slots: ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'],
+        closed_dates: []
+      });
+    }
     setLoading(false);
   };
 

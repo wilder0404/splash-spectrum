@@ -253,9 +253,19 @@ export const db = {
 
   // ============ SLOT AVAILABILITY ============
   async getSlotAvailability(experienceSlug, date, subExperience = null) {
-    // Get booking settings for time slots
-    const { data: settings } = await this.getBookingSettings();
-    const timeSlots = settings?.time_slots || ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'];
+    // Default time slots if settings fail to load
+    const defaultTimeSlots = ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'];
+    
+    // Get booking settings with timeout
+    let timeSlots = defaultTimeSlots;
+    try {
+      const settingsPromise = this.getBookingSettings();
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject('timeout'), 3000));
+      const { data: settings } = await Promise.race([settingsPromise, timeoutPromise]);
+      timeSlots = settings?.time_slots?.length ? settings.time_slots : defaultTimeSlots;
+    } catch {
+      // Use default time slots on error/timeout
+    }
     
     // Determine max capacity based on experience type
     // Splash = 20, Spin = 4, Pouring/Figurines = 14, Group Splash = 15, Phone Case = 12
