@@ -16,7 +16,7 @@ export function AuthProvider({ children }) {
         const { session } = await auth.getSession();
         if (session?.user) {
           setUser(session.user);
-          await loadUserProfile(session.user.id);
+          await loadUserProfile(session.user.id, session.user.email);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
@@ -31,7 +31,7 @@ export function AuthProvider({ children }) {
     const { data: { subscription } } = auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         setUser(session.user);
-        await loadUserProfile(session.user.id);
+        await loadUserProfile(session.user.id, session.user.email);
       } else {
         setUser(null);
         setUserProfile(null);
@@ -43,13 +43,18 @@ export function AuthProvider({ children }) {
     return () => subscription?.unsubscribe();
   }, []);
 
-  const loadUserProfile = async (userId) => {
+  const loadUserProfile = async (userId, userEmail) => {
     try {
       const { data: profile } = await db.getUserProfile(userId);
       setUserProfile(profile);
-      setIsAdmin(profile?.role === 'admin');
+      // Check admin by role OR by email (hardcoded admin email)
+      const adminEmail = 'splash.spectrum10000@gmail.com';
+      setIsAdmin(profile?.role === 'admin' || userEmail === adminEmail);
     } catch (error) {
       console.error('Error loading user profile:', error);
+      // Still set admin if email matches even if profile fails
+      const adminEmail = 'splash.spectrum10000@gmail.com';
+      setIsAdmin(userEmail === adminEmail);
     }
   };
 
@@ -62,7 +67,7 @@ export function AuthProvider({ children }) {
     const { data, error } = await auth.signIn({ email, password });
     if (data?.user) {
       setUser(data.user);
-      await loadUserProfile(data.user.id);
+      await loadUserProfile(data.user.id, data.user.email);
     }
     return { data, error };
   };
@@ -85,7 +90,7 @@ export function AuthProvider({ children }) {
     signUp,
     signIn,
     signOut,
-    refreshProfile: () => user && loadUserProfile(user.id)
+    refreshProfile: () => user && loadUserProfile(user.id, user.email)
   };
 
   return (
