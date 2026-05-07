@@ -5,9 +5,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { db } from '../lib/supabase';
 import { useLang } from '@/lib/LanguageContext';
 import { 
-  ArrowLeft, Calendar, Clock, Users, Search, Filter, Loader2, 
-  CheckCircle, XCircle, AlertCircle, Trash2, Eye, Download,
-  ChevronLeft, ChevronRight, RefreshCw
+  ArrowLeft, Calendar, Clock, Users, Search, Loader2, 
+  CheckCircle, XCircle, AlertCircle, Trash2, Eye, Edit2, Plus,
+  RefreshCw, Star, FileText, Home, LogOut, Save, Settings
 } from 'lucide-react';
 
 export default function AdminPanelPage() {
@@ -16,92 +16,122 @@ export default function AdminPanelPage() {
   const { lang } = useLang();
   const isAr = lang === 'ar';
   
+  const [activeTab, setActiveTab] = useState('bookings');
   const [bookings, setBookings] = useState([]);
+  const [experiences, setExperiences] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [editingExperience, setEditingExperience] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Check admin access
+  const checkIsAdmin = user?.email === 'splash.spectrum10000@gmail.com' || isAdmin;
 
   useEffect(() => {
     if (!authLoading && !user) {
       navigate('/auth?mode=login');
       return;
     }
-    if (!authLoading && !isAdmin) {
+    if (!authLoading && !checkIsAdmin) {
       navigate('/account');
       return;
     }
-    if (user && isAdmin) {
-      loadBookings();
+    if (user && checkIsAdmin) {
+      loadData();
     }
-  }, [user, isAdmin, authLoading, navigate]);
+  }, [user, checkIsAdmin, authLoading, navigate]);
 
-  const loadBookings = async () => {
+  const loadData = async () => {
     setLoading(true);
-    const { data } = await db.getAllBookings();
-    setBookings(data || []);
+    const [bookingsRes, experiencesRes, reviewsRes] = await Promise.all([
+      db.getAllBookings(),
+      db.getExperiences(),
+      db.getAllReviews()
+    ]);
+    setBookings(bookingsRes.data || []);
+    setExperiences(experiencesRes.data || []);
+    setReviews(reviewsRes.data || []);
     setLoading(false);
   };
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await loadBookings();
+    await loadData();
     setRefreshing(false);
   };
 
   const handleStatusChange = async (bookingId, newStatus) => {
     await db.updateBooking(bookingId, { status: newStatus });
-    await loadBookings();
+    await loadData();
     setSelectedBooking(null);
   };
 
-  const handleDelete = async (bookingId) => {
+  const handleDeleteBooking = async (bookingId) => {
     if (window.confirm(isAr ? 'هل أنت متأكد من حذف هذا الحجز؟' : 'Are you sure you want to delete this booking?')) {
       await db.deleteBooking(bookingId);
-      await loadBookings();
+      await loadData();
       setSelectedBooking(null);
     }
   };
 
+  const handleApproveReview = async (reviewId) => {
+    await db.approveReview(reviewId);
+    await loadData();
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    if (window.confirm(isAr ? 'هل أنت متأكد من حذف هذا التقييم؟' : 'Are you sure you want to delete this review?')) {
+      await db.deleteReview(reviewId);
+      await loadData();
+    }
+  };
+
+  const handleSaveExperience = async (exp) => {
+    await db.updateExperience(exp.id, exp);
+    await loadData();
+    setEditingExperience(null);
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = '/';
+  };
+
   const filteredBookings = bookings.filter(booking => {
-    const matchesDate = !selectedDate || booking.booking_date === selectedDate;
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
     const matchesSearch = !searchQuery || 
       booking.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.customer_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.customer_phone?.includes(searchQuery) ||
       booking.experience_name?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesDate && matchesStatus && matchesSearch;
+    return matchesStatus && matchesSearch;
   });
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'confirmed': return 'bg-neon-green/20 text-neon-green border-neon-green/30';
-      case 'completed': return 'bg-neon-cyan/20 text-neon-cyan border-neon-cyan/30';
-      case 'cancelled': return 'bg-red-500/20 text-red-400 border-red-500/30';
-      case 'pending': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-      default: return 'bg-white/10 text-white/50 border-white/20';
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'confirmed': return <CheckCircle className="w-4 h-4" />;
-      case 'completed': return <CheckCircle className="w-4 h-4" />;
-      case 'cancelled': return <XCircle className="w-4 h-4" />;
-      case 'pending': return <AlertCircle className="w-4 h-4" />;
-      default: return null;
-    }
-  };
 
   const stats = {
     total: bookings.length,
     confirmed: bookings.filter(b => b.status === 'confirmed').length,
-    pending: bookings.filter(b => b.status === 'pending').length,
+    done: bookings.filter(b => b.status === 'completed').length,
     cancelled: bookings.filter(b => b.status === 'cancelled').length,
-    todayCount: bookings.filter(b => b.booking_date === new Date().toISOString().split('T')[0]).length
+  };
+
+  const reviewStats = {
+    total: reviews.length,
+    approved: reviews.filter(r => r.is_approved).length,
+    pending: reviews.filter(r => !r.is_approved).length,
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'confirmed': return 'text-emerald-400';
+      case 'completed': return 'text-cyan-400';
+      case 'cancelled': return 'text-red-400';
+      case 'pending': return 'text-yellow-400';
+      default: return 'text-white/50';
+    }
   };
 
   if (authLoading) {
@@ -112,254 +142,571 @@ export default function AdminPanelPage() {
     );
   }
 
-  if (!isAdmin) return null;
+  if (!checkIsAdmin) return null;
+
+  const tabs = [
+    { id: 'bookings', label: isAr ? 'الحجوزات' : 'Bookings', icon: FileText },
+    { id: 'experiences', label: isAr ? 'التجارب' : 'Experiences', icon: Star },
+    { id: 'booking-form', label: isAr ? 'نموذج الحجز' : 'Booking Form', icon: Settings },
+    { id: 'reviews', label: isAr ? 'التقييمات' : 'Reviews', icon: Star },
+  ];
 
   return (
     <div className="min-h-screen bg-obsidian" dir={isAr ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className="bg-obsidian/80 backdrop-blur-lg border-b border-white/5 sticky top-0 z-50">
+      <div className="bg-obsidian/90 backdrop-blur-lg border-b border-white/5 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to="/" className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors">
-              <ArrowLeft className={`w-5 h-5 ${isAr ? 'rotate-180' : ''}`} />
-            </Link>
-            <div>
-              <h1 className="font-heading font-bold text-white text-xl">
-                {isAr ? 'لوحة الإدارة' : 'Admin Panel'}
-              </h1>
-              <p className="text-white/40 text-xs font-body">
-                {isAr ? 'إدارة الحجوزات' : 'Manage Bookings'}
-              </p>
-            </div>
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🎨</span>
+            <span className="font-heading font-bold text-white text-xl">
+              Splash Spectrum <span className="text-neon-pink">Admin</span>
+            </span>
           </div>
           
-          <button
-            onClick={handleRefresh}
-            disabled={refreshing}
-            className="p-2 text-white/40 hover:text-white transition-colors disabled:opacity-50"
-          >
-            <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
-          </button>
+          <div className="flex items-center gap-4">
+            <span className="text-white/60 text-sm hidden md:block">{user?.email}</span>
+            <Link to="/" className="flex items-center gap-1.5 text-white/60 hover:text-white text-sm">
+              <Home className="w-4 h-4" /> {isAr ? 'الرئيسية' : 'Home'}
+            </Link>
+            <button onClick={handleLogout} className="flex items-center gap-1.5 text-white/60 hover:text-white text-sm">
+              <LogOut className="w-4 h-4" /> {isAr ? 'خروج' : 'Logout'}
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
-          {[
-            { label: isAr ? 'إجمالي الحجوزات' : 'Total', value: stats.total, color: 'bg-white/10' },
-            { label: isAr ? 'مؤكدة' : 'Confirmed', value: stats.confirmed, color: 'bg-neon-green/20' },
-            { label: isAr ? 'قيد الانتظار' : 'Pending', value: stats.pending, color: 'bg-yellow-500/20' },
-            { label: isAr ? 'ملغية' : 'Cancelled', value: stats.cancelled, color: 'bg-red-500/20' },
-            { label: isAr ? 'اليوم' : 'Today', value: stats.todayCount, color: 'bg-neon-pink/20' },
-          ].map((stat, i) => (
-            <div key={i} className={`${stat.color} rounded-xl p-4 border border-white/10`}>
-              <p className="text-white/50 text-xs font-body">{stat.label}</p>
-              <p className="text-white text-2xl font-heading font-bold">{stat.value}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-wrap gap-3 mb-6">
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={isAr ? 'بحث بالاسم، البريد، الهاتف...' : 'Search name, email, phone...'}
-              className="w-full h-10 bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 text-white text-sm font-body placeholder:text-white/30 focus:outline-none focus:border-neon-pink/50"
-            />
-          </div>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="h-10 bg-white/5 border border-white/10 rounded-xl px-4 text-white text-sm font-body focus:outline-none focus:border-neon-pink/50"
-          />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-10 bg-white/5 border border-white/10 rounded-xl px-4 text-white text-sm font-body focus:outline-none focus:border-neon-pink/50"
-          >
-            <option value="all">{isAr ? 'كل الحالات' : 'All Status'}</option>
-            <option value="confirmed">{isAr ? 'مؤكد' : 'Confirmed'}</option>
-            <option value="pending">{isAr ? 'قيد الانتظار' : 'Pending'}</option>
-            <option value="cancelled">{isAr ? 'ملغي' : 'Cancelled'}</option>
-            <option value="completed">{isAr ? 'مكتمل' : 'Completed'}</option>
-          </select>
-          {(selectedDate || statusFilter !== 'all' || searchQuery) && (
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+          {tabs.map((tab) => (
             <button
-              onClick={() => { setSelectedDate(''); setStatusFilter('all'); setSearchQuery(''); }}
-              className="h-10 px-4 bg-white/5 border border-white/10 rounded-xl text-white/60 text-sm font-body hover:bg-white/10 transition-colors"
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-heading text-sm whitespace-nowrap transition-all ${
+                activeTab === tab.id
+                  ? 'bg-neon-pink text-white'
+                  : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
+              }`}
             >
-              {isAr ? 'مسح الفلاتر' : 'Clear'}
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
             </button>
-          )}
+          ))}
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="ml-auto p-2.5 text-white/40 hover:text-white bg-white/5 rounded-xl transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+          </button>
         </div>
 
-        {/* Bookings List */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 text-neon-pink animate-spin" />
           </div>
-        ) : filteredBookings.length === 0 ? (
-          <div className="text-center py-20 bg-white/[0.02] border border-white/5 rounded-2xl">
-            <Calendar className="w-12 h-12 text-white/20 mx-auto mb-4" />
-            <p className="text-white/40 font-body">
-              {isAr ? 'لا توجد حجوزات' : 'No bookings found'}
-            </p>
-          </div>
         ) : (
-          <div className="space-y-2">
-            {filteredBookings.map((booking) => (
-              <motion.div
-                key={booking.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white/[0.03] border border-white/10 rounded-xl p-4 hover:bg-white/[0.05] transition-colors cursor-pointer"
-                onClick={() => setSelectedBooking(booking)}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-heading font-bold text-white truncate">
-                        {booking.customer_name}
-                      </h3>
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border ${getStatusColor(booking.status)}`}>
-                        {getStatusIcon(booking.status)}
-                        {booking.status}
-                      </span>
-                    </div>
-                    <p className="text-neon-pink text-sm font-body truncate">{booking.experience_name}</p>
-                    {booking.sub_experience && (
-                      <p className="text-white/40 text-xs font-body">{booking.sub_experience}</p>
-                    )}
+          <>
+            {/* BOOKINGS TAB */}
+            {activeTab === 'bookings' && (
+              <div>
+                {/* Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                  <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <p className="text-white/50 text-xs">Total</p>
+                    <p className="text-white text-2xl font-heading font-bold">{stats.total}</p>
                   </div>
-                  <div className="text-right shrink-0">
-                    <div className="flex items-center gap-1.5 text-white/60 text-sm font-body">
-                      <Calendar className="w-4 h-4" />
-                      {new Date(booking.booking_date).toLocaleDateString(isAr ? 'ar-SA' : 'en-US', { month: 'short', day: 'numeric' })}
-                    </div>
-                    <div className="flex items-center gap-1.5 text-white/40 text-xs font-body">
-                      <Clock className="w-3 h-3" />
-                      {booking.booking_time}
-                    </div>
-                    <div className="flex items-center gap-1.5 text-white/40 text-xs font-body">
-                      <Users className="w-3 h-3" />
-                      {booking.num_people}
-                    </div>
+                  <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <p className="text-white/50 text-xs">Confirmed</p>
+                    <p className="text-emerald-400 text-2xl font-heading font-bold">{stats.confirmed}</p>
+                  </div>
+                  <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <p className="text-white/50 text-xs">Done</p>
+                    <p className="text-cyan-400 text-2xl font-heading font-bold">{stats.done}</p>
+                  </div>
+                  <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <p className="text-white/50 text-xs">Cancelled</p>
+                    <p className="text-red-400 text-2xl font-heading font-bold">{stats.cancelled}</p>
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </div>
+
+                {/* Search */}
+                <div className="relative mb-6">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by name, email, phone or experience..."
+                    className="w-full h-12 bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-neon-pink/50"
+                  />
+                </div>
+
+                {/* Bookings Table */}
+                <div className="bg-white/[0.02] border border-white/10 rounded-2xl overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-white/10">
+                          <th className="text-left text-white/50 text-xs font-heading p-4">#</th>
+                          <th className="text-left text-white/50 text-xs font-heading p-4">EXPERIENCE</th>
+                          <th className="text-left text-white/50 text-xs font-heading p-4">ACTIVITY</th>
+                          <th className="text-left text-white/50 text-xs font-heading p-4">DATE</th>
+                          <th className="text-left text-white/50 text-xs font-heading p-4">TIME</th>
+                          <th className="text-left text-white/50 text-xs font-heading p-4">PEOPLE</th>
+                          <th className="text-left text-white/50 text-xs font-heading p-4">FULL NAME</th>
+                          <th className="text-left text-white/50 text-xs font-heading p-4">PHONE</th>
+                          <th className="text-left text-white/50 text-xs font-heading p-4">EMAIL</th>
+                          <th className="text-left text-white/50 text-xs font-heading p-4">STATUS</th>
+                          <th className="text-left text-white/50 text-xs font-heading p-4">ACTIONS</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredBookings.map((booking, idx) => (
+                          <tr key={booking.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                            <td className="p-4 text-white/40 text-sm">{idx + 1}</td>
+                            <td className="p-4 text-white font-heading text-sm">{booking.experience_name}</td>
+                            <td className="p-4 text-white/60 text-sm">{booking.sub_experience || '-'}</td>
+                            <td className="p-4 text-white/60 text-sm">
+                              {booking.booking_date}
+                              <span className="text-white/30 text-xs ml-1">
+                                ({new Date(booking.booking_date).toLocaleDateString('en-US', { weekday: 'short' })})
+                              </span>
+                            </td>
+                            <td className="p-4 text-white/60 text-sm">{booking.booking_time}</td>
+                            <td className="p-4 text-white/60 text-sm text-center">{booking.num_people}</td>
+                            <td className="p-4 text-white font-heading text-sm">{booking.customer_name}</td>
+                            <td className="p-4 text-white/60 text-sm">{booking.customer_phone}</td>
+                            <td className="p-4 text-white/60 text-sm">{booking.customer_email}</td>
+                            <td className="p-4">
+                              <select
+                                value={booking.status || 'confirmed'}
+                                onChange={(e) => handleStatusChange(booking.id, e.target.value)}
+                                className={`bg-transparent border border-white/10 rounded px-2 py-1 text-xs ${getStatusColor(booking.status)}`}
+                              >
+                                <option value="confirmed">Confirmed</option>
+                                <option value="completed">Done</option>
+                                <option value="cancelled">Cancelled</option>
+                                <option value="pending">Pending</option>
+                              </select>
+                            </td>
+                            <td className="p-4">
+                              <button
+                                onClick={() => handleDeleteBooking(booking.id)}
+                                className="p-1.5 text-red-400/60 hover:text-red-400 hover:bg-red-400/10 rounded"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {filteredBookings.length === 0 && (
+                    <div className="text-center py-12 text-white/40">No bookings found.</div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* EXPERIENCES TAB */}
+            {activeTab === 'experiences' && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="font-heading font-bold text-white text-lg">
+                    All Experiences ({experiences.length})
+                  </h2>
+                </div>
+
+                {editingExperience ? (
+                  <ExperienceEditor 
+                    experience={editingExperience} 
+                    onSave={handleSaveExperience}
+                    onCancel={() => setEditingExperience(null)}
+                    isAr={isAr}
+                  />
+                ) : (
+                  <div className="space-y-3">
+                    {experiences.map((exp) => (
+                      <div key={exp.id} className="bg-white/[0.03] border border-white/10 rounded-xl p-4 flex items-center gap-4">
+                        {exp.image_url && (
+                          <img src={exp.image_url} alt="" className="w-16 h-16 rounded-lg object-cover" />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span>{exp.icon}</span>
+                            <h3 className="font-heading font-bold text-white">{exp.title_en}</h3>
+                            {exp.whatsapp_only && (
+                              <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-full">WhatsApp Only</span>
+                            )}
+                          </div>
+                          <p className="text-white/50 text-sm">{exp.tagline_en}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-lg">
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button 
+                            onClick={() => setEditingExperience(exp)}
+                            className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-lg"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button className="p-2 text-red-400/60 hover:text-red-400 hover:bg-red-400/10 rounded-lg">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* BOOKING FORM TAB */}
+            {activeTab === 'booking-form' && (
+              <BookingFormSettings isAr={isAr} />
+            )}
+
+            {/* REVIEWS TAB */}
+            {activeTab === 'reviews' && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="font-heading font-bold text-white text-lg">
+                    Reviews ({reviewStats.total})
+                  </h2>
+                  <div className="flex items-center gap-4 text-sm">
+                    <span className="text-emerald-400">{reviewStats.approved} approved</span>
+                    <span className="text-yellow-400">{reviewStats.pending} pending</span>
+                  </div>
+                </div>
+
+                {reviews.length === 0 ? (
+                  <div className="text-center py-20 bg-white/[0.02] border border-white/5 rounded-2xl">
+                    <p className="text-white/40">No reviews yet.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {reviews.map((review) => (
+                      <div key={review.id} className="bg-white/[0.03] border border-white/10 rounded-xl p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-heading font-bold text-white">{review.customer_name}</span>
+                              <span className={`px-2 py-0.5 text-xs rounded-full ${
+                                review.is_approved 
+                                  ? 'bg-emerald-500/20 text-emerald-400' 
+                                  : 'bg-yellow-500/20 text-yellow-400'
+                              }`}>
+                                {review.is_approved ? 'Approved' : 'Pending'}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 mb-2">
+                              {[...Array(5)].map((_, i) => (
+                                <Star 
+                                  key={i} 
+                                  className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-white/20'}`} 
+                                />
+                              ))}
+                            </div>
+                            <p className="text-white/70 text-sm">{review.comment}</p>
+                            <p className="text-white/30 text-xs mt-2">
+                              {new Date(review.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {!review.is_approved && (
+                              <button
+                                onClick={() => handleApproveReview(review.id)}
+                                className="p-2 text-emerald-400/60 hover:text-emerald-400 hover:bg-emerald-400/10 rounded-lg"
+                              >
+                                <CheckCircle className="w-5 h-5" />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteReview(review.id)}
+                              className="p-2 text-red-400/60 hover:text-red-400 hover:bg-red-400/10 rounded-lg"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </>
         )}
       </div>
+    </div>
+  );
+}
 
-      {/* Booking Detail Modal */}
-      {selectedBooking && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedBooking(null)}>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-obsidian border border-white/10 rounded-3xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="font-heading font-bold text-white text-xl">
-                {isAr ? 'تفاصيل الحجز' : 'Booking Details'}
-              </h2>
-              <button onClick={() => setSelectedBooking(null)} className="text-white/40 hover:text-white">
-                <XCircle className="w-6 h-6" />
-              </button>
+// Experience Editor Component
+function ExperienceEditor({ experience, onSave, onCancel, isAr }) {
+  const [form, setForm] = useState({ ...experience });
+
+  const handleChange = (field, value) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  return (
+    <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-6">
+      <button onClick={onCancel} className="flex items-center gap-2 text-white/60 hover:text-white mb-4 text-sm">
+        <ArrowLeft className="w-4 h-4" /> Back to Experiences
+      </button>
+      
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="font-heading font-bold text-white text-xl">Edit: {form.title_en}</h2>
+        <button
+          onClick={() => onSave(form)}
+          className="flex items-center gap-2 bg-neon-pink text-white px-4 py-2 rounded-xl font-heading text-sm hover:bg-neon-pink/90"
+        >
+          <Save className="w-4 h-4" /> Save Changes
+        </button>
+      </div>
+
+      <div className="space-y-6">
+        {/* Basic Info */}
+        <div className="bg-white/5 rounded-xl p-4">
+          <h3 className="font-heading font-bold text-white mb-4">BASIC INFO</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">Slug (URL ID)</label>
+              <input
+                value={form.slug || ''}
+                onChange={(e) => handleChange('slug', e.target.value)}
+                className="w-full h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
+              />
             </div>
-
-            <div className="space-y-4">
-              <div className="bg-white/5 rounded-xl p-4">
-                <p className="text-white/40 text-xs font-body mb-1">{isAr ? 'العميل' : 'Customer'}</p>
-                <p className="text-white font-heading font-semibold">{selectedBooking.customer_name}</p>
-                <p className="text-white/60 text-sm font-body">{selectedBooking.customer_email}</p>
-                {selectedBooking.customer_phone && (
-                  <p className="text-white/60 text-sm font-body">{selectedBooking.customer_phone}</p>
-                )}
-              </div>
-
-              <div className="bg-white/5 rounded-xl p-4">
-                <p className="text-white/40 text-xs font-body mb-1">{isAr ? 'التجربة' : 'Experience'}</p>
-                <p className="text-neon-pink font-heading font-semibold">{selectedBooking.experience_name}</p>
-                {selectedBooking.sub_experience && (
-                  <p className="text-white/60 text-sm font-body">{selectedBooking.sub_experience}</p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-white/5 rounded-xl p-3 text-center">
-                  <Calendar className="w-5 h-5 text-white/40 mx-auto mb-1" />
-                  <p className="text-white text-sm font-body">
-                    {new Date(selectedBooking.booking_date).toLocaleDateString(isAr ? 'ar-SA' : 'en-US')}
-                  </p>
-                </div>
-                <div className="bg-white/5 rounded-xl p-3 text-center">
-                  <Clock className="w-5 h-5 text-white/40 mx-auto mb-1" />
-                  <p className="text-white text-sm font-body">{selectedBooking.booking_time}</p>
-                </div>
-                <div className="bg-white/5 rounded-xl p-3 text-center">
-                  <Users className="w-5 h-5 text-white/40 mx-auto mb-1" />
-                  <p className="text-white text-sm font-body">{selectedBooking.num_people}</p>
-                </div>
-              </div>
-
-              {selectedBooking.birthday_pack && (
-                <div className="bg-neon-pink/10 border border-neon-pink/30 rounded-xl p-3 text-center">
-                  <span className="text-neon-pink text-sm font-body">
-                    🎂 {isAr ? 'باقة عيد ميلاد' : 'Birthday Pack'}
-                  </span>
-                </div>
-              )}
-
-              {selectedBooking.total_price && (
-                <div className="bg-neon-green/10 border border-neon-green/30 rounded-xl p-3 text-center">
-                  <p className="text-neon-green font-heading font-bold">
-                    {selectedBooking.total_price} SAR
-                  </p>
-                </div>
-              )}
-
-              {/* Status Actions */}
-              <div className="pt-4 border-t border-white/10">
-                <p className="text-white/40 text-xs font-body mb-3">{isAr ? 'تغيير الحالة' : 'Change Status'}</p>
-                <div className="flex flex-wrap gap-2">
-                  {['confirmed', 'pending', 'completed', 'cancelled'].map((status) => (
-                    <button
-                      key={status}
-                      onClick={() => handleStatusChange(selectedBooking.id, status)}
-                      disabled={selectedBooking.status === status}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-heading border transition-colors ${
-                        selectedBooking.status === status 
-                          ? getStatusColor(status) + ' opacity-50 cursor-not-allowed'
-                          : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
-                      }`}
-                    >
-                      {status}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Delete */}
-              <button
-                onClick={() => handleDelete(selectedBooking.id)}
-                className="w-full h-10 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm font-heading flex items-center justify-center gap-2 hover:bg-red-500/20 transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-                {isAr ? 'حذف الحجز' : 'Delete Booking'}
-              </button>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">Icon (emoji)</label>
+              <input
+                value={form.icon || ''}
+                onChange={(e) => handleChange('icon', e.target.value)}
+                className="w-full h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
+              />
             </div>
-          </motion.div>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">Accent Color (hex)</label>
+              <div className="flex gap-2">
+                <div 
+                  className="w-10 h-10 rounded-lg border border-white/10" 
+                  style={{ backgroundColor: form.accent_color || '#FF007F' }}
+                />
+                <input
+                  value={form.accent_color || '#FF007F'}
+                  onChange={(e) => handleChange('accent_color', e.target.value)}
+                  className="flex-1 h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">Sort Order</label>
+              <input
+                type="number"
+                value={form.sort_order || 0}
+                onChange={(e) => handleChange('sort_order', parseInt(e.target.value))}
+                className="w-full h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-6 mt-4">
+            <label className="flex items-center gap-2 text-white/70 text-sm">
+              <input
+                type="checkbox"
+                checked={form.whatsapp_only || false}
+                onChange={(e) => handleChange('whatsapp_only', e.target.checked)}
+                className="w-4 h-4"
+              />
+              WhatsApp Only Booking
+            </label>
+            <label className="flex items-center gap-2 text-white/70 text-sm">
+              <input
+                type="checkbox"
+                checked={form.is_active !== false}
+                onChange={(e) => handleChange('is_active', e.target.checked)}
+                className="w-4 h-4 accent-emerald-500"
+              />
+              Active (visible on site)
+            </label>
+          </div>
         </div>
-      )}
+
+        {/* English Content */}
+        <div className="bg-white/5 rounded-xl p-4">
+          <h3 className="font-heading font-bold text-white mb-4">ENGLISH CONTENT</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">Title</label>
+              <input
+                value={form.title_en || ''}
+                onChange={(e) => handleChange('title_en', e.target.value)}
+                className="w-full h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">Tagline</label>
+              <input
+                value={form.tagline_en || ''}
+                onChange={(e) => handleChange('tagline_en', e.target.value)}
+                className="w-full h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">Description</label>
+              <textarea
+                value={form.description_en || ''}
+                onChange={(e) => handleChange('description_en', e.target.value)}
+                rows={4}
+                className="w-full bg-obsidian border border-white/10 rounded-lg px-3 py-2 text-white text-sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Arabic Content */}
+        <div className="bg-white/5 rounded-xl p-4" dir="rtl">
+          <h3 className="font-heading font-bold text-white mb-4">ARABIC CONTENT</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">العنوان</label>
+              <input
+                value={form.title_ar || ''}
+                onChange={(e) => handleChange('title_ar', e.target.value)}
+                className="w-full h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">الشعار</label>
+              <input
+                value={form.tagline_ar || ''}
+                onChange={(e) => handleChange('tagline_ar', e.target.value)}
+                className="w-full h-10 bg-obsidian border border-white/10 rounded-lg px-3 text-white text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-white/50 text-xs mb-1 block">الوصف</label>
+              <textarea
+                value={form.description_ar || ''}
+                onChange={(e) => handleChange('description_ar', e.target.value)}
+                rows={4}
+                className="w-full bg-obsidian border border-white/10 rounded-lg px-3 py-2 text-white text-sm"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Booking Form Settings Component
+function BookingFormSettings({ isAr }) {
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    setLoading(true);
+    const { data } = await db.getBookingSettings();
+    setSettings(data || {
+      time_slots: ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'],
+      closed_dates: []
+    });
+    setLoading(false);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    if (settings.id) {
+      await db.updateBookingSettings(settings.id, settings);
+    }
+    setSaving(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 text-neon-pink animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="font-heading font-bold text-white text-lg">Booking Form Settings</h2>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="flex items-center gap-2 bg-neon-pink text-white px-4 py-2 rounded-xl font-heading text-sm hover:bg-neon-pink/90 disabled:opacity-50"
+        >
+          <Save className="w-4 h-4" />
+          {saving ? 'Saving...' : 'Save Changes'}
+        </button>
+      </div>
+
+      {/* Time Slots */}
+      <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4">
+        <h3 className="font-heading font-bold text-white mb-4">Time Slots</h3>
+        <p className="text-white/50 text-sm mb-4">Configure available booking time slots (comma-separated)</p>
+        <input
+          value={(settings?.time_slots || []).join(', ')}
+          onChange={(e) => setSettings({ 
+            ...settings, 
+            time_slots: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+          })}
+          placeholder="3:00 PM, 4:00 PM, 5:00 PM..."
+          className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 text-white text-sm placeholder:text-white/30"
+        />
+      </div>
+
+      {/* Closed Dates */}
+      <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4">
+        <h3 className="font-heading font-bold text-white mb-4">Closed Dates</h3>
+        <p className="text-white/50 text-sm mb-4">Add dates when bookings are not available (YYYY-MM-DD format, comma-separated)</p>
+        <input
+          value={(settings?.closed_dates || []).join(', ')}
+          onChange={(e) => setSettings({ 
+            ...settings, 
+            closed_dates: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+          })}
+          placeholder="2026-12-25, 2026-01-01..."
+          className="w-full h-12 bg-white/5 border border-white/10 rounded-xl px-4 text-white text-sm placeholder:text-white/30"
+        />
+      </div>
+
+      {/* Default Capacity */}
+      <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4">
+        <h3 className="font-heading font-bold text-white mb-4">Capacity Settings</h3>
+        <p className="text-white/50 text-sm mb-4">Default capacity per experience type</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div>
+            <label className="text-white/50 text-xs mb-1 block">Splash (default)</label>
+            <input type="number" defaultValue={30} className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-white text-sm" />
+          </div>
+          <div>
+            <label className="text-white/50 text-xs mb-1 block">Spin</label>
+            <input type="number" defaultValue={4} className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-white text-sm" />
+          </div>
+          <div>
+            <label className="text-white/50 text-xs mb-1 block">Pour / Phone Case</label>
+            <input type="number" defaultValue={12} className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-white text-sm" />
+          </div>
+          <div>
+            <label className="text-white/50 text-xs mb-1 block">Group</label>
+            <input type="number" defaultValue={15} className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-white text-sm" />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
