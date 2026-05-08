@@ -1,14 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase credentials - hardcoded fallbacks for v0 environment
+// Supabase credentials - use environment variables with v0 integration fallback
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 
                     import.meta.env.NEXT_PUBLIC_SUPABASE_URL ||
-                    'https://ujmbpfawpquyiabptdqw.supabase.co';
+                    import.meta.env.SUPABASE_URL ||
+                    'https://dreoetudnybwzmqapwxq.supabase.co';
 
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 
                         import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
                         import.meta.env.SUPABASE_ANON_KEY ||
-                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqbWJwZmF3cHF1eWlhYnB0ZHF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4NjYzMTMsImV4cCI6MjA2MTQ0MjMxM30.toH9czMjkSpcEF9rMCNpXJlDfKx8q2y7GprLxpGcblc';
+                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyZW9ldHVkbnlid3ptcWFwd3hxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY2MjIyNDAsImV4cCI6MjA2MjE5ODI0MH0.ylXTSLJgHfE3ShDxthZGwnH4nUcpXHLzIVm-JLYsT3s';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
