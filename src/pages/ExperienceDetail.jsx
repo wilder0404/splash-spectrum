@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Clock, Users, Star, CheckCircle, MessageCircle, Shield, Camera, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -9,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useLang } from '@/lib/LanguageContext';
 import { tr } from '@/lib/translations.js';
 import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/supabase';
 
 const WHATSAPP_NUMBER = '966554563447';
 const timeSlots = ['3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'];
@@ -20,7 +20,36 @@ export default function ExperienceDetail() {
 
   const { data: experiences = [], isLoading } = useQuery({
     queryKey: ['experiences'],
-    queryFn: () => base44.entities.Experience.list('sortOrder', 100),
+    queryFn: async () => {
+      const { data, error } = await db.getExperiences();
+      if (error) {
+        console.error('[v0] Error fetching experiences:', error);
+        return [];
+      }
+      // Map Supabase snake_case to expected camelCase format
+      return (data || []).map(exp => ({
+        id: exp.id,
+        title_en: exp.title_en,
+        title_ar: exp.title_ar,
+        tagline_en: exp.tagline_en,
+        tagline_ar: exp.tagline_ar,
+        description_en: exp.description_en,
+        description_ar: exp.description_ar,
+        image: exp.image,
+        icon: exp.icon,
+        color: exp.color,
+        slug: exp.slug,
+        isActive: exp.is_active !== false,
+        sortOrder: exp.sort_order,
+        priceTable: exp.price_table || [],
+        whatsappOnly: exp.whatsapp_only,
+        duration: exp.duration,
+        gallery: exp.gallery || [],
+        highlights: exp.highlights || [],
+        includes: exp.includes || [],
+        faqs: exp.faqs || [],
+      }));
+    },
   });
 
   const exp = experiences.length > 0 ? (experiences.find(e => e.slug === slug) || null) : null;

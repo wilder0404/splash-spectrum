@@ -7,10 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLang } from '@/lib/LanguageContext';
 import { tr } from '@/lib/translations.js';
-import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/AuthContext';
-import { db } from '@/lib/supabase';
+import { db, supabase } from '@/lib/supabase';
 
 const WHATSAPP_NUMBER = '966554563447';
 
@@ -38,15 +37,48 @@ export default function BookingSection({ preSelectedExperience }) {
     }
   }, [user]);
 
-  const { data: settingsList = [] } = useQuery({
+  const { data: settings = null } = useQuery({
     queryKey: ['booking-settings'],
-    queryFn: () => base44.entities.BookingSettings.list(),
+    queryFn: async () => {
+      const { data, error } = await db.getBookingSettings();
+      if (error) {
+        console.error('[v0] Error fetching booking settings:', error);
+        return null;
+      }
+      // Map snake_case to camelCase
+      return data ? {
+        timeSlots: data.time_slots || [],
+        maxCapacity: data.max_capacity,
+      } : null;
+    },
   });
-  const settings = settingsList[0] || null;
 
   const { data: experiences = [] } = useQuery({
     queryKey: ['experiences-booking'],
-    queryFn: () => base44.entities.Experience.list('sortOrder', 100),
+    queryFn: async () => {
+      const { data, error } = await db.getExperiences();
+      if (error) {
+        console.error('[v0] Error fetching experiences for booking:', error);
+        return [];
+      }
+      console.log('[v0] Fetched experiences for booking from Supabase:', data?.length || 0);
+      // Map Supabase snake_case to expected camelCase format
+      return (data || []).map(exp => ({
+        id: exp.id,
+        title_en: exp.title_en,
+        title_ar: exp.title_ar,
+        tagline_en: exp.tagline_en,
+        tagline_ar: exp.tagline_ar,
+        image: exp.image,
+        icon: exp.icon,
+        color: exp.color,
+        slug: exp.slug,
+        isActive: exp.is_active !== false,
+        sortOrder: exp.sort_order,
+        priceTable: exp.price_table || [],
+        whatsappOnly: exp.whatsapp_only,
+      }));
+    },
   });
 
   const timeSlots = settings?.timeSlots?.length
@@ -156,69 +188,54 @@ export default function BookingSection({ preSelectedExperience }) {
     setIsSubmitting(true);
 
     try {
-      const res = await base44.functions.invoke('createBookingWithCapacityCheck', {
-        experienceSlug: selectedExpObj?.slug || form.experience,
-        experienceName: form.experience,
-        subExperience: birthdayPack ? `${form.subExperience ? form.subExperience + ' + ' : ''}Birthday Pack` : form.subExperience,
-        date: form.date,
-        time: form.time,
-        people: form.people,
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        userId: user?.id || '',
-        status: 'confirmed',
-      });
-
-      if (res.data?.error === 'not_enough_seats') {
-        setBookingError(res.data.message);
-        // Refresh availability after conflict using Supabase
-        if (selectedExpObj?.slug && form.date) {
-          const expSlug = `${selectedExpObj?.slug || ''} ${form.experience || ''} ${form.subExperience || ''}`;
-          db.getSlotAvailability(expSlug, form.date, form.subExperience)
-            .then(r => setAvailability(r)).catch(() => {});
+      // Check availability before booking
+      const numPeople = parseInt(form.people) || 1;
+      const expSlug = `${selectedExpObj?.slug || ''} ${form.experience || ''} ${form.subExperience || ''}`;
+      const availabilityCheck = await db.getSlotAvailability(expSlug, form.date, form.subExperience);
+      
+      if (availabilityCheck) {
+        const booked = availabilityCheck.bookedPerSlot?.[form.time] || 0;
+        const maxCap = availabilityCheck.maxCapacity || 20;
+        const remaining = maxCap - booked;
+        
+        if (numPeople > remaining) {
+          setBookingError(isAr 
+            ? `عذراً، المقاعد المتبقية ${remaining} فقط في هذا الوقت. يرجى اختيار وقت آخر أو تقليل عدد الأشخاص.`
+            : `Sorry, only ${remaining} seats left at this time. Please choose another time or reduce the number of people.`
+          );
+          setAvailability(availabilityCheck);
+          return;
         }
+      }
+
+      // Create booking in Supabase
+      const bookingData = {
+        experience_slug: selectedExpObj?.slug || form.experience,
+        experience_name: form.experience,
+        sub_experience: birthdayPack ? `${form.subExperience ? form.subExperience + ' + ' : ''}Birthday Pack` : form.subExperience,
+        booking_date: form.date,
+        booking_time: form.time,
+        num_people: numPeople,
+        customer_name: form.name,
+        customer_email: form.email,
+        customer_phone: form.phone,
+        user_id: user?.id || null,
+        status: 'confirmed',
+      };
+
+      const { data: booking, error: bookingError } = await db.createBooking(bookingData);
+
+      if (bookingError) {
+        console.error('[v0] Booking error:', bookingError);
+        setBookingError(isAr ? 'حدث خطأ أثناء الحجز. يرجى المحاولة مرة أخرى.' : 'Error creating booking. Please try again.');
         return;
       }
 
-      const booking = res.data?.booking;
-      if (!booking) {
-        setBookingError('Something went wrong. Please try again.');
-        return;
-      }
-
-      // Also save to Supabase for admin panel
-      try {
-        await db.createBooking({
-          experience_slug: selectedExpObj?.slug || form.experience,
-          experience_name: form.experience,
-          sub_experience: birthdayPack ? `${form.subExperience ? form.subExperience + ' + ' : ''}Birthday Pack` : form.subExperience,
-          booking_date: form.date,
-          booking_time: form.time,
-          num_people: parseInt(form.people) || 1,
-          customer_name: form.name,
-          customer_email: form.email,
-          customer_phone: form.phone,
-          user_id: user?.id || null,
-          status: 'confirmed',
-        });
-      } catch {}
-
-      // Send confirmation email
-      try {
-        await base44.functions.invoke('sendBookingConfirmation', { bookingId: booking.id });
-      } catch {}
-
-      // Append to Google Sheet
-      try {
-        await base44.functions.invoke('appendToSheet', {
-          name: form.name,
-          email: form.email,
-          phone: form.phone,
-        });
-      } catch {}
-
+      console.log('[v0] Booking created successfully:', booking);
       setSubmitted(true);
+    } catch (err) {
+      console.error('[v0] Unexpected booking error:', err);
+      setBookingError(isAr ? 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.' : 'An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

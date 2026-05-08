@@ -4,14 +4,37 @@ import ExperienceCard from './ExperienceCard';
 import { useLang } from '@/lib/LanguageContext';
 import { tr } from '@/lib/translations.js';
 import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/lib/supabase';
 
 export default function ExperiencesSection() {
   const { lang, isAr } = useLang();
 
   const { data: experiences = [], isLoading } = useQuery({
     queryKey: ['experiences'],
-    queryFn: () => base44.entities.Experience.list('sortOrder', 100),
+    queryFn: async () => {
+      const { data, error } = await db.getExperiences();
+      if (error) {
+        console.error('[v0] Error fetching experiences:', error);
+        return [];
+      }
+      console.log('[v0] Fetched experiences from Supabase:', data?.length || 0);
+      // Map Supabase snake_case to expected camelCase format
+      return (data || []).map(exp => ({
+        id: exp.id,
+        title_en: exp.title_en,
+        title_ar: exp.title_ar,
+        tagline_en: exp.tagline_en,
+        tagline_ar: exp.tagline_ar,
+        image: exp.image,
+        icon: exp.icon,
+        color: exp.color,
+        slug: exp.slug,
+        isActive: exp.is_active !== false,
+        sortOrder: exp.sort_order,
+        priceTable: exp.price_table || [],
+        whatsappOnly: exp.whatsapp_only,
+      }));
+    },
   });
 
   const activeExperiences = experiences.filter(e => e.isActive);
